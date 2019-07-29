@@ -1,0 +1,8 @@
+//
+// Created by CMY on 29/07/2019.
+//
+
+#ifndef SUDOKU_CONSOLE_PARSER_H
+#define SUDOKU_CONSOLE_PARSER_H
+
+#endif //SUDOKU_CONSOLE_PARSER_H
