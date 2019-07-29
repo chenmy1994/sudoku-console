@@ -10,36 +10,38 @@
 /* Creates board mallocs and call to initBlockCells*/
 void initBoard(Game* game) {
     int i;
-    (*game).board.board = (Block**) malloc ((*game).m * sizeof(Block*));
+    (*game).board.board = (Block**) malloc ((*game).n * sizeof(Block*));
     if((*game).board.board == NULL )
     {
         /* Malloc failed, deal with it */
         printf(MALLOCFAIL);
     }
-    for (i=0; i<(*game).m; i++){
-        (*game).board.board[i] = (Block*) malloc((*game).n * sizeof(Block));
+    for (i=0; i<(*game).n; i++){
+        (*game).board.board[i] = (Block*) malloc((*game).m * sizeof(Block));
         if((*game).board.board[i] == NULL )
         {
             /* Malloc failed, deal with it */
             printf(MALLOCFAIL);
         }
     }
+
     initBlockCells(game);
 }
 
 /*Creates a malloc for all the blocks and call to initBlock*/
 void initBlockCells(Game * game) {
     int j,k, l;
-    for (j = 0; j < (*game).n ; ++j) {
+    for (j = 0; j < (*game).n ; j++) {
         for (k = 0; k < (*game).m; k++) {
-            (*game).board.board[j][k].block = (Cell**) malloc((*game).n * sizeof(Cell *));
+            (*game).board.board[j][k].block = (Cell**) malloc((*game).m * sizeof(Cell*));
+
             if((*game).board.board[j][k].block == NULL )
             {
                 /* Malloc failed, deal with it */
                 printf(MALLOCFAIL);
             }
-            for (l = 0; l<(*game).n;l++){
-                (*game).board.board[j][k].block[l] = (Cell*) malloc((*game).m* sizeof(Cell));
+            for (l = 0; l<(*game).m;l++){
+                (*game).board.board[j][k].block[l] = (Cell*) malloc((*game).n* sizeof(Cell));
                 if((*game).board.board[j][k].block[l] == NULL )
                 {
                     /* Malloc failed, deal with it */
@@ -52,12 +54,12 @@ void initBlockCells(Game * game) {
 }
 
 /*Sets the block cells to be ' '*/
-void initBlock (int i, int j, Game * game){
+void initBlock (int i, int j, Game* game){
     int k, l;
     for (l = 0; l < (*game).m ; l++) {
         for (k = 0 ; k < (*game).n; k++) {
-            (*game).board.board[i][j].block[l][k].appendix= ' ';
-            (*game).board.board[i][j].block[l][k].val= 0;
+            (*game).board.board[i][j].block[l][k].appendix = ' ';
+            (*game).board.board[i][j].block[l][k].val = 0;
         }
     }
 
@@ -81,7 +83,7 @@ void printBoard(Game* game) {
     int numOfDashes;
     numOfDashes = 4*game->n*game->m + game->m + 1;
     y = 1;
-    colLen = (*game).n * (*game).m + (*game).n + 1;
+    colLen = (*game).n * (*game).m + (*game).m + 1;
     rowLen = (*game).n * (*game).m ;
     for (j = 0; j < rowLen; j++) {
         if(j % (*game).m == 0){
@@ -90,7 +92,7 @@ void printBoard(Game* game) {
         x = 1;
         for (i = 0; i < colLen; i++) {
             if (i % ((*game).n + 1) == 0 && i != colLen - 1) {
-                printf("| ");
+                printf("|");
 
             } else if(i % ((*game).n + 1) == 0 && i == colLen - 1)
             {
@@ -99,18 +101,19 @@ void printBoard(Game* game) {
             else {
                 block = getBlockIndex(x, y, game);
                 cell = getCellIndex(x, y, game);
-                printf("%2d",(*game).board.board[block.y][block.x].block[cell.y][cell.x].val);
+                printf(" %2d",(*game).board.board[block.y][block.x].block[cell.y][cell.x].val);
                 appendix = (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix;
+
                 if(appendix == '*'){
                     if(game->board.markError==0){
-                        printf("  ");
+                        printf(" ");
                     }
                     else{
-                        printf("%c ",appendix);
+                        printf("%c",appendix);
                     }
                 }
                 else{
-                    printf("%c ",appendix);
+                    printf("%c",appendix);
                 }
                 x++;
             }
@@ -120,6 +123,7 @@ void printBoard(Game* game) {
 
         }
         y++;
+
         if (j == rowLen - 1){
             printDashes(numOfDashes);
             break;
@@ -143,8 +147,8 @@ Point getCellIndex (int x, int y, Game* game){
     Point point;
     x = x - 1;
     y = y - 1;
-    point.x = x % (*game).m;
-    point.y = y % (*game).n;
+    point.x = x % (*game).n;
+    point.y = y % (*game).m;
 
     return point;
 }
