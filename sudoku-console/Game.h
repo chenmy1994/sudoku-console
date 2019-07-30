@@ -32,6 +32,8 @@ typedef struct{
 
     int mode;
     LinkedList moves;
+    
+    
 }Game;
 
 /*Sets the block cells to be ' '*/

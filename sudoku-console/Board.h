@@ -12,6 +12,8 @@
 typedef struct{
     char appendix;
     int val;
+    int ILPVal;
+    double* probs;
 } Cell;
 
 /* Block contains:
