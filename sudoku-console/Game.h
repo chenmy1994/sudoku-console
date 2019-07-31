@@ -58,4 +58,9 @@ Point getCellIndex (int x, int y, Game* game);
 /* Gets x - column and y - row from user and returns the normalized block points*/
 Point getBlockIndex (int x, int y, Game* game);
 
+/*Receives a cell <x,y> and a value z and return 1 if z is a valid value for that cell, 0 otherwise */
+int isValidValue (int x, int y, int z,Game *game);
+
+/*Receives a point representing the block index and return the relative ID */
+int pointToID(int x,int y, Game *game);
 #endif //SUDOKU_CONSOLE_GAME_H

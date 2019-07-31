@@ -153,3 +153,17 @@ Point getCellIndex (int x, int y, Game* game){
 
     return point;
 }
+
+/*Receives a cell <x,y> and a value z and return 1 if z is a valid value for that cell, 0 otherwise */
+int isValidValue (int x, int y, int z,Game *game){
+    Point p = getBlockIndex(x,y, game);
+    if(((*game).rows[y - 1][z-1]==0)&&((*game).cols[x - 1][z-1]==0)&&((*game).blocks[pointToID(p.x,p.y,game)][z-1]==0)){
+        return 1;
+    }
+    return 0;
+}
+
+/*Receives a point representing the block index and return the relative ID */
+int pointToID(int x,int y, Game *game){
+    return(x+y*(*game).m);
+}
