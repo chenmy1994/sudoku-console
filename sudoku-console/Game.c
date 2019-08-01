@@ -60,7 +60,7 @@ void initBlock (int i, int j, Game* game){
         for (k = 0 ; k < (*game).n; k++) {
             (*game).board.board[i][j].block[l][k].appendix = ' ';
             (*game).board.board[i][j].block[l][k].val = 0;
-            (*game).board.board[i][j].block[l][k].probs = (double*) calloc((*game).n*(*game).m, sizeof(double));
+            (*game).board.board[i][j].block[l][k].auxiliary = (double*) calloc((*game).n*(*game).m, sizeof(double));
         }
     }
 

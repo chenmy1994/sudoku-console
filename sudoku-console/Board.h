@@ -8,12 +8,14 @@
 /* Cell contains:
  * appendix = '.' if cell is fixed, '*' if cell is an erroneous, ' ' otherwise
  * val = the current game board
+ * auxiliary  = m*n double array for probs(solved values we get from the gurobi)
+ *              and constraints(when creating the model)
 */
 typedef struct{
     char appendix;
     int val;
     int ILPVal;
-    double* probs;
+    double* auxiliary;
 } Cell;
 
 /* Block contains:
