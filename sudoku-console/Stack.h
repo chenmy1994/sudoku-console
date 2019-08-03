@@ -1,6 +1,7 @@
-//
-// Created by CMY on 29/07/2019.
-//
+/*
+*	Created by CMY on 29/07/2019.
+ */
+
 #include "Point.h"
 #ifndef SUDOKU_CONSOLE_STACK_H
 #define SUDOKU_CONSOLE_STACK_H

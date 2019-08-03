@@ -1,10 +1,9 @@
-//
-// Created by CMY on 29/07/2019.
-//
+/*
+*	Created by CMY on 29/07/2019.
+ */
 
 #ifndef SUDOKU_CONSOLE_LINKEDLIST_H
 #define SUDOKU_CONSOLE_LINKEDLIST_H
-
 #include "Point.h"
 
 typedef struct Node{
@@ -27,4 +26,5 @@ void prevCurr(LinkedList* lst);
 /*Update current node to next node*/
 void nextCurr(LinkedList* lst);
 
-#endif //SUDOKU_CONSOLE_LINKEDLIST_H
+
+#endif /*SUDOKU_CONSOLE_LINKEDLIST_H*/

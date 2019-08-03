@@ -1,6 +1,7 @@
-//
-// Created by CMY on 29/07/2019.
-//
+/*
+ *  Created by CMY on 29/07/2019.
+ */
+
 
 #ifndef SUDOKU_CONSOLE_BOARD_H
 #define SUDOKU_CONSOLE_BOARD_H
@@ -39,5 +40,4 @@ typedef struct {
 /*Free all board memory*/
 void destroyBoard(Board* board);
 
-
-#endif //SUDOKU_CONSOLE_BOARD_H
+#endif /*SUDOKU_CONSOLE_BOARD_H*/

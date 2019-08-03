@@ -1,11 +1,13 @@
-//
-// Created by CMY on 29/07/2019.
-//
+/*
+ *	Created by CMY on 29/07/2019.
+ */
+
 
 #ifndef SUDOKU_CONSOLE_GAME_H
 #define SUDOKU_CONSOLE_GAME_H
 #include "Board.h"
 #include "LinkedList.h"
+
 /* Sudoku contains:
  * m - num of column in block which is also num of block rows in board
  * n - num of rows in block which is also num of block cols in board
@@ -32,8 +34,8 @@ typedef struct{
 
     int mode;
     LinkedList moves;
-    
-    
+
+
 }Game;
 
 /*Sets the block cells to be ' '*/
@@ -63,4 +65,5 @@ int isValidValue (int x, int y, int z,Game *game);
 
 /*Receives a point representing the block index and return the relative ID */
 int pointToID(int x,int y, Game *game);
-#endif //SUDOKU_CONSOLE_GAME_H
+
+#endif /*SUDOKU_CONSOLE_GAME_H*/

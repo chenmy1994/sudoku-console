@@ -1,6 +1,9 @@
-//
-// Created by CMY on 29/07/2019.
-//
+/*
+ * Point.h
+ *
+ *  Created on: Aug 1, 2019
+ *      Author: Noa
+ */
 
 #ifndef SUDOKU_CONSOLE_POINT_H
 #define SUDOKU_CONSOLE_POINT_H
@@ -13,4 +16,11 @@ typedef struct {
     int prev;
     int curr;
 }Point;
-#endif //SUDOKU_CONSOLE_POINT_H
+
+/*set x value of a given point p*/
+void setX(Point* p, int x);
+
+/*set y value of a given point p*/
+void setY(Point* p, int y);
+
+#endif /*SUDOKU_CONSOLE_POINT_H*/

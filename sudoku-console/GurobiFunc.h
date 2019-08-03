@@ -1,6 +1,7 @@
-//
-// Created by CMY on 30/07/2019.
-//
+/*
+*	Created by CMY on 30/07/2019.
+ */
+
 #include "Game.h"
 #include "gurobi_c.h"
 #include "Stack.h"
@@ -31,4 +32,4 @@ int solveILP (Game* game, int opCode, int x, int y);
  * generate = 0 fills all cells, hint = 1 fills only X Y cell, validate = 2
  * Returns 0 if there is no solution*/
 void solAssign (double* solArray,Truple* transArray, int transCounter, int opCode, int X, int Y, Game* game);
-#endif //SUDOKU_CONSOLE_GUROBIFUNC_H
+#endif /*SUDOKU_CONSOLE_GUROBIFUNC_H*/

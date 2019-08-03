@@ -1,6 +1,6 @@
-//
-// Created by CMY on 29/07/2019.
-//
+/*
+*	Created by CMY on 29/07/2019.
+ */
 
 #include "EditFunc.h"
 #include "SolveFunc.h"
@@ -10,7 +10,7 @@
 void edit();
 
 /*Dealing with the exit command received by user*/
-void exit();
+void exitGame();
 
 /*Dealing with the solve command received by user*/
 void solve();
@@ -29,7 +29,7 @@ int validate();
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)*/
 void undo();
 
-/*Cancle the last revert action according to the linked list current move (updates to next move)*/
+/*Cancel the last revert action according to the linked list current move (updates to next move)*/
 void redo();
 
 /*Prints the number of solution for the current board*/
@@ -37,4 +37,5 @@ void num_solutions();
 
 /*Undo all moves, reverting the board to its original loaded state.*/
 void reset();
-#endif //SUDOKU_CONSOLE_GENERALFUNC_H
+
+#endif /*SUDOKU_CONSOLE_GENERALFUNC_H*/
