@@ -7,7 +7,10 @@
 #include "Game.h"
 
 /*Update the "mark errors" setting according to users input */
-void mark_errors();
+void updateMarkErrors(Game* game, int setValue);
+
+/*Marks the erroneous cells with '*' */
+void markErrors(Game* game, int x, int y, int z);
 
 /*Fills all cell values with probability greater than users input*/
 void guess();
@@ -20,4 +23,5 @@ void hint();
 
 /*Automatically fill obvious values - cells which contain a single legal value.*/
 void autofill();
+
 #endif /*SUDOKU_CONSOLE_SOLVEFUNC_H*/

@@ -41,7 +41,7 @@ int getCommand (char* stream,Game* game){
 			switch(cmdIndex){
 			case cmdSolve:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					solve();
+					solve(x, game);
 				}
 				break;
 			case cmdEdit:
@@ -51,7 +51,7 @@ int getCommand (char* stream,Game* game){
 				break;
 			case cmdMarkErr:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					mark_errors();
+					updateMarkErrors(game, x);
 				}
 				break;
 			case cmdPrint:
@@ -59,11 +59,11 @@ int getCommand (char* stream,Game* game){
 				break;
 			case cmdSet:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					set();
+					set(x, y, z, game);
 				}
 				break;
 			case cmdValidate:
-				validate();
+				validate(game);
 				break;
 			case cmdGuess:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
@@ -83,7 +83,7 @@ int getCommand (char* stream,Game* game){
 				break;
 			case cmdSave:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					save();
+					save(x, game);
 				}
 				break;
 			case cmdHint:

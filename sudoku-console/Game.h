@@ -7,6 +7,9 @@
 #define SUDOKU_CONSOLE_GAME_H
 #include "Board.h"
 #include "LinkedList.h"
+#include <stdio.h>
+#include <stdlib.h>
+#define MALLOCFAIL "Error: malloc has failed\n"
 
 /* Sudoku contains:
  * m - num of column in block which is also num of block rows in board
@@ -34,7 +37,7 @@ typedef struct{
 
     int mode;
     LinkedList moves;
-
+    int numOfErrors; /*Will be updated each time set command is called*/
 
 }Game;
 

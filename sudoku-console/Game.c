@@ -3,9 +3,6 @@
  */
 
 #include "Game.h"
-#include <stdio.h>
-#include <stdlib.h>
-#define MALLOCFAIL "Error: malloc has failed\n"
 
 /* Creates board mallocs and call to initBlockCells*/
 void initBoard(Game* game) {
@@ -102,7 +99,12 @@ void printBoard(Game* game) {
             else {
                 block = getBlockIndex(x, y, game);
                 cell = getCellIndex(x, y, game);
-                printf(" %2d",(*game).board.board[block.y][block.x].block[cell.y][cell.x].val);
+                if ((*game).board.board[block.y][block.x].block[cell.y][cell.x].val == 0){
+                    printf("   ");
+                }
+                else{
+                    printf(" %2d",(*game).board.board[block.y][block.x].block[cell.y][cell.x].val);
+                }
                 appendix = (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix;
 
                 if(appendix == '*'){
