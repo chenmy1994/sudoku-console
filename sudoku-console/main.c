@@ -17,8 +17,10 @@ int main() {
     Game game;
     char cmd[1025];
     game.m=4;
-    game.n=1;
-    initBoard(&game);
+    game.n=3;
+    game.memRelease = 0;
+    edit("./test.txt" ,&game);
+   /* initBoard(&game);*/
     printBoard(&game);
     getCommand(cmd,&game);
 

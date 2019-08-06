@@ -9,10 +9,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #define BOARDSAVED "Board saved to: %s\n"
-#define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell"
+#define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell."
+#define PUZZLESOLVED "Well Done! \n The puzzle was solved successfully."
+#define ERRORSOL "Sorry..\n The solution is erroneous."
+
+
+/*Checks whether the x y cell contains z,
+ * if it does - marks it as an erroneous and updates the errors counter*/
+void checkAndMarkCellError(int x, int y, int z, Game* game);
 
 /*Dealing with the edit command received by user*/
-void edit();
+void edit(char* X, Game* game);
 
 /*Dealing with the exit command received by user*/
 void exitGame();

@@ -17,6 +17,7 @@ int getCommand (char* stream,Game* game){
     char* x;
     char* y;
     char* z;
+    int intX, intY, intZ;
 	/*Received input from user successfully*/
 	 if(fgets(stream,1024,stdin)!=NULL){
 		/*user input isn't empty*/
@@ -38,6 +39,9 @@ int getCommand (char* stream,Game* game){
 				y="0";
 			}
 			cmdIndex=strToEnumIndex(cmdType,game);
+			intX = atoi(x);
+			intY = atoi(y);
+			intZ = atoi(z);
 			switch(cmdIndex){
 			case cmdSolve:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
@@ -46,12 +50,12 @@ int getCommand (char* stream,Game* game){
 				break;
 			case cmdEdit:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					edit();
+					edit(x, game);
 				}
 				break;
 			case cmdMarkErr:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					updateMarkErrors(game, x);
+					updateMarkErrors(game, intX);
 				}
 				break;
 			case cmdPrint:
@@ -59,7 +63,7 @@ int getCommand (char* stream,Game* game){
 				break;
 			case cmdSet:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					set(x, y, z, game);
+					set(intX, intY, intZ, game);
 				}
 				break;
 			case cmdValidate:

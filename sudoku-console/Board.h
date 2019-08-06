@@ -17,6 +17,7 @@ typedef struct{
     int val;
     int ILPVal;
     double* auxiliary;
+    int cntErr;
 } Cell;
 
 /* Block contains:

@@ -10,7 +10,7 @@
 void updateMarkErrors(Game* game, int setValue);
 
 /*Marks the erroneous cells with '*' */
-void markErrors(Game* game, int x, int y, int z);
+void markErrors(int x, int y, int z,Game* game);
 
 /*Fills all cell values with probability greater than users input*/
 void guess();

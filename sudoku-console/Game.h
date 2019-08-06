@@ -9,6 +9,7 @@
 #include "LinkedList.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define MALLOCFAIL "Error: malloc has failed\n"
 
 /* Sudoku contains:
@@ -69,4 +70,40 @@ int isValidValue (int x, int y, int z,Game *game);
 /*Receives a point representing the block index and return the relative ID */
 int pointToID(int x,int y, Game *game);
 
+/*updates blocks[blockID][value] = set */
+void updateBlock(int blockID, int value, int set, Game* game);
+
+/*updates cols[col][value] = set */
+void updateCol(int col, int value, int set, Game* game);
+
+/*updates rows[row][value] = set */
+void updateRow(int row, int value, int set, Game* game);
+
+
+/*initialize the binary array of possible numbers
+*  in rows[i] for each i*/
+void initRows(Game* game);
+
+/*initialize the binary array of possible numbers
+*  in blocks[i] for each i*/
+void initBlocks(Game* game);
+
+/*initialize the binary array of possible numbers
+*  in cols[i] for each i*/
+void initCols(Game* game);
+
+/*set rows, cols and blocks to zero*/
+void setZero(Game* game);
+
+/*Fills the given array with 0's*/
+void fillZeroes(int *arr, Game* game);
+
+/*Fills the game board with the values given from the file in X*/
+void loadBoard(char* X, Game* game);
+
+/*Changes the mode of the game to the newMode*/
+void changeMode(int newMode, Game* game);
+
+/*Free malloc allocations*/
+void freeMem(Game* game);
 #endif /*SUDOKU_CONSOLE_GAME_H*/
