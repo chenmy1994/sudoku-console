@@ -6,7 +6,7 @@
 
 /*Dealing with the edit command received by user*/
 int edit(char* X, Game* game){
-    if(loadBoard(X, game)==1){
+    if(loadBoard(X, game,1)==1){
         /*change mode to edit mode*/
         changeMode(1, game);
         return 1;
@@ -23,7 +23,7 @@ void exitGame(Game* game){
 
 /*Dealing with the solve command received by user*/
 int solve(char* X, Game* game){
-    if(loadBoard(X, game)==1) {
+    if(loadBoard(X, game,2)==1) {
         /*change mode to solve mode*/
         changeMode(2, game);
         return 1;
@@ -264,7 +264,7 @@ int buildNumber (char* buff, int* i){
 
 /*Fills the game board with the values given from the file in X*/
 
-int fillBoard(char* X, Game* game){
+int fillBoard(char* X, Game* game, int mode){
     FILE *fp;
     int setM = 0, setN = 0, x = 1, y = 1, val, i, len;
     char buff[4096];
@@ -326,7 +326,7 @@ int fillBoard(char* X, Game* game){
                     updateBlock(pointToID(block.x, block.y, game), val, 1, game);
                 }
                 if(i < len){
-                    if (buff[i] == '.') {
+                    if (buff[i] == '.' && mode == 2) {
                         (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
                         if(val != 0 && checkCellValid(x,y,val, game) == 0){
                             failedReadingFile(&fp);
@@ -359,13 +359,13 @@ int fillBoard(char* X, Game* game){
 }
 
 /*Frees and Allocates the memory of the game*/
-int loadBoard(char* X, Game* game){
+int loadBoard(char* X, Game* game, int mode){
     if(game->memRelease == 1){
         freeMem(game);
     }
 
     if(strlen(X) > 1) {
-        return fillBoard(X, game);
+        return fillBoard(X, game,mode);
     }
     createEmptyBoard(game);
     return 1;

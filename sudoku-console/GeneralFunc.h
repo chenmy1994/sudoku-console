@@ -53,10 +53,10 @@ void reset();
 int isFixed(int x, int y, Game* game);
 
 /*Fills the game board with the values given from the file in X*/
-int fillBoard(char* X, Game* game);
+int fillBoard(char* X, Game* game, int mode);
 
 /*Fills the game board with the values given from the file in X*/
-int loadBoard(char* X, Game* game);
+int loadBoard(char* X, Game* game, int mode);
 
 /*Changes the mode of the game to the newMode*/
 void changeMode(int newMode, Game* game);
