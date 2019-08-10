@@ -4,9 +4,12 @@
 
 #ifndef SUDOKU_CONSOLE_EDITFUNC_H
 #define SUDOKU_CONSOLE_EDITFUNC_H
-#include "Game.h"
 #define ERRORBOARD "Board contains erroneous, please fix it before saving\n"
 #define NOSOL "Board doesn't have a solution, please fix it before saving\n"
+
+#include "Game.h"
+#include "GurobiFunc.h"
+
 
 /*Generates a puzzle by randomly filling number of cells provided by user*/
 void generate();

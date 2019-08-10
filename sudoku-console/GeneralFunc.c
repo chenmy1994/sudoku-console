@@ -84,7 +84,7 @@ void unMarkErrors(int x, int y, int z, Game* game){
     if((*game).blocks[id][z-1] > 0){
         for(i = 0; i < game->m; i++){
             for(j = 0; j < game->n; j++){
-                /*Might change it here to a function that computes the relvant x y from i and j and block id*/
+                /*Might change it here to a function that computes the relevant x y from i and j and block id*/
                 if(game->board.board[block.y][block.x].block[i][j].val == z){
                     if(--game->board.board[block.y][block.x].block[i][j].cntErr == 0){
                         game->board.board[block.y][block.x].block[i][j].appendix = ' ';
@@ -263,6 +263,7 @@ int buildNumber (char* buff, int* i){
 }
 
 /*Fills the game board with the values given from the file in X*/
+
 int fillBoard(char* X, Game* game){
     FILE *fp;
     int setM = 0, setN = 0, x = 1, y = 1, val, i, len;
@@ -324,7 +325,6 @@ int fillBoard(char* X, Game* game){
                     updateRow(y, val, 1, game);
                     updateBlock(pointToID(block.x, block.y, game), val, 1, game);
                 }
-
                 if(i < len){
                     if (buff[i] == '.') {
                         (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';

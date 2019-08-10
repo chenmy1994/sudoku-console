@@ -4,7 +4,7 @@
 
 #include "EditFunc.h"
 #include <stdio.h>
-#include "GurobiFunc.h"
+
 /*Generates a puzzle by randomly filling number of cells provided by user*/
 void generate(){
 
@@ -21,13 +21,14 @@ int validate(Game* game){
 
 
 int saveEdit(Game* game){
-    int isVal, isErr;
+    int isVal = 1, isErr;
     isErr = checkError(game);
     if(isErr == 0){
         printf(ERRORBOARD);
         return 0;
     }
-    isVal = validate(game);
+    /*isVal = validate(game);*/
+
     if (isVal == 1){
         return 1;
     }

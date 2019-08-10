@@ -96,7 +96,6 @@ void printBoard(Game* game) {
                 printf("|");
 
             }
-
             else {
                 block = getBlockIndex(x, y, game);
                 cell = getCellIndex(x, y, game);
@@ -116,7 +115,12 @@ void printBoard(Game* game) {
                             printf("%c",appendix);
                         }
                         else{
-                            printf("%c",fixed);
+                            if(game->mode == 1){
+                                printf(".");
+                            }
+                            else{
+                                printf("%c",fixed);
+                            }
                         }
                     }
                 }
@@ -285,6 +289,7 @@ void initAll (Game* game){
     game->memRelease = 1;
     game->numOfErrors = 0;
     game->board.markError = 0;
+    game->cellsToFill = game->m * game-> n *game->m * game-> n;
     initBoard(game);
     initRows(game);
     initCols(game);

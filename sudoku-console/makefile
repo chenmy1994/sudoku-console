@@ -11,25 +11,25 @@ $(EXEC): $(OBJS)
 	$(CC) $(OBJS) $(GUROBI_LIB) -o $@ -lm
 	
 main.o: main.c Parser.h SPBufferset.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 Parser.o: Parser.c Parser.h GeneralFunc.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 GeneralFunc.o: GeneralFunc.c GeneralFunc.h EditFunc.h SolveFunc.h Stack.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 EditFunc.o: EditFunc.c EditFunc.h Game.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 SolveFunc.o: SolveFunc.c SolveFunc.h Game.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 Game.o: Game.c Game.h Board.h LinkedList.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 Board.o: Board.c Board.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 LinkedList.o: LinkedList.c LinkedList.h Point.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 Point.o: Point.c Point.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 Stack.o: Stack.c Stack.h Point.h
-	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 GurobiFunc.o: GurobiFunc.c GurobiFunc.h Game.h
 	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 
