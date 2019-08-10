@@ -6,11 +6,6 @@
 #define SUDOKU_CONSOLE_SOLVEFUNC_H
 #include "Game.h"
 
-/*Update the "mark errors" setting according to users input */
-void updateMarkErrors(Game* game, int setValue);
-
-/*Marks the erroneous cells with '*' */
-void markErrors(int x, int y, int z,Game* game);
 
 /*Fills all cell values with probability greater than users input*/
 void guess();

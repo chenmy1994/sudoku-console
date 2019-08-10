@@ -2,9 +2,9 @@
 *	Created by CMY on 29/07/2019.
  */
 
-#include "Point.h"
 #ifndef SUDOKU_CONSOLE_STACK_H
 #define SUDOKU_CONSOLE_STACK_H
+#include "Point.h"
 
 typedef struct Elem{
     Point* data;
@@ -20,5 +20,5 @@ typedef struct {
 void push(Stack* stk, Point* point);
 
 /*Removes head of stack, new head is previous element*/
-Elem* pop(Stack* stk);
-#endif //SUDOKU_CONSOLE_STACK_H
+void pop(Stack* stk);
+#endif /*SUDOKU_CONSOLE_STACK_H*/

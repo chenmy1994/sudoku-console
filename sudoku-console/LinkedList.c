@@ -3,10 +3,12 @@
  */
 
 #include "LinkedList.h"
+#include <stdlib.h>
 
 /*Inserts new node to linked list*/
 void insert(LinkedList* lst,Point** points){
     Node* newNode;
+    newNode = (Node*)malloc(sizeof(Node));
     newNode->data = points;
     newNode->next= 0;
     if(lst->count>0) {

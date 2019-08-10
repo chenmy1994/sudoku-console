@@ -45,73 +45,72 @@ int getCommand (char* stream,Game* game){
 			switch(cmdIndex){
 			case cmdSolve:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					solve(x, game);
+                    return solve(x, game);
 				}
-				break;
 			case cmdEdit:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					edit(x, game);
+                    return edit(x, game);
 				}
-				break;
+				return 1;
 			case cmdMarkErr:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					updateMarkErrors(game, intX);
 				}
-				break;
+				return 1;
 			case cmdPrint:
 				printBoard(game);
-				break;
+				return 1;
 			case cmdSet:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					set(intX, intY, intZ, game);
 				}
-				break;
+				return 1;
 			case cmdValidate:
 				validate(game);
-				break;
+				return 1;
 			case cmdGuess:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					guess();
 				}
-				break;
+				return 1;
 			case cmdGenerate:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					generate();
 				}
-				break;
+				return 1;
 			case cmdUndo:
 				undo();
 				break;
 			case cmdRedo:
 				redo();
-				break;
+				return 1;
 			case cmdSave:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					save(x, game);
 				}
-				break;
+				return 1;
 			case cmdHint:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					hint();
 				}
-				break;
+				return 1;
 			case cmdGuessHint:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					guessHint();
 				}
-				break;
+				return 1;
 			case cmdSolNum:
 				num_solutions();
-				break;
+				return 1;
 			case cmdAutofill:
 				autofill();
-				break;
+				return 1;
 			case cmdReset:
 				reset();
-				break;
+				return 1;
 			case cmdExit:
-				exitGame();
-				break;
+				exitGame(game);
+				return 2;
 			default:
 				printf(errorCommand);
 			}

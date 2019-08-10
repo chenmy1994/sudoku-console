@@ -57,6 +57,7 @@ void initBlock (int i, int j, Game* game){
     for (l = 0; l < (*game).m ; l++) {
         for (k = 0 ; k < (*game).n; k++) {
             (*game).board.board[i][j].block[l][k].appendix = ' ';
+            (*game).board.board[i][j].block[l][k].fixed = ' ';
             (*game).board.board[i][j].block[l][k].val = 0;
             (*game).board.board[i][j].block[l][k].auxiliary = (double*) calloc((*game).n*(*game).m, sizeof(double));
             (*game).board.board[i][j].block[l][k].cntErr = 0;
@@ -79,7 +80,7 @@ void printDashes(int numOfDashes){
 void printBoard(Game* game) {
     int i, j, rowLen, colLen, x, y;
     Point block, cell;
-    char appendix;
+    char appendix, fixed;
     int numOfDashes;
     numOfDashes = 4*game->n*game->m + game->m + 1;
     y = 1;
@@ -91,41 +92,39 @@ void printBoard(Game* game) {
         }
         x = 1;
         for (i = 0; i < colLen; i++) {
-            if (i % ((*game).n + 1) == 0 && i != colLen - 1) {
+            if (i % ((*game).n + 1) == 0) {
                 printf("|");
 
-            } else if(i % ((*game).n + 1) == 0 && i == colLen - 1)
-            {
-                printf("|");
             }
+
             else {
                 block = getBlockIndex(x, y, game);
                 cell = getCellIndex(x, y, game);
                 if ((*game).board.board[block.y][block.x].block[cell.y][cell.x].val == 0){
-                    printf("   ");
+                    printf("    ");
                 }
                 else{
                     printf(" %2d",(*game).board.board[block.y][block.x].block[cell.y][cell.x].val);
-                }
-                appendix = (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix;
+                    appendix = (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix;
+                    fixed = (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed;
 
-                if(appendix == '*'){
-                    if(game->board.markError==0){
-                        printf(" ");
+                    if(game->board.markError == 0){
+                        printf("%c",fixed);
                     }
                     else{
-                        printf("%c",appendix);
+                        if(appendix == '*'){
+                            printf("%c",appendix);
+                        }
+                        else{
+                            printf("%c",fixed);
+                        }
                     }
-                }
-                else{
-                    printf("%c",appendix);
                 }
                 x++;
             }
             if (i == colLen - 1){
                 printf("\n");
             }
-
         }
         y++;
 
@@ -162,7 +161,6 @@ Point getCellIndex (int x, int y, Game* game){
 int isValidValue (int x, int y, int z,Game *game){
     Point p = getBlockIndex(x,y, game);
     int id = pointToID(p.x, p.y, game);
-    printf("here");
     if(((*game).rows[y - 1][z-1]==0)&&((*game).cols[x - 1][z-1]==0)&&((*game).blocks[id][z-1]==0)){
         return 1;
     }
@@ -178,17 +176,31 @@ int pointToID(int x,int y, Game *game){
 
 /*updates rows[row][value] = set */
 void updateRow(int row, int value, int set, Game* game){
-    (*game).rows[row - 1][value - 1] = set;
+    if(set == 1) {
+        (*game).rows[row - 1][value - 1]++;
+        return;
+    }
+    (*game).rows[row - 1][value - 1]--;
+
 }
 
 /*updates cols[col][value] = set */
 void updateCol(int col, int value, int set, Game* game){
-    (*game).cols[col - 1][value - 1] = set;
+    if(set == 1) {
+        (*game).cols[col - 1][value - 1]++;
+        return;
+    }
+    (*game).cols[col - 1][value - 1]--;
 }
 
 /*updates blocks[blockID][value] = set */
 void updateBlock(int blockID, int value, int set, Game* game){
-    (*game).blocks[blockID][value - 1] = set;
+    if(set == 1){
+        (*game).blocks[blockID][value - 1]++;
+        return;
+    }
+    (*game).blocks[blockID][value - 1]--;
+
 }
 
 
@@ -196,9 +208,18 @@ void updateBlock(int blockID, int value, int set, Game* game){
 *  in rows[i] for each i*/
 void initRows(Game* game){
     int i;
+
     (*game).rows = (int **) malloc ((*game).n * (*game).m * sizeof(int*));
-    for(i = 0; i < (*game).n * (*game).m; i++){
+    if (game->rows == NULL){
+        printf(MALLOCFAIL);
+        return;
+    }
+    for(i = 0; i < ((*game).n * (*game).m); i++){
         (*game).rows[i] = (int*) malloc((*game).n * (*game).m * sizeof(int));
+        if (game->rows[i] == NULL){
+            printf(MALLOCFAIL);
+            return;
+        }
     }
 }
 
@@ -208,8 +229,17 @@ void initRows(Game* game){
 void initBlocks(Game* game) {
     int i;
     (*game).blocks = (int **) malloc ((*game).n * (*game).m * sizeof(int*));
+    if (game->blocks == NULL){
+        printf(MALLOCFAIL);
+        return;
+    }
     for(i = 0; i < (*game).n * (*game).m; i++) {
+
         (*game).blocks[i] = (int *) malloc((*game).n * (*game).m * sizeof(int));
+        if (game->blocks[i]== NULL){
+            printf(MALLOCFAIL);
+            return;
+        }
     }
 }
 
@@ -218,19 +248,28 @@ void initBlocks(Game* game) {
 void initCols(Game* game){
     int i;
     (*game).cols = (int **) malloc ((*game).n * (*game).m * sizeof(int*));
+    if (game->cols== NULL){
+        printf(MALLOCFAIL);
+        return;
+    }
     for(i = 0; i < (*game).n * (*game).m; i++) {
         (*game).cols[i] = (int *) malloc((*game).n * (*game).m * sizeof(int));
+        if (game->cols[i] == NULL){
+            printf(MALLOCFAIL);
+            return;
+        }
     }
 }
 
 /*set rows, cols and blocks to zero*/
-void setZero(Game* game){
+void setZero(Game* game) {
     int i;
-    for(i = 0; i < (*game).n * (*game).m; i++){
+    for (i = 0; i < (*game).n * (*game).m; i++) {
         fillZeroes((*game).rows[i], game);
         fillZeroes((*game).blocks[i], game);
         fillZeroes((*game).cols[i], game);
     }
+
 }
 
 /*Fills the given array with 0's*/
@@ -241,92 +280,67 @@ void fillZeroes(int *arr, Game* game){
     }
 }
 
-
-/*Fills the game board with the values given from the file in X*/
-void fillBoard(char* X, Game* game){
-    FILE *fp;
-    char buff[4096];
-    int i, setM = 0, setN = 0, x = 1, y = 1, val;
-    Point block, cell;
-
-    fp = fopen(X, "r");
-
-    while(fgets(buff, sizeof(buff), (FILE*)fp) != 0 && y < game->m * game->n){
-        for(i = 0; i < strlen(buff); i++){
-            printf("%c", buff[i]);
-            if(buff[i] == ' ' || buff[i] == '\0' || buff[i] == '\n'){
-                continue;
-            }
-            if (setM == 0){
-                game->m = buff[i] - '0';
-                setM = 1;
-                continue;
-            }
-            if (setN == 0){
-                game->n = buff[i] - '0';
-                setN = 1;
-                continue;
-            }
-            block = getBlockIndex(x,y, game);
-            cell = getCellIndex(x,y, game);
-
-            if (buff[i] == '.'){
-                (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix = '.' ;
-                continue;
-            }
-
-            val = buff[i] - '0';
-            (*game).board.board[block.y][block.x].block[cell.y][cell.x].val = val;
-            updateCol(x, val, 1, game);
-            updateRow(y, val, 1, game);
-            updateBlock(pointToID(block.x,block.y,game), val, 1, game);
-
-            x++;
-            if(x > game->m * game->n){
-                y++;
-                x = 1;
-            }
-        }
-    }
-
-    fclose(fp);
-
-
-}
-
-/*Frees and Allocates the memory of the game*/
-void loadBoard(char* X, Game* game){
-    if(game->memRelease == 1){
-        freeMem(game);
-    }
+/*Initialize all memory allocations*/
+void initAll (Game* game){
+    game->memRelease = 1;
+    game->numOfErrors = 0;
+    game->board.markError = 0;
     initBoard(game);
     initRows(game);
     initCols(game);
     initBlocks(game);
-
-    fillBoard(X, game);
-
+    setZero(game);
 }
 
-/*Changes the mode of the game to the newMode*/
-void changeMode(int newMode, Game* game){
-    game->mode = newMode;
-}
 
+
+
+
+
+/*Frees malloc of auxiliary*/
+void freeAux(Game* game){
+    int i, j, k, l;
+    for(i = 0; i< game->n; i++){
+        for(j = 0 ; j< game->m; j++){
+            for(l = 0; l < game->m; l++){
+                for(k = 0; k < game->n ; k++){
+                    free((*game).board.board[i][j].block[l][k].auxiliary);
+                }
+            }
+        }
+    }
+
+}
 
 /*Free malloc allocations*/
 void freeMem(Game* game){
-    int i;
+    int i, j, k;
     if((*game).memRelease==1){
-        for (i=0; i<(*game).m; i++){
+        freeAux(game);
+
+        /*Free 2 dim Cell array*/
+        for(i = 0; i < game->n; i++) {
+            for (j = 0; j < game->m; j++) {
+                for(k = 0; k < game -> m; k++){
+                    free(game->board.board[i][j].block[k]);
+                }
+                free(game->board.board[i][j].block);
+            }
+        }
+
+
+        /*Free 2 dim blocks array*/
+        for (i=0; i<(*game).n; i++){
             free((*game).board.board[i]);
         }
         free((*game).board.board);
-        for(i=0;i<(*game).m*(*game).n;i++){
-            free((*game).rows[i]);
+
+        for(i=0;i<((*game).n*(*game).m);i++){
+            free(game->rows[i]);
             free((*game).cols[i]);
             free((*game).blocks[i]);
         }
+
         free((*game).rows);
         free((*game).cols);
         free((*game).blocks);

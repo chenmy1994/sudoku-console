@@ -2,16 +2,19 @@
  *	Created by CMY on 29/07/2019.
  */
 
-
 #ifndef SUDOKU_CONSOLE_GAME_H
 #define SUDOKU_CONSOLE_GAME_H
+
 #include "Board.h"
 #include "LinkedList.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MALLOCFAIL "Error: malloc has failed\n"
+#include <ctype.h>
 
+#define MALLOCFAIL "Error: malloc has failed\n"
+#define ERROROPENFILE "Error: failed opening file\n"
+#define FAILEDREADINGFILE "Error: failed reading file\n"
 /* Sudoku contains:
  * m - num of column in block which is also num of block rows in board
  * n - num of rows in block which is also num of block cols in board
@@ -29,9 +32,9 @@ typedef struct{
     int n;
     Board board;
 
-    int **rows;
-    int **cols;
-    int **blocks;
+    int** rows;
+    int** cols;
+    int** blocks;
 
     int memRelease;
     int cellsToFill;
@@ -50,7 +53,6 @@ void initBlockCells(Game * game) ;
 
 /* Creates board mallocs and call to initBlockCells*/
 void initBoard(Game* game) ;
-
 
 /*Prints the current board*/
 void printBoard(Game* game);
@@ -79,7 +81,6 @@ void updateCol(int col, int value, int set, Game* game);
 /*updates rows[row][value] = set */
 void updateRow(int row, int value, int set, Game* game);
 
-
 /*initialize the binary array of possible numbers
 *  in rows[i] for each i*/
 void initRows(Game* game);
@@ -98,12 +99,12 @@ void setZero(Game* game);
 /*Fills the given array with 0's*/
 void fillZeroes(int *arr, Game* game);
 
-/*Fills the game board with the values given from the file in X*/
-void loadBoard(char* X, Game* game);
-
-/*Changes the mode of the game to the newMode*/
-void changeMode(int newMode, Game* game);
-
 /*Free malloc allocations*/
 void freeMem(Game* game);
+
+
+/*Initialize all memory allocations*/
+void initAll (Game* game);
+
+
 #endif /*SUDOKU_CONSOLE_GAME_H*/

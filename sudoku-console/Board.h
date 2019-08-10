@@ -14,6 +14,7 @@
 */
 typedef struct{
     char appendix;
+    char fixed;
     int val;
     int ILPVal;
     double* auxiliary;

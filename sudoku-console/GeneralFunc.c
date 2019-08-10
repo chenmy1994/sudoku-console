@@ -5,20 +5,30 @@
 #include "GeneralFunc.h"
 
 /*Dealing with the edit command received by user*/
-void edit(char* X, Game* game){
-    loadBoard(X, game);
-    /*change mode to edit mode*/
-    changeMode(1, game);
+int edit(char* X, Game* game){
+    if(loadBoard(X, game)==1){
+        /*change mode to edit mode*/
+        changeMode(1, game);
+        return 1;
+    }
+    return 0;
 }
 
 /*Dealing with the exit command received by user*/
-void exitGame(){
-
+void exitGame(Game* game){
+    freeMem(game);
+    changeMode(0, game);
+    printf(EXITGAME);
 }
 
 /*Dealing with the solve command received by user*/
-void solve(char* X, Game* game){
-
+int solve(char* X, Game* game){
+    if(loadBoard(X, game)==1) {
+        /*change mode to solve mode*/
+        changeMode(2, game);
+        return 1;
+    }
+    return 0;
 }
 
 void unMarkErrorsCell(int x, int y, int z, Game* game){
@@ -27,6 +37,7 @@ void unMarkErrorsCell(int x, int y, int z, Game* game){
     if(z == 0){
         game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr = 0;
         game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
+        game->numOfErrors--;
     }
     else if(game->board.board[block.y][block.x].block[cell.y][cell.x].val == z){
             if(--game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr == 0){
@@ -41,13 +52,16 @@ void unMarkErrorsCell(int x, int y, int z, Game* game){
 void unMarkErrors(int x, int y, int z, Game* game){
     int i, j;
     Point block = getBlockIndex(x,y, game);
+    Point cell = getCellIndex(x,y, game);
     int id = pointToID(block.x,block.y,game);
-
-    /*Mark the current cell as erroneous*/
+    if(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix != '*'){
+        return;
+    }
+    /*UnMark the current cell as erroneous*/
     unMarkErrorsCell(x,y,0,game);
 
     /*UnMark every erroneous cell in the row*/
-    if((*game).rows[y - 1][z-1] == 1){
+    if((*game).rows[y - 1][z-1] > 0){
         for(i = 1; i <= game->m*game->n; i++){
             if(i == x){
                 continue;
@@ -57,7 +71,7 @@ void unMarkErrors(int x, int y, int z, Game* game){
     }
 
     /*UnMark every erroneous cell in the column*/
-    if((*game).cols[x - 1][z-1] == 1){
+    if((*game).cols[x - 1][z-1] > 0){
         for(i = 1; i <= game->m*game->n; i++){
             if(i == y){
                 continue;
@@ -67,7 +81,7 @@ void unMarkErrors(int x, int y, int z, Game* game){
     }
 
     /*UnMark every erroneous cell in the block*/
-    if((*game).blocks[id][z-1] == 1){
+    if((*game).blocks[id][z-1] > 0){
         for(i = 0; i < game->m; i++){
             for(j = 0; j < game->n; j++){
                 /*Might change it here to a function that computes the relvant x y from i and j and block id*/
@@ -84,9 +98,9 @@ void unMarkErrors(int x, int y, int z, Game* game){
 /*Saves the current game board to the specified file*/
 void save(char* X, Game* game){
     FILE* fp;
-    int i, j;
+    int i, j, val;
     Point block, cell;
-    char appendix;
+    char fixed;
     if(game->mode==1){
         if(saveEdit(game) == 0){
             return;
@@ -99,11 +113,15 @@ void save(char* X, Game* game){
         for(j = 0; j < game->n * game->m; j++){
             block = getBlockIndex(j + 1, i + 1, game);
             cell = getCellIndex(j + 1, i + 1, game);
-            fprintf(fp, "%d", (*game).board.board[block.y][block.x].block[cell.y][cell.x].val);
-            appendix = (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix;
-            if(appendix == '.'){
-                fprintf(fp, "%c ", appendix);
+            val = (*game).board.board[block.y][block.x].block[cell.y][cell.x].val;
+            fprintf(fp, "%d", val);
+            if(val != 0){
+                fixed = (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed;
+                if(game->mode == 1 || fixed == '.'){
+                    fprintf(fp, "%c", '.');
+                }
             }
+
             if(j < game->n * game->m - 1){
                 fprintf(fp, " ");
             }
@@ -118,10 +136,11 @@ void save(char* X, Game* game){
 /*Set new value of cell*/
 void set(int x, int y, int z, Game* game){
     Point block, cell;
-    int prevVal;
+    int prevVal, id;
     block = getBlockIndex(x,y,game);
     cell = getCellIndex(x,y,game);
     prevVal = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+    id = pointToID(block.x, block.y, game);
 
     /*If we are in Solve mode*/
     if (game->mode == 2){
@@ -135,22 +154,37 @@ void set(int x, int y, int z, Game* game){
     if (z != 0 && prevVal == 0){
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = z;
         markErrors(x, y, z, game);
-        printf("%d %d %d %d", x, y, z, prevVal);
         game->cellsToFill--;
+
+        updateBlock(id, z,1,game);
+        updateRow(y, z,1,game);
+        updateCol(x, z,1,game);
     }
     /*If user deleted a cell*/
     else if (z == 0){
         unMarkErrors(x, y, prevVal, game);
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = z;
+        /*if(isFixed(x,y, game) == 1) {
+            game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = ' ';
+        }*/
+        updateBlock(id, prevVal,0,game);
+        updateRow(y, prevVal,0,game);
+        updateCol(x, prevVal,0,game);
     }
-    /*If user overidden a value with a new valid value */
+    /*If user overridden a value with a new valid value */
     else {
         unMarkErrors(x, y, prevVal, game);
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = z;
         markErrors(x, y, z, game);
+
+        updateBlock(id, z,1,game);
+        updateRow(y, z,1,game);
+        updateCol(x, z,1,game);
+        updateBlock(id, prevVal,0,game);
+        updateRow(y, prevVal,0,game);
+        updateCol(x, prevVal,0,game);
     }
 
-    /*TODO - need to add what happens when we need to delete erroneous*/
     if(game->mode == 2 && game->cellsToFill == 0){
         if(game->numOfErrors == 0){
             printf(PUZZLESOLVED);
@@ -163,11 +197,7 @@ void set(int x, int y, int z, Game* game){
     }
 }
 
-/*Checks whether the board can be solved (1) or not (0)*/
-/*uses the ILP solver*/
-int validate(Game* game){
-	return 1;
-}
+
 
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)*/
 void undo(){
@@ -194,8 +224,266 @@ int isFixed(int x, int y, Game* game){
     Point block, cell;
     block = getBlockIndex(x,y,game);
     cell = getCellIndex(x,y,game);
-    if(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == '.'){
+    if(game->board.board[block.y][block.x].block[cell.y][cell.x].fixed == '.'){
         return 1;
     }
     return 0;
+}
+
+/*prints that reading file has failed and closes fp*/
+void failedReadingFile(FILE** fp){
+    printf(FAILEDREADINGFILE);
+    fclose(*fp);
+}
+
+/*Checks whether char n represent a digit or dot or not*/
+int isDigitOrDot(char n){
+    int num = n - '0';
+    if(num >= 0 && num < 10){
+        return 1;
+    }
+    if (n == '.'){
+        return 1;
+    }
+    return 0;
+}
+
+/*builds number from current place on char* buff*/
+int buildNumber (char* buff, int* i){
+    int num = 0;
+    int len = strlen(buff);
+    while(isDigitOrDot(buff[*i]) == 1 && (*i) < len){
+        if(buff[*i] == '.'){
+            return num;
+        }
+        num = num * 10 + (buff[*i] - '0');
+        (*i)++;
+    }
+    return num;
+}
+
+/*Fills the game board with the values given from the file in X*/
+int fillBoard(char* X, Game* game){
+    FILE *fp;
+    int setM = 0, setN = 0, x = 1, y = 1, val, i, len;
+    char buff[4096];
+    Point block, cell;
+    fp = fopen(X, "r");
+
+    if(fp == NULL){
+        printf(ERROROPENFILE);
+        return 0;
+    }
+
+    while(fgets(buff, sizeof(buff), (FILE*)fp) != 0) {
+        len = strlen(buff);
+        for (i = 0; i < len ; i++) {
+            /*If it is a space - skip*/
+            if (isspace(buff[i])) {
+                continue;
+            }
+
+            /*If its is not a digit nor a dot - then it's an invalid board*/
+            if(isDigitOrDot(buff[i]) == 0){
+                failedReadingFile(&fp);
+                printf("File contains an invalid value\n");
+                return 0;
+            }
+
+            /*Fill board*/
+            if(setM == 0){
+                setM = 1;
+                val = buildNumber(buff, &i);
+                game->m = val;
+                continue;
+            }
+            if(setN == 0){
+                setN = 1;
+                val = buildNumber(buff, &i);
+                game->n = val;
+                initAll(game);
+                continue;
+            }
+
+            if (y <= game->m * game->n) {
+                block = getBlockIndex(x, y, game);
+                cell = getCellIndex(x, y, game);
+                val = buildNumber(buff, &i);
+                /*check if val is in valid range*/
+                if (val < 0 || val > game->m * game->n) {
+                    failedReadingFile(&fp);
+                    printf("File contains a value which is not in correct range, 1 - %d\n",
+                           game->m * game->n);
+                    return 0;
+                }
+
+                (*game).board.board[block.y][block.x].block[cell.y][cell.x].val = val;
+                if (val != 0) {
+                    markErrors(x,y, val, game);
+                    updateCol(x, val, 1, game);
+                    updateRow(y, val, 1, game);
+                    updateBlock(pointToID(block.x, block.y, game), val, 1, game);
+                }
+
+                if(i < len){
+                    if (buff[i] == '.') {
+                        (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
+                        if(val != 0 && checkCellValid(x,y,val, game) == 0){
+                            failedReadingFile(&fp);
+                            printf("File contains contradiction between 2 fixed cells\n");
+                            return 0;
+                        }
+                    }
+                }
+                x++;
+                if (x > game->m * game->n) {
+                    y++;
+                    x = 1;
+                }
+            }
+            else{
+                failedReadingFile(&fp);
+                printf("Too many digits in file\n");
+                return 0;
+            }
+        }
+    }
+    if(y != game->m * game->n + 1 || x != 1){
+        failedReadingFile(&fp);
+        printf("Not enough digits in file\n");
+        return 0;
+    }
+    fclose(fp);
+    return 1;
+
+}
+
+/*Frees and Allocates the memory of the game*/
+int loadBoard(char* X, Game* game){
+    if(game->memRelease == 1){
+        freeMem(game);
+    }
+
+    if(strlen(X) > 1) {
+        return fillBoard(X, game);
+    }
+    createEmptyBoard(game);
+    return 1;
+}
+
+/*Creates an empty 9x9 board*/
+void createEmptyBoard(Game* game){
+    game->m = 3;
+    game->n = 3;
+    initAll(game);
+}
+
+/*Changes the mode of the game to the newMode*/
+void changeMode(int newMode, Game* game){
+    game->mode = newMode;
+    if(newMode == 1){
+        game->board.markError = 1;
+    }
+}
+
+/*Update the "mark errors" setting according to users input */
+void updateMarkErrors(Game* game, int setValue){
+    game->board.markError = setValue;
+}
+
+/*Checks whether the x y cell contains z,
+ * if it does - marks it as an erroneous and updates the errors counter*/
+void checkAndMarkCellError(int x, int y, int z, Game* game){
+    Point block = getBlockIndex(x,y, game);
+    Point cell = getCellIndex(x,y, game);
+    if(game->board.board[block.y][block.x].block[cell.y][cell.x].val == z) {
+        if(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix != '*'){
+            game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = '*';
+            game->numOfErrors++;
+        }
+        game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr++;
+    }
+}
+
+/*Marks the erroneous cells with '*' */
+void markErrors(int x, int y, int z,Game* game){
+    int i, j;
+    Point block = getBlockIndex(x,y, game);
+    Point cell = getCellIndex(x,y, game);
+    int id = pointToID(block.x,block.y,game);
+
+    if(isValidValue(x,y,z,game) == 1){
+        return;
+    }
+    /*If we got here it means that this is an erroneous and we need to mark it*/
+
+    /*Mark the current cell as erroneous*/
+    checkAndMarkCellError(x,y,z,game);
+
+    /*Mark every erroneous cell in the row*/
+    if((*game).rows[y - 1][z-1] > 0){
+        for(i = 1; i <= game->m*game->n; i++){
+            if(i == x){
+                continue;
+            }
+            checkAndMarkCellError(i,y,z,game);
+        }
+    }
+
+    /*Mark every erroneous cell in the column*/
+    if((*game).cols[x - 1][z-1] > 0){
+        for(i = 1; i <= game->m*game->n; i++){
+            if(i == y){
+                continue;
+            }
+            checkAndMarkCellError(x,i,z,game);
+        }
+    }
+
+    /*Mark every erroneous cell in the block*/
+    if((*game).blocks[id][z-1] > 0){
+        for(i = 0; i < game->m; i++){
+            for(j = 0; j < game->n; j++){
+                if(game->board.board[block.y][block.x].block[i][j].val == z){
+                    if(cell.x == j && cell.y == i){
+                        continue;
+                    }
+                    if(game->board.board[block.y][block.x].block[i][j].appendix != '*'){
+                        game->board.board[block.y][block.x].block[i][j].appendix = '*';
+                        game->numOfErrors++;
+                    }
+                    game->board.board[block.y][block.x].block[i][j].cntErr++;
+                }
+            }
+        }
+    }
+}
+
+/*Return 1 if there is no contradiction between this cell to another fixed cell
+ * Otherwise return 0*/
+int checkCellValid(int x, int y, int z, Game* game){
+    int i,j;
+    Point cell;
+    Point block = getBlockIndex(x,y,game);
+    int id = pointToID(block.x, block.y,game);
+    if(((*game).rows[y - 1][z-1]==1)&&((*game).cols[x - 1][z-1]==1)&&((*game).blocks[id][z-1]==1)) {
+        return 1;
+    }
+    for(i = 0; i < game->m * game->n; i++){
+        for(j = 0; j < game->m * game->n; j++) {
+            if(x == j + 1 && y == i + 1){
+                return 1;
+            }
+            cell = getCellIndex(j+1,i+1,game);
+            block = getBlockIndex(j+1,i+1,game);
+            if(x == j + 1 || y == i + 1 || pointToID(block.x,block.y,game) == id){
+                if(isFixed(j + 1,i + 1,game) == 1){
+                    if(game->board.board[block.y][block.x].block[cell.y][cell.x].val == z){
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+    return 1;
 }

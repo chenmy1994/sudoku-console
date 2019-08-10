@@ -3,7 +3,12 @@
 #include <string.h>
 #include "Parser.h"
 #include "SPBufferset.h"
+#define GETCOMMANDMSG "Enter a command..\n"
+
 int main() {
+    Game game;
+    int cmdVal = 0;
+    char cmd[1025];
 	SP_BUFF_SET()
     /*Opening message*/
     printf("Welcome to our magnificent Sudoku-Console game!\n");
@@ -14,16 +19,16 @@ int main() {
     printf("For Edit command ONLY - In case 'X' is NOT provided a 9X9 board is initialized \n");
 
     /*TODO - receive input file from user and update board dimensions*/
-    Game game;
-    char cmd[1025];
-    game.m=4;
-    game.n=3;
     game.memRelease = 0;
-    edit("./test.txt" ,&game);
-   /* initBoard(&game);*/
-    printBoard(&game);
-    getCommand(cmd,&game);
 
+    while(cmdVal != 2) {
+        printf(GETCOMMANDMSG);
+        cmdVal = getCommand(cmd, &game);
+        if(game.mode == 0 || cmdVal == 0){
+            continue;
+        }
+        printBoard(&game);
+    }
     /*TODO - parsing user commands and acting accordingly*/
     return 0;
 }

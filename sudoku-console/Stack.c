@@ -3,10 +3,11 @@
  */
 
 #include "Stack.h"
-
+#include <stdlib.h>
 /*Inserts new element to the stack*/
 void push(Stack* stk, Point* point){
     Elem* elem;
+    elem = (Elem*) malloc(sizeof(Elem));
     elem->data=point;
     if(stk->count>0) {
         elem->prev = stk->head;
@@ -16,7 +17,7 @@ void push(Stack* stk, Point* point){
 }
 
 /*Removes head of stack, new head is previous element*/
-Elem* pop(Stack* stk){
+void pop(Stack* stk){
     stk->head=stk->head->prev;
     stk->count--;
 }

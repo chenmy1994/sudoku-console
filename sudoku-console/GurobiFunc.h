@@ -1,20 +1,21 @@
 /*
 *	Created by CMY on 30/07/2019.
  */
+#ifndef SUDOKU_CONSOLE_GUROBIFUNC_H
+#define SUDOKU_CONSOLE_GUROBIFUNC_H
 
 #include "Game.h"
-#include "gurobi_c.h"
 #include "Stack.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "gurobi_c.h"
+
 typedef struct{
     int i;
     int j;
     int k;
 } Truple;
-#ifndef SUDOKU_CONSOLE_GUROBIFUNC_H
-#define SUDOKU_CONSOLE_GUROBIFUNC_H
 
 /*Solves the current board using Linear Programming
  * Fills the probs array of the relvant cells in the board

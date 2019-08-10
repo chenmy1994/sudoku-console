@@ -1,6 +1,6 @@
 CC = gcc
-OBJS = main.o
- 
+OBJS = main.o Parser.o GeneralFunc.o EditFunc.o SolveFunc.o Game.o Board.o LinkedList.o Point.o Stack.o GurobiFunc.o
+  
 EXEC = sudoku-console
 COMP_FLAG = -ansi -Wall -Wextra -Werror -pedantic-errors -g -O0
 COMP_FLAGS_GUR = -ansi -O3 -Wall -Wextra -Werror -pedantic-errors
@@ -11,26 +11,26 @@ $(EXEC): $(OBJS)
 	$(CC) $(OBJS) $(GUROBI_LIB) -o $@ -lm
 	
 main.o: main.c Parser.h SPBufferset.h
-	$(CC) $(COMP_FLAG) -c $*.c
-Parser.o: Parser.c GeneralFunc.h
-	$(CC) $(COMP_FLAG) -c $*.c
-GeneralFunc.o: GeneralFunc.c EditFunc.h SolveFunc.h Stack.h
-	$(CC) $(COMP_FLAG) -c $*.c
-EditFunc.o: EditFunc.c Game.h
-	$(CC) $(COMP_FLAG) -c $*.c
-SolveFunc.o: SolveFunc.c Game.h
-	$(CC) $(COMP_FLAG) -c $*.c
-Game.o: Game.c Board.h LinkedList.h
-	$(CC) $(COMP_FLAG) -c $*.c
-Board.o: Board.c
-	$(CC) $(COMP_FLAG) -c $*.c
-LinkedList.o: LinkedList.c Point.h
-	$(CC) $(COMP_FLAG) -c $*.c
-Point.o: Point.c
-	$(CC) $(COMP_FLAG) -c $*.c
-Stack.o: Stack.c Point.h
-	$(CC) $(COMP_FLAG) -c $*.c
-GurobiFunc.o: GurobiFunc.c Game.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+Parser.o: Parser.c Parser.h GeneralFunc.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+GeneralFunc.o: GeneralFunc.c GeneralFunc.h EditFunc.h SolveFunc.h Stack.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+EditFunc.o: EditFunc.c EditFunc.h Game.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+SolveFunc.o: SolveFunc.c SolveFunc.h Game.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+Game.o: Game.c Game.h Board.h LinkedList.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+Board.o: Board.c Board.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+LinkedList.o: LinkedList.c LinkedList.h Point.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+Point.o: Point.c Point.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+Stack.o: Stack.c Stack.h Point.h
+	$(CC) $(COMP_FLAGS_GUR) -c $*.c
+GurobiFunc.o: GurobiFunc.c GurobiFunc.h Game.h
 	$(CC) $(COMP_FLAGS_GUR) $(GUROBI_COMP) -c $*.c
 
 clean:
