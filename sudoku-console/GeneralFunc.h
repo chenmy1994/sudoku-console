@@ -77,8 +77,7 @@ void updateMarkErrors(Game* game, int setValue);
 void markErrors(int x, int y, int z,Game* game);
 
 /*prints that reading file has failed and closes fp*/
-void failedReadingFile(FILE** fp);
-
+void failedReadingFile(FILE** fp, Game* game)
 
 /*Return 1 if there is no contradiction between this cell to another fixed cell
  * Otherwise return 0*/

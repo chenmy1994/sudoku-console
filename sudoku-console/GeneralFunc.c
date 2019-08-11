@@ -231,9 +231,10 @@ int isFixed(int x, int y, Game* game){
 }
 
 /*prints that reading file has failed and closes fp*/
-void failedReadingFile(FILE** fp){
+void failedReadingFile(FILE** fp, Game* game){
     printf(FAILEDREADINGFILE);
     fclose(*fp);
+    freeMem(game);
 }
 
 /*Checks whether char n represent a digit or dot or not*/
@@ -286,7 +287,7 @@ int fillBoard(char* X, Game* game, int mode){
 
             /*If its is not a digit nor a dot - then it's an invalid board*/
             if(isDigitOrDot(buff[i]) == 0){
-                failedReadingFile(&fp);
+                failedReadingFile(&fp,game);
                 printf("File contains an invalid value\n");
                 return 0;
             }
@@ -302,6 +303,11 @@ int fillBoard(char* X, Game* game, int mode){
                 setN = 1;
                 val = buildNumber(buff, &i);
                 game->n = val;
+                if(game->m * game->n > 99){
+                    printf("Error: board size is larger than 99\n");
+                    fclose(fp);
+                    return 0;
+                }
                 initAll(game);
                 continue;
             }
@@ -312,7 +318,7 @@ int fillBoard(char* X, Game* game, int mode){
                 val = buildNumber(buff, &i);
                 /*check if val is in valid range*/
                 if (val < 0 || val > game->m * game->n) {
-                    failedReadingFile(&fp);
+                    failedReadingFile(&fp,game);
                     printf("File contains a value which is not in correct range, 1 - %d\n",
                            game->m * game->n);
                     return 0;
@@ -329,10 +335,13 @@ int fillBoard(char* X, Game* game, int mode){
                     if (buff[i] == '.' && mode == 2) {
                         (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
                         if(val != 0 && checkCellValid(x,y,val, game) == 0){
-                            failedReadingFile(&fp);
+                            failedReadingFile(&fp,game);
                             printf("File contains contradiction between 2 fixed cells\n");
                             return 0;
                         }
+                    }
+                    else if(mode == 1){
+                        (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
                     }
                 }
                 x++;
@@ -342,14 +351,14 @@ int fillBoard(char* X, Game* game, int mode){
                 }
             }
             else{
-                failedReadingFile(&fp);
+                failedReadingFile(&fp,game);
                 printf("Too many digits in file\n");
                 return 0;
             }
         }
     }
     if(y != game->m * game->n + 1 || x != 1){
-        failedReadingFile(&fp);
+        failedReadingFile(&fp,game);
         printf("Not enough digits in file\n");
         return 0;
     }

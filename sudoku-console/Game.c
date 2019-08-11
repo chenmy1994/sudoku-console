@@ -107,16 +107,22 @@ void printBoard(Game* game) {
                     appendix = (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix;
                     fixed = (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed;
 
+
                     if(game->board.markError == 0){
                         printf("%c",fixed);
                     }
                     else{
-                        if(appendix == '*'){
-                            printf("%c",appendix);
+                        if(game->mode == 1){
+                            if(appendix == '*'){
+                                printf("%c",appendix);
+                            }
+                            else{
+                                printf("%c",fixed);
+                            }
                         }
                         else{
-                            if(game->mode == 1){
-                                printf(".");
+                            if(appendix == '*' && fixed != '.'){
+                                printf("%c",appendix);
                             }
                             else{
                                 printf("%c",fixed);
