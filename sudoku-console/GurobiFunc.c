@@ -17,6 +17,8 @@
 
 #include "GurobiFunc.h"
 
+void calculateObjFun(double **obj);
+
 /*initialize the malloc of the given arrays*/
 void initArr(int**** arrR, int**** arrC, int**** arrB, int** ind, double ** val, int N){
     int i, j;
@@ -148,6 +150,8 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model){
     return 1;
 }
 
+/*set var type of the vtype array, it will be set to set
+ * where set can be GRB_BINART and etc..*/
 void setVarType(char** vtype, int transCounter, char set){
     int i;
     for(i = 0; i < transCounter; i++){
@@ -156,13 +160,14 @@ void setVarType(char** vtype, int transCounter, char set){
 }
 
 int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus, int transCounter, double** sol){
-    int error = 0, objval;
+    int error = 0;
+    double objval;
+
     /*Change objective sense to maximization*/
     error = GRBsetintattr((*model), GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE);
     if(checkAndHandleError(error, env, "GRBsetintattr()") == -1){
         return -1;
     }
-
 
     /*update the model - to integrate new variables*/
     error = GRBupdatemodel((*model));
@@ -176,7 +181,6 @@ int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus, int transCou
         return -1;
     }
 
-
     /*  Write model to 'mip1.lp' - this is not necessary but very helpful*/
     error = GRBwrite((*model), "mip1.lp");
     if(checkAndHandleError(error, env, "GRBwrite()") == -1){
@@ -184,11 +188,10 @@ int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus, int transCou
     }
 
     /*  Get solution information*/
-    error = GRBgetintattr((*model), GRB_INT_ATTR_STATUS, &optimstatus);
+    error = GRBgetintattr((*model), GRB_INT_ATTR_STATUS, optimstatus);
     if(checkAndHandleError(error, env, "GRBgetintattr()") == -1){
         return -1;
     }
-
 
     /*  get the objective -- the optimal result of the function*/
     error = GRBgetdblattr((*model), GRB_DBL_ATTR_OBJVAL, &objval);
@@ -201,7 +204,7 @@ int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus, int transCou
     /*transCounter--; */
     /*number of variables, the size of "sol" should match*/
 
-    error = GRBgetdblattrarray((*model), GRB_DBL_ATTR_X, 0, transCounter, sol);
+    error = GRBgetdblattrarray((*model), GRB_DBL_ATTR_X, 0, transCounter, (*sol));
     if(checkAndHandleError(error, env, "GRBgetdblattrarray()") == -1){
         return -1;
     }
@@ -213,89 +216,29 @@ int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus, int transCou
  * guess = 0 fills all cells, guessHint = 1 fills only X Y cell
  * Return 0 if there is no solution*/
 int solveILP (Game* game, int opCode, int x, int y){
-    GRBenv   *env   = NULL;
-    GRBmodel *model = NULL;
-    int transCounter = 0, i, N = (*game).m*(*game).n, error = 0;
-    int varNum = (*game).cellsToFill;
-    int*** rowsCon;
-    int*** colsCon;
-    int*** blocksCon;
-    double*    sol;
-    int*       ind;
-    double*    val;
-    double*    obj;
-    char*      vtype;
-    int       optimstatus; /*status of calculation, was the optimization successfull?*/
-    double    objval; /*result of target function for calculated values*/
-    Truple*  transArray = (Truple*)malloc(varNum * N * sizeof(Truple));
-
-    initArr(&rowsCon, &colsCon, &blocksCon, &ind, &val, N);
-
-    /*   TODO - Move Create environment to setGlobals*/
-    /*  Create environment - log file is mip1.log*/
-    error = GRBloadenv(&env, "mip1.log");
-    if(checkAndHandleError(error, &env, "GRBloadenv()") == -1){
-        return -1;
-    }
-
-    if(turnOffPrintAndCreateModel(&env, &model) == -1){
-        return -1;
-    }
-
-    /*Fill mapping array and add constraints per cell*/
-    if(fillArrayAndAddCellCon(game, &transArray,&transCounter, &ind,&val,
-                             &rowsCon, &colsCon, &blocksCon, &env, &model) == -1){
-        return -1;
-    }
-
-    /*initialize the mallocs while using a more specified number*/
-    initGrbArr(&sol, &ind, &val, &obj, &vtype, transCounter);
-
-    /*  add variables to model*/
-    error = GRBaddvars(model, transCounter, 0, NULL, NULL, NULL, obj, NULL, NULL, vtype, NULL);
-    if(checkAndHandleError(error, &env, "GRBaddvars()") == -1){
-        return -1;
-    }
-
-    if(addCons(N, &ind, &val, "row.", &rowsCon, &env, &model) == -1){
-        return -1;
-    }
-
-    if(addCons(N, &ind, &val, "con.", &colsCon, &env, &model) == -1){
-        return -1;
-    }
-
-    if(addCons(N, &ind, &val, "block.", &blocksCon, &env, &model) == -1){
-        return -1;
-    }
-
-    setVarType(&vtype, transCounter, GRB_BINARY);
-
-    if(optimizeModel(&env, &model, &optimstatus, transCounter, &sol) == -1){
-        return -1;
-    }
-
-    /*  solution found*/
-    if (optimstatus == GRB_OPTIMAL || optimstatus == GRB_INF_OR_UNBD) {
-        /*If we are in guess command or hint we need to fill the ILPVal field in each cell*/
-        if (opCode != 2){
-            solAssign(&sol, &transArray, transCounter, opCode, x, y, game);
-        }
-    }
-    /*    error or calculation stopped*/
-    else {
-        printf("Optimization was stopped early\n");
-        return -1;
-    }
-
-    /*  IMPORTANT !!! - Free model and environment*/
-    GRBfreemodel(model);
-
-    /* TODO - Move free env to exit*/
-    GRBfreeenv(env);
-
+    solveGenral(0, game, opCode, x, y);
     /*if we reached this we finished running Gurobi and everything went well*/
     return 1;
+}
+
+/* Fills the coefficents of the objection function
+ * indicator = 0 means we are in ILP,
+ * indicator = 1 means we are in LP*/
+void fillObjFun(double** obj, int indicator) {
+    if(indicator == 1){
+        /* change fillZeroes function to be more general
+        fillZeroes();*/
+    }
+    else{
+        calculateObjFun(obj);
+    }
+}
+
+/*calculates the coefficents of the objection function in LP*/
+void calculateObjFun(double **obj) {
+
+    /*TODO - think of a good objection function*/
+
 }
 
 
@@ -326,3 +269,113 @@ void solAssign (double** solArray,Truple** transArray, int transCounter, int opC
     }
 }
 
+
+/* Add the coefficients of the objective function to the model
+ * and add all the relevant constraints */
+int addVarsAndAllCons(GRBmodel** model,int transCounter, char** vtype,
+                        double** obj, GRBenv** env, int**** rowsCon, int**** colsCon, int**** blocksCon,
+                        int** ind, double** val, int N){
+    int error = 0;
+    /*  add variables to model*/
+    error = GRBaddvars((*model), transCounter, 0, NULL, NULL, NULL, (*obj), NULL, NULL, (*vtype), NULL);
+    if(checkAndHandleError(error, env, "GRBaddvars()") == -1){
+    return -1;
+    }
+
+    if(addCons(N, ind, val, "row.", rowsCon, env, model) == -1){
+    return -1;
+    }
+
+    if(addCons(N, ind, val, "con.", colsCon, env, model) == -1){
+    return -1;
+    }
+
+    if(addCons(N, ind, val, "block.", blocksCon, env, model) == -1){
+    return -1;
+    }
+
+    return 1;
+}
+
+/*General solve function which will use both LP and ILP
+ * decided by the indicator.
+ * indicator = 0 is ILP
+ * indicator = 1 is LP*/
+int solveGenral(int indicator, Game* game, int opCode, int x, int y){
+    GRBenv   *env   = NULL;
+    GRBmodel *model = NULL;
+    int transCounter = 0, i, N = (*game).m*(*game).n, error = 0;
+    int varNum = (*game).cellsToFill;
+    int*** rowsCon;
+    int*** colsCon;
+    int*** blocksCon;
+    double*    sol;
+    int*       ind;
+    double*    val;
+    double*    obj;
+    char*      vtype;
+    int       optimstatus; /*status of calculation, was the optimization succesfull?*/
+    Truple*  transArray = (Truple*)malloc(varNum * N * sizeof(Truple));
+
+    initArr(&rowsCon, &colsCon, &blocksCon, &ind, &val, N);
+
+    /*   TODO - Move Create environment to setGlobals*/
+    /*  Create environment - log file is mip1.log*/
+    error = GRBloadenv(&env, "mip1.log");
+    if(checkAndHandleError(error, &env, "GRBloadenv()") == -1){
+        return -1;
+    }
+
+    if(turnOffPrintAndCreateModel(&env, &model) == -1){
+        return -1;
+    }
+
+    /*Fill mapping array and add constraints per cell*/
+    if(fillArrayAndAddCellCon(game, &transArray,&transCounter, &ind,&val,
+                              &rowsCon, &colsCon, &blocksCon, &env, &model) == -1){
+        return -1;
+    }
+
+    /*initialize the mallocs while using a more specified number*/
+    initGrbArr(&sol, &ind, &val, &obj, &vtype, transCounter);
+
+    /*fill the objection function*/
+    fillObjFun(&obj, indicator);
+
+    if(indicator == 0){
+        setVarType(&vtype, transCounter, GRB_BINARY);
+    }
+    else{
+        setVarType(&vtype, transCounter, GRB_CONTINUOUS);
+    }
+
+    if(addVarsAndAllCons(&model, transCounter, &vtype, &obj,
+                         &env, &rowsCon, &colsCon, &blocksCon, &ind, &val, N) == -1){
+        return -1;
+    }
+
+    if(optimizeModel(&env, &model, &optimstatus, transCounter, &sol) == -1){
+        return -1;
+    }
+
+    /*  solution found*/
+    if (optimstatus == GRB_OPTIMAL || optimstatus == GRB_INF_OR_UNBD) {
+        /*If we are in guess command or hint we need to fill the ILPVal field in each cell*/
+        if (opCode != 2){
+            solAssign(&sol, &transArray, transCounter, opCode, x, y, game);
+        }
+    }
+        /*    error or calculation stopped*/
+    else {
+        printf("Optimization was stopped early\n");
+        return -1;
+    }
+
+    /*  IMPORTANT !!! - Free model and environment*/
+    GRBfreemodel(model);
+
+    /* TODO - Move free env to exit*/
+    GRBfreeenv(env);
+
+
+}

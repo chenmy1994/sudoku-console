@@ -57,4 +57,30 @@ void initGrbArr(double** sol,int** ind,double** val,double** obj,char** vtype,in
 
 /*Turn printing off in gurobi and creates the model*/
 int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model);
+
+
+/* Fills the coefficents of the objection function
+ * ind = 0 means we are in ILP,
+ * ind = 1 means we are in LP*/
+void fillObjFun(double** obj, int ind);
+
+
+/* Add the coefficients of the objective function to the model
+ * and add all the relevant constraints */
+int addVarsAndAllCons(GRBmodel** model,int transCounter, char** vtype,
+                      double** obj, GRBenv** env, int**** rowsCon, int**** colsCon, int**** blocksCon,
+                      int** ind, double** val, int N);
+
+
+/*set var type of the vtype array, it will be set to set
+ * where set can be GRB_BINART and etc..*/
+void setVarType(char** vtype, int transCounter, char set);
+
+
+/*General solve function which will use both LP and ILP
+ * decided by the indicator.
+ * indicator = 0 is ILP
+ * indicator = 1 is LP*/
+int solveGenral(int indicator, Game* game, int opCode, int x, int y);
+
 #endif /*SUDOKU_CONSOLE_GUROBIFUNC_H*/
