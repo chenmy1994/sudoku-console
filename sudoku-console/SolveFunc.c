@@ -15,7 +15,24 @@ void guessHint(){
 }
 
 /*Give a hint to the user by showing the solution of the input cell*/
-void hint(){
+void hint(Game* game,int x, int y){
+    Point block, cell;
+    int hint;
+    block = getBlockIndex(x,y, game);
+    cell = getCellIndex(x,y, game);
+
+    if(game->mode != 2){
+        printf(NOTINSOLVE);
+        return;
+    }
+
+    if(solveILP(game, 1, x, y) == 1){
+        hint = game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal;
+        printf("Hint: set cell %d %d to %d",x , y, hint);
+        return;
+    }
+
+
 
 }
 

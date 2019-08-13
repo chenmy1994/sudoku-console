@@ -15,10 +15,6 @@
 void generate();
 
 
-/*Checks whether the board can be solved (1) or not (0)*/
-/*uses the ILP solver*/
-int validate(Game* game);
-
 int saveEdit(Game* game);
 
 /*Checks if there are errors in the board*/

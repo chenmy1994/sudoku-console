@@ -12,6 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#define NOTINSOLVE "Error: this command is ONLY available on Solve mode"
 #define MALLOCFAIL "Error: malloc has failed\n"
 #define ERROROPENFILE "Error: failed opening file\n"
 #define FAILEDREADINGFILE "Error: failed reading file\n"

@@ -91,9 +91,10 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdHint:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					hint();
+					hint(game, intX, intY);
+				    return 1;
 				}
-				return 1;
+				return 0;
 			case cmdGuessHint:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
 					guessHint();

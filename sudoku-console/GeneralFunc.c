@@ -496,3 +496,11 @@ int checkCellValid(int x, int y, int z, Game* game){
     }
     return 1;
 }
+
+/*Checks whether the board can be solved (1) or not (0)*/
+/*uses the ILP solver*/
+int validate(Game* game){
+    int ilp;
+    ilp = solveILP(game, 2, 0, 0);
+    return ilp;
+}

@@ -28,8 +28,8 @@ void initArr(int**** arrR, int**** arrC, int**** arrB, int** ind, double ** val,
 
 /*Fills the transArray with the corresponding Truple values
  * and while doing so it adds the constraints per cell to the model*/
-int fillArrayAndAddCellCon(Game* game, Truple** transArray, int* transCounter, int** ind, double** val,
-                           int**** rowsCon, int**** colsCon, int**** blocksCon, GRBenv** env, GRBmodel** model);
+int fillArray(Game* game, Truple** transArray, int* transCounter,
+                           int**** rowsCon, int**** colsCon, int**** blocksCon);
 
 /*Checks and handles error during Gurobi work*/
 int checkAndHandleError(int error,GRBenv** env, char* string);
@@ -67,10 +67,12 @@ void fillObjFun(double** obj, int ind);
 
 /* Add the coefficients of the objective function to the model
  * and add all the relevant constraints */
-int addVarsAndAllCons(GRBmodel** model,int transCounter, char** vtype,
-                      double** obj, GRBenv** env, int**** rowsCon, int**** colsCon, int**** blocksCon,
+int addAllCons(GRBmodel** model, GRBenv** env, int**** rowsCon, int**** colsCon, int**** blocksCon,
                       int** ind, double** val, int N);
 
+
+/*Add vars to model*/
+int addVars(GRBmodel** model,int transCounter, char** vtype, double** obj, GRBenv** env);
 
 /*set var type of the vtype array, it will be set to set
  * where set can be GRB_BINART and etc..*/
@@ -83,4 +85,17 @@ void setVarType(char** vtype, int transCounter, char set);
  * indicator = 1 is LP*/
 int solveGenral(int indicator, Game* game, int opCode, int x, int y);
 
+
+
+/*Free all the malloc we made in order to make the gurobi optimize the model*/
+void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple** transArray,
+             char** vtype,int**** rowsCon, int**** colsCon, int**** blocksCon);
+
+
+/*fill the arrays with zeroes*/
+void cleanArr(int** ind, double ** val, int transCounter);
+
+/*Add constraints to each cell*/
+int addCellCons(int** ind, double** val, Truple** transArray,
+                GRBenv** env, GRBmodel** model, int transCounter);
 #endif /*SUDOKU_CONSOLE_GUROBIFUNC_H*/

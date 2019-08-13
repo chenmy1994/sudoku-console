@@ -11,6 +11,8 @@
 #include "Stack.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "GurobiFunc.h"
+
 #define BOARDSAVED "Board saved to: %s\n"
 #define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell.\n"
 #define PUZZLESOLVED "Well Done! \n The puzzle was solved successfully.\n"
@@ -77,9 +79,14 @@ void updateMarkErrors(Game* game, int setValue);
 void markErrors(int x, int y, int z,Game* game);
 
 /*prints that reading file has failed and closes fp*/
-void failedReadingFile(FILE** fp, Game* game)
+void failedReadingFile(FILE** fp, Game* game);
 
 /*Return 1 if there is no contradiction between this cell to another fixed cell
  * Otherwise return 0*/
 int checkCellValid(int x, int y, int z, Game* game);
+
+/*Checks whether the board can be solved (1) or not (0)*/
+/*uses the ILP solver*/
+int validate(Game* game);
+
 #endif /*SUDOKU_CONSOLE_GENERALFUNC_H*/

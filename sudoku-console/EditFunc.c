@@ -10,15 +10,6 @@ void generate(){
 
 }
 
-/*Checks whether the board can be solved (1) or not (0)*/
-/*uses the ILP solver*/
-int validate(Game* game){
-	int ilp;
-	/*ToDO - update*/
-	ilp = solveILP(game, 2, 0, 0);
-    return ilp;
-}
-
 
 int saveEdit(Game* game){
     int isVal = 1, isErr;
