@@ -17,7 +17,8 @@
 #define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell.\n"
 #define PUZZLESOLVED "Well Done! \n The puzzle was solved successfully.\n"
 #define ERRORSOL "Sorry..\n The solution is erroneous.\n"
-
+#define BOARDISVALID "Board is valid\n"
+#define BOARDISNOTVALID "Board is not valid\n"
 
 /*Checks whether the x y cell contains z,
  * if it does - marks it as an erroneous and updates the errors counter*/

@@ -326,7 +326,7 @@ void freeAux(Game* game){
 /*Free malloc allocations*/
 void freeMem(Game* game){
     int i, j, k;
-    if((*game).memRelease==1){
+    if((*game).memRelease == 1){
         freeAux(game);
 
         /*Free 2 dim Cell array*/

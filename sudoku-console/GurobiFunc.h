@@ -23,12 +23,11 @@ int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBenv**
 
 
 /*initialize the malloc of the given arrays*/
-void initArr(int**** arrR, int**** arrC, int**** arrB, int** ind, double ** val, int N);
+void initArr(int**** arrR, int**** arrC, int**** arrB, int N);
 
 
-/*Fills the transArray with the corresponding Truple values
- * and while doing so it adds the constraints per cell to the model*/
-int fillArray(Game* game, Truple** transArray, int* transCounter,
+/*Fills the transArray with the corresponding Truple values*/
+void  fillArray(Game* game, Truple** transArray, int* transCounter,
                            int**** rowsCon, int**** colsCon, int**** blocksCon);
 
 /*Checks and handles error during Gurobi work*/
@@ -62,7 +61,7 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model);
 /* Fills the coefficents of the objection function
  * ind = 0 means we are in ILP,
  * ind = 1 means we are in LP*/
-void fillObjFun(double** obj, int ind);
+void fillObjFun(double** obj, int ind, int transCount);
 
 
 /* Add the coefficients of the objective function to the model
@@ -98,4 +97,14 @@ void cleanArr(int** ind, double ** val, int transCounter);
 /*Add constraints to each cell*/
 int addCellCons(int** ind, double** val, Truple** transArray,
                 GRBenv** env, GRBmodel** model, int transCounter);
+
+
+/*updates model*/
+int updateModel(GRBenv** env, GRBmodel** model);
+
+
+/*Optimize model*/
+int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus);
+
 #endif /*SUDOKU_CONSOLE_GUROBIFUNC_H*/
+

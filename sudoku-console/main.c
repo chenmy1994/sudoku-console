@@ -24,7 +24,10 @@ int main() {
     while(cmdVal != 2) {
         printf(GETCOMMANDMSG);
         cmdVal = getCommand(cmd, &game);
-        if(game.mode == 0 || cmdVal == 0){
+        if(cmdVal == 0 || cmdVal == 2){
+            continue;
+        }
+        if(game.memRelease == 1 && game.mode == 0){
             continue;
         }
         printBoard(&game);

@@ -28,7 +28,7 @@ void hint(Game* game,int x, int y){
 
     if(solveILP(game, 1, x, y) == 1){
         hint = game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal;
-        printf("Hint: set cell %d %d to %d",x , y, hint);
+        printf("Hint: set cell %d %d to %d\n",x , y, hint);
         return;
     }
 

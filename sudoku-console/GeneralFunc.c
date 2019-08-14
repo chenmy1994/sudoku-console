@@ -326,6 +326,7 @@ int fillBoard(char* X, Game* game, int mode){
 
                 (*game).board.board[block.y][block.x].block[cell.y][cell.x].val = val;
                 if (val != 0) {
+                    game->cellsToFill--;
                     markErrors(x,y, val, game);
                     updateCol(x, val, 1, game);
                     updateRow(y, val, 1, game);
@@ -502,5 +503,11 @@ int checkCellValid(int x, int y, int z, Game* game){
 int validate(Game* game){
     int ilp;
     ilp = solveILP(game, 2, 0, 0);
+    if(ilp == 1){
+        printf(BOARDISVALID);
+    }
+    else{
+        printf(BOARDISNOTVALID);
+    }
     return ilp;
 }
