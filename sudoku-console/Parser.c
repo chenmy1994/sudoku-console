@@ -75,7 +75,7 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdGenerate:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					generate();
+					generate(intX, intY, game);
 				}
 				return 1;
 			case cmdUndo:

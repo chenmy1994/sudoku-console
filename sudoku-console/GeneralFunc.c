@@ -101,8 +101,8 @@ void save(char* X, Game* game){
     int i, j, val;
     Point block, cell;
     char fixed;
-    if(game->mode==1){
-        if(saveEdit(game) == 0){
+    if(game->mode == 1){
+        if(saveEdit(game) == 0 && validate(game) != 1){
             return;
         }
     }

@@ -359,3 +359,26 @@ void freeMem(Game* game){
     }
 
 }
+
+/*Empties the board completely*/
+void emptyBoard(Game* game){
+    int i,j,k;
+    Point cell, block;
+
+    for(i = 0; i < game->m * game->n; i++) {
+        for (j = 0; j < game->m * game->n; j++) {
+            cell = getCellIndex(j + 1, i + 1, game);
+            block = getBlockIndex(j + 1, i + 1, game);
+            k  = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+            game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
+            game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = ' ';
+            if(k != 0){
+                game->board.board[block.y][block.x].block[cell.y][cell.x].val = 0;
+                updateRow(i + 1, k, 0, game);
+                updateCol(j + 1, k, 0, game);
+                updateBlock(pointToID(block.x, block.y, game), k, 0, game);
+            }
+        }
+    }
+
+}

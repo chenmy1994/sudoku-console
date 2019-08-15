@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 #include "Parser.h"
 #include "SPBufferset.h"
 #define GETCOMMANDMSG "Enter a command..\n"
 
 int main() {
     Game game;
-    int cmdVal = 0;
+    int cmdVal = 0, seed;
     char cmd[1025];
 	SP_BUFF_SET()
     /*Opening message*/
@@ -20,6 +22,8 @@ int main() {
 
     /*TODO - receive input file from user and update board dimensions*/
     game.memRelease = 0;
+    seed = 17;
+    srand(seed);
 
     while(cmdVal != 2) {
         printf(GETCOMMANDMSG);

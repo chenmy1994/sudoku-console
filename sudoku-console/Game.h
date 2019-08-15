@@ -108,4 +108,8 @@ void freeMem(Game* game);
 void initAll (Game* game);
 
 
+/*Empties the board completely*/
+void emptyBoard(Game* game);
+
+
 #endif /*SUDOKU_CONSOLE_GAME_H*/
