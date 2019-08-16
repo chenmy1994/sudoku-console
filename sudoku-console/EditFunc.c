@@ -56,7 +56,7 @@ int fillValid(int col, int row, Game* game){
     return 0;
 }
 
-/*Resset board to original state before starting generate function*/
+/*Reset board to original state before starting generate function*/
 void resetBoardOnGenerate(Game* game, int opCode){
     int i, j, k;
     Point block, cell;
@@ -135,13 +135,13 @@ void generate(int x, int y, Game* game){
                 return;
             }
         }
-        if(solveILP(game, 0, 0, 0) != 1){
+        /*if(solveILP(game, 0, 0, 0) != 1){
             cnt++;
         }
         else{
             chooseYCellsAndClearThem(game, y);
             return;
-        }
+        }*/
     }
     printf(ERRORINPUZZLEGEN);
 }

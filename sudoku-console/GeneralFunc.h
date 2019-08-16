@@ -15,10 +15,10 @@
 
 #define BOARDSAVED "Board saved to: %s\n"
 #define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell.\n"
-#define PUZZLESOLVED "Well Done! \n The puzzle was solved successfully.\n"
-#define ERRORSOL "Sorry..\n The solution is erroneous.\n"
 #define BOARDISVALID "Board is valid\n"
 #define BOARDISNOTVALID "Board is not valid\n"
+#define UNDOLIMIT "Error: There are no more moves to Undo\n"
+#define REDOLIMIT "Error: There are no more moves to Redo\n"
 
 /*Checks whether the x y cell contains z,
  * if it does - marks it as an erroneous and updates the errors counter*/
@@ -37,14 +37,15 @@ int solve(char* X, Game* game);
 /*TODO - should be splitting between SolveFunc and EditFunc */
 void save(char* X, Game* game);
 
-/*Set new value of cell*/
-void set(int x, int y, int z, Game* game);
+/*Set new value of cell
+ *  * receives an indicator (1) if the set command was sent from a undo or redo command, 0 otherwise*/
+void set(int x, int y, int z, Game* game,int undoOrRedo);
 
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)*/
-void undo();
+void undo(Game* game);
 
 /*Cancel the last revert action according to the linked list current move (updates to next move)*/
-void redo();
+void redo(Game* game);
 
 /*Prints the number of solution for the current board*/
 void num_solutions();
@@ -76,8 +77,6 @@ int buildNumber (char* buff, int* i);
 /*Update the "mark errors" setting according to users input */
 void updateMarkErrors(Game* game, int setValue);
 
-/*Marks the erroneous cells with '*' */
-void markErrors(int x, int y, int z,Game* game);
 
 /*prints that reading file has failed and closes fp*/
 void failedReadingFile(FILE** fp, Game* game);

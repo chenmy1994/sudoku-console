@@ -14,11 +14,28 @@ typedef struct Node{
 
 typedef struct {
     Node* current;
+    Node* first;
+    Node* last;
     int count;
 }LinkedList;
 
+/*return 1 if we reached the end of the list (last), 0 otherwise*/
+int theEnd(LinkedList* lst);
+
+/*return 1 if we reached the start of the list (first), 0 otherwise*/
+int theStart(LinkedList* lst);
+
+/*Initialize LinkedList Object*/
+LinkedList* initLinkedList();
+
+/*Receives 2 node: node1, node2. Setting node1's next to be node2 and node2 prev to be node1*/
+void setNext(Node* node1, Node* node2);
+
 /*Inserts new node to linked list*/
-void insert(LinkedList* lst, Point** points);
+void insert(LinkedList* lst,Point** points,int len);
+
+/*Returns the current node of a given LinkedList*/
+Node* getCurrent(LinkedList* lst);
 
 /*Update current node to previous node*/
 void prevCurr(LinkedList* lst);

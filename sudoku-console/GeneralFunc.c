@@ -133,10 +133,14 @@ void save(char* X, Game* game){
     printf(BOARDSAVED, X);
 }
 
-/*Set new value of cell*/
-void set(int x, int y, int z, Game* game){
+
+/*Set new value of cell
+ * receives an indicator (1) if the set command was sent from a undo or redo command, 0 otherwise*/
+void set(int x, int y, int z, Game* game,int undoOrRedo){
     Point block, cell;
     int prevVal, id;
+    Point p,**moveCell;
+
     block = getBlockIndex(x,y,game);
     cell = getCellIndex(x,y,game);
     prevVal = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
@@ -185,6 +189,17 @@ void set(int x, int y, int z, Game* game){
         updateCol(x, prevVal,0,game);
     }
 
+    if(!undoOrRedo){
+		(moveCell)=(Point**)malloc(sizeof(Point*));
+		(*moveCell)=(Point*)malloc(sizeof(Point));
+		p.x=x;
+		p.y=y;
+		p.curr=z;
+		p.prev=prevVal;
+		(*moveCell)[0]=p;
+		insert((*game).moves,moveCell,1);
+    }
+
     if(game->mode == 2 && game->cellsToFill == 0){
         if(game->numOfErrors == 0){
             printf(PUZZLESOLVED);
@@ -200,13 +215,37 @@ void set(int x, int y, int z, Game* game){
 
 
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)*/
-void undo(){
-
+void undo(Game* game){
+	LinkedList* movesList = (*game).moves;
+	if(theStart(movesList)){
+		printf(UNDOLIMIT);
+	}
+	else{
+		Node* currMove = (*movesList).current;
+		Point** currPoint = (*currMove).data;
+		int x=(**currPoint).x;
+		int y=(**currPoint).y;
+		int z=(**currPoint).prev;
+		set(x,y,z,game,1);
+		prevCurr((*game).moves);
+	}
 }
 
 /*Cancel the last revert action according to the linked list current move (updates to next move)*/
-void redo(){
-
+void redo(Game* game){
+	LinkedList* movesList = (*game).moves;
+	if(theEnd(movesList)){
+		printf(REDOLIMIT);
+	}
+	else{
+		Node* currMove = (*(*movesList).current).next;
+		Point** currPoint = (*currMove).data;
+		int x=(**currPoint).x;
+		int y=(**currPoint).y;
+		int z=(**currPoint).curr;
+		set(x,y,z,game,1);
+		nextCurr((*game).moves);
+	}
 }
 
 /*Prints the number of solution for the current board*/
@@ -370,11 +409,12 @@ int fillBoard(char* X, Game* game, int mode){
 
 /*Frees and Allocates the memory of the game*/
 int loadBoard(char* X, Game* game, int mode){
+	/*There was already a game open*/
     if(game->memRelease == 1){
         freeMem(game);
     }
-
-    if(strlen(X) > 1) {
+    /*A path were provided*/
+    if((X!=NULL)&&(strlen(X) > 1)) {
         return fillBoard(X, game,mode);
     }
     createEmptyBoard(game);
@@ -415,59 +455,6 @@ void checkAndMarkCellError(int x, int y, int z, Game* game){
     }
 }
 
-/*Marks the erroneous cells with '*' */
-void markErrors(int x, int y, int z,Game* game){
-    int i, j;
-    Point block = getBlockIndex(x,y, game);
-    Point cell = getCellIndex(x,y, game);
-    int id = pointToID(block.x,block.y,game);
-
-    if(isValidValue(x,y,z,game) == 1){
-        return;
-    }
-    /*If we got here it means that this is an erroneous and we need to mark it*/
-
-    /*Mark the current cell as erroneous*/
-    checkAndMarkCellError(x,y,z,game);
-
-    /*Mark every erroneous cell in the row*/
-    if((*game).rows[y - 1][z-1] > 0){
-        for(i = 1; i <= game->m*game->n; i++){
-            if(i == x){
-                continue;
-            }
-            checkAndMarkCellError(i,y,z,game);
-        }
-    }
-
-    /*Mark every erroneous cell in the column*/
-    if((*game).cols[x - 1][z-1] > 0){
-        for(i = 1; i <= game->m*game->n; i++){
-            if(i == y){
-                continue;
-            }
-            checkAndMarkCellError(x,i,z,game);
-        }
-    }
-
-    /*Mark every erroneous cell in the block*/
-    if((*game).blocks[id][z-1] > 0){
-        for(i = 0; i < game->m; i++){
-            for(j = 0; j < game->n; j++){
-                if(game->board.board[block.y][block.x].block[i][j].val == z){
-                    if(cell.x == j && cell.y == i){
-                        continue;
-                    }
-                    if(game->board.board[block.y][block.x].block[i][j].appendix != '*'){
-                        game->board.board[block.y][block.x].block[i][j].appendix = '*';
-                        game->numOfErrors++;
-                    }
-                    game->board.board[block.y][block.x].block[i][j].cntErr++;
-                }
-            }
-        }
-    }
-}
 
 /*Return 1 if there is no contradiction between this cell to another fixed cell
  * Otherwise return 0*/
@@ -501,7 +488,7 @@ int checkCellValid(int x, int y, int z, Game* game){
 /*Checks whether the board can be solved (1) or not (0)*/
 /*uses the ILP solver*/
 int validate(Game* game){
-    int ilp;
+    /*int ilp;
     ilp = solveILP(game, 2, 0, 0);
     if(ilp == 1){
         printf(BOARDISVALID);
@@ -509,5 +496,6 @@ int validate(Game* game){
     else{
         printf(BOARDISNOTVALID);
     }
-    return ilp;
+    return ilp;*/
+	return 1;
 }

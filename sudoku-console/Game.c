@@ -3,6 +3,11 @@
  */
 
 #include "Game.h"
+/* Creates LinkedList of moves for game*/
+void initMoves(Game* game) {
+	LinkedList* lst=initLinkedList();
+    game->moves= lst;
+}
 
 /* Creates board mallocs and call to initBlockCells*/
 void initBoard(Game* game) {
@@ -296,17 +301,13 @@ void initAll (Game* game){
     game->numOfErrors = 0;
     game->board.markError = 0;
     game->cellsToFill = game->m * game-> n *game->m * game-> n;
+    initMoves(game);
     initBoard(game);
     initRows(game);
     initCols(game);
     initBlocks(game);
     setZero(game);
 }
-
-
-
-
-
 
 /*Frees malloc of auxiliary*/
 void freeAux(Game* game){
@@ -381,4 +382,59 @@ void emptyBoard(Game* game){
         }
     }
 
+}
+
+/*Marks the erroneous cells with '*' */
+void markErrors(int x, int y, int z,Game* game){
+    int i, j;
+    Point block = getBlockIndex(x,y, game);
+    Point cell = getCellIndex(x,y, game);
+    int id = pointToID(block.x,block.y,game);
+
+    if(isValidValue(x,y,z,game) == 1){
+        return;
+    }
+
+    /*If we got here it means that this is an erroneous and we need to mark it*/
+
+    /*Mark the current cell as erroneous*/
+    checkAndMarkCellError(x,y,z,game);
+
+    /*Mark every erroneous cell in the row*/
+    if((*game).rows[y - 1][z-1] > 0){
+        for(i = 1; i <= game->m*game->n; i++){
+            if(i == x){
+                continue;
+            }
+            checkAndMarkCellError(i,y,z,game);
+        }
+    }
+
+    /*Mark every erroneous cell in the column*/
+    if((*game).cols[x - 1][z-1] > 0){
+        for(i = 1; i <= game->m*game->n; i++){
+            if(i == y){
+                continue;
+            }
+            checkAndMarkCellError(x,i,z,game);
+        }
+    }
+
+    /*Mark every erroneous cell in the block*/
+    if((*game).blocks[id][z-1] > 0){
+        for(i = 0; i < game->m; i++){
+            for(j = 0; j < game->n; j++){
+                if(game->board.board[block.y][block.x].block[i][j].val == z){
+                    if(cell.x == j && cell.y == i){
+                        continue;
+                    }
+                    if(game->board.board[block.y][block.x].block[i][j].appendix != '*'){
+                        game->board.board[block.y][block.x].block[i][j].appendix = '*';
+                        game->numOfErrors++;
+                    }
+                    game->board.board[block.y][block.x].block[i][j].cntErr++;
+                }
+            }
+        }
+    }
 }

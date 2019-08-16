@@ -22,12 +22,15 @@ int main() {
 
     /*TODO - receive input file from user and update board dimensions*/
     game.memRelease = 0;
+    game.mode=0;
     seed = 17;
     srand(seed);
 
+    /*while no exit command*/
     while(cmdVal != 2) {
         printf(GETCOMMANDMSG);
         cmdVal = getCommand(cmd, &game);
+        /*if EOF or exit*/
         if(cmdVal == 0 || cmdVal == 2){
             continue;
         }
