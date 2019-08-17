@@ -9,6 +9,11 @@ typedef enum {cmdSolve,cmdEdit,cmdMarkErr,cmdPrint,cmdSet,cmdValidate,cmdGuess,
 			  cmdGenerate,cmdUndo,cmdRedo,cmdSave,cmdHint,cmdGuessHint,cmdSolNum,
 			  cmdAutofill,cmdReset,cmdExit,TypeAmount} cmdType;
 
+/*Return 1 if the string input is a number, 0 otherwise*/
+int isNumeric(const char *str);
+
+/*Return 1 if the string input is a valid double, 0 otherwise*/
+int isDouble(const char *s);
 
 /*Receives the user input (command and arguments) and return:
 * for valid input and arguments - return 1
@@ -16,10 +21,10 @@ typedef enum {cmdSolve,cmdEdit,cmdMarkErr,cmdPrint,cmdSet,cmdValidate,cmdGuess,
 int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game);
 
 /*Converts an enum item to his char* value (for string comparison)*/
-char* enumToStr (cmdType cmd,Game* game);
+char* enumToStr (cmdType cmd);
 
 /*Converts input from user (command) to the matching item index for enum cmdType*/
-int strToEnumIndex (char* cmdStr,Game* game);
+int strToEnumIndex (char* cmdStr);
 
 /*Receives command from using and acting accordingly:
  * solve,exit,edit will be sent to functions defined under Parser module

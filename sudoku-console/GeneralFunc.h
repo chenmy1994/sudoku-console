@@ -22,7 +22,7 @@
 
 /*Checks whether the x y cell contains z,
  * if it does - marks it as an erroneous and updates the errors counter*/
-void checkAndMarkCellError(int x, int y, int z, Game* game);
+int checkAndMarkCellError(int x, int y, int z, Game* game);
 
 /*Dealing with the edit command received by user*/
 int edit(char* X, Game* game);
@@ -41,8 +41,9 @@ void save(char* X, Game* game);
  *  * receives an indicator (1) if the set command was sent from a undo or redo command, 0 otherwise*/
 void set(int x, int y, int z, Game* game,int undoOrRedo);
 
-/*Revert the last move done by the user according to the linked list current move (updates to previous move)*/
-void undo(Game* game);
+/*Revert the last move done by the user according to the linked list current move (updates to previous move)
+ * also receives an indicator=1 'reset' preventing output for every move undone if undo was called from reset*/
+void undo(Game* game,int reset);
 
 /*Cancel the last revert action according to the linked list current move (updates to next move)*/
 void redo(Game* game);
@@ -51,7 +52,7 @@ void redo(Game* game);
 void num_solutions();
 
 /*Undo all moves, reverting the board to its original loaded state.*/
-void reset();
+void reset(Game* game);
 
 /*Checks whether the cell in col x and row y is fixed or not*/
 int isFixed(int x, int y, Game* game);

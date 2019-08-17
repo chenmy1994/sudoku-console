@@ -6,13 +6,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define errorCommand "Error: invalid command\n"
 #define errorSpecMode "Error: This command is only available in %s mode\n"
 #define errorEditSolve "You can only use 'Edit X' or 'Solve X' command\n"
 #define errorArgNum "Error: You're missing arguments, number of arguments require for the command is %d\n"
-#define errorArgValue "Error: Command input should be %s"
-#define errorArgRange "Error: Your %s input is in the wrong range.\n"
+#define errorArgValue "%sCommand input should be %s"
+#define errorArgRange "Error: There is a problem with your %s input.\n"
 
 
 /* Get command from user, call the matching function for a valid command.*/
@@ -31,7 +32,7 @@ int getCommand (char* stream,Game* game){
 			y=strtok(NULL," \t\r\n"); /*second argument*/
 			z=strtok(NULL," \t\r\n"); /*third argument*/
 
-			cmdIndex=strToEnumIndex(cmdType,game);
+			cmdIndex=strToEnumIndex(cmdType);
 
 			switch(cmdIndex){
 			case cmdSolve:
@@ -76,7 +77,7 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdUndo:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					undo(game);
+					undo(game,0);
 				}
 				return 1;
 			case cmdRedo:
@@ -91,7 +92,7 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdHint:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					hint(game, atoi(x), atoi(y));
+					hint(atoi(x), atoi(y),game);
 				    return 1;
 				}
 				return 0;
@@ -112,7 +113,7 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdReset:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					reset();
+					reset(game);
 				}
 				return 1;
 			case cmdExit:
@@ -127,7 +128,7 @@ int getCommand (char* stream,Game* game){
 }
 
 /*Converts an enum item to his char* value (for string comparison)*/
-char* enumToStr(cmdType cmd, Game* game){
+char* enumToStr(cmdType cmd){
 	switch(cmd){
 	case cmdSolve:
 		return "solve";
@@ -188,11 +189,11 @@ char* enumToStr(cmdType cmd, Game* game){
 
 /*Converts input from user (command) to the matching item index for enum cmdType
  * if command doesnt exist - return (-1)*/
-int strToEnumIndex(char* cmdStr,Game* game){
+int strToEnumIndex(char* cmdStr){
 	int i;
 	char* enumTrans;
 	for (i=0;i<TypeAmount;i++){
-		enumTrans = enumToStr(i,game);
+		enumTrans = enumToStr(i);
 		if(strcmp(cmdStr,enumTrans)==0){
 			return i;
 		}
@@ -220,10 +221,10 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
 		if((*game).mode!=0){
 			if((*game).mode!=1){
 				if(x!=NULL){
-					if( (atoi(x)==1) || (atoi(x)==0) ){
+					if((isNumeric(x))&&((atoi(x)==1) || (atoi(x)==0))){
 						return 1;
 					}
-					printf(errorArgValue,"1 or 0\n");
+					printf(errorArgValue,"Error: ","1 or 0\n");
 				}
 				else{	printf(errorArgNum,1);	}
 			}
@@ -235,9 +236,9 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
 	case cmdSet:
 		if((*game).mode!=0){
 			if ( (x!=NULL) && (y!=NULL) && (z!=NULL) ){
-				if(atoi(x)<=N){
-					if(atoi(y)<=N){
-						if (atoi(z)<=N){
+				if((isNumeric(x)) && (atoi(x)<=N) && (atoi(x)>0)){
+					if((isNumeric(y)) && (atoi(y)<=N) && (atoi(y)>0)){
+						if ((isNumeric(x)) && (atoi(z)<=N) && (atoi(x)>=0)){
 							return 1;
 						}
 						printf(errorArgRange,"third");
@@ -245,8 +246,8 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
 					else{	printf(errorArgRange,"second");	}
 				}
 				else{	printf(errorArgRange,"first");	}
-				printf(errorArgValue,"between 0 and ");
-				printf("%d\n",N);
+				printf(errorArgValue,"","a valid number between 0 and ");
+				printf("%d.\n",N);
 			}
 			else{	printf(errorArgNum,3);	}
 		}
@@ -257,10 +258,10 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
 		if((*game).mode!=0){
 			if((*game).mode!=1){
 				if (x!=NULL){
-					if( (atof(x)<=1) && (atof(x)>=0) ){
+					if((isDouble(x)) && (atof(x)<=1) && (atof(x)>=0) ){
 						return 1;
 					}
-					printf(errorArgValue,"between 0 and 1\n");
+					printf(errorArgValue,"Error: ","a valid floating point value between 0 and 1\n");
 				}
 				else{	printf(errorArgNum,1);	}
 			}
@@ -293,15 +294,15 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
 		if((*game).mode!=0){
 			if((*game).mode!=1){
 				if ( (x!=NULL) && (y!=NULL) ){
-					if(atoi(x)<=N){
-						if (atoi(y)<=N) {
+					if((isNumeric(x)) && (atoi(x)<=N)){
+						if ((isNumeric(y)) && (atoi(y)<=N)) {
 							return 1;
 						}
 						printf(errorArgRange,"second");
 					}
 					else{	printf(errorArgRange,"first");	}
-					printf(errorArgValue,"between 0 and ");
-					printf("%d\n",N);
+					printf(errorArgValue,"","a valid number between 0 and ");
+					printf("%d.\n",N);
 				}
 				else{	printf(errorArgNum,2);	}
 			}
@@ -319,4 +320,24 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
 		break;
 	}
 	return -1;
+}
+
+/*Return 1 if the string input is a number, 0 otherwise*/
+int isNumeric(const char *str)
+{
+    while(*str != '\0')
+    {
+        if(*str < '0' || *str > '9')
+            return 0;
+        str++;
+    }
+    return 1;
+}
+
+
+/*Return 1 if the string input is a valid double, 0 otherwise*/
+int isDouble(const char *s) {
+  char *end;
+  strtod(s, &end);
+  return s != end;
 }

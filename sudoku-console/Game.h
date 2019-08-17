@@ -48,6 +48,16 @@ typedef struct{
 
 }Game;
 
+/*In case of adding a move in the middle of game.moves List - Clearing the redo part of the list*/
+void removeTail(Game* game);
+
+/*Receives an array of points and its size and adding to game.moves*/
+void addMove(Point** points, int cnt, Game* game);
+
+/*Checks whether the x y cell contains z,
+ * if it does - marks it as an erroneous and updates the errors counter*/
+int checkAndMarkCellError(int x, int y, int z, Game* game);
+
 /* Creates LinkedList of moves for game*/
 void initMoves(Game* game);
 

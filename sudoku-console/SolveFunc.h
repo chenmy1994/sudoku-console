@@ -15,22 +15,22 @@ void guess();
 void guessHint();
 
 /*Give a hint to the user by showing the solution of the input cell*/
-void hint(Game* game, int x, int y);
+void hint(int x, int y,Game* game);
 
 /*the Set value part of autofill function*/
 void setAF(int x, int y, int z, Game* game);
 
 /*Receives an array of points and its size - filling the relevant cells with the single value*/
-void fillSingleValue(Game* game, Point** valArray,int cnt);
+void fillSingleValue(Point** valArray,int cnt,Game* game);
 
 /*Receives coordinates of a cell and return the single valid value of this cell if exists
  * otherwise - return 0;
  */
-int singleValidValue(Game* game,int col,int row);
+int singleValidValue(int col,int row,Game* game);
 
 
 /*Automatically fill obvious values - cells which contain a single legal value.
  * return 0 if the board has erroneous, otherwise 1*/
-int autofill();
+int autofill(Game* game);
 
 #endif /*SUDOKU_CONSOLE_SOLVEFUNC_H*/

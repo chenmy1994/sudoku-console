@@ -8,6 +8,7 @@
 
 typedef struct Node{
     Point** data;
+    int pointNum;
     struct Node* next;
     struct Node* prev;
 }Node;
@@ -24,6 +25,9 @@ int theEnd(LinkedList* lst);
 
 /*return 1 if we reached the start of the list (first), 0 otherwise*/
 int theStart(LinkedList* lst);
+
+/*Delete a given node from lst*/
+void deleteNode(LinkedList* lst, Node* node);
 
 /*Initialize LinkedList Object*/
 LinkedList* initLinkedList();
@@ -43,5 +47,7 @@ void prevCurr(LinkedList* lst);
 /*Update current node to next node*/
 void nextCurr(LinkedList* lst);
 
+/*Free malloc allocations of given linked list*/
+void freeListMem(LinkedList* lst);
 
 #endif /*SUDOKU_CONSOLE_LINKEDLIST_H*/

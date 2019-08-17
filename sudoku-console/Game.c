@@ -5,9 +5,27 @@
 #include "Game.h"
 /* Creates LinkedList of moves for game*/
 void initMoves(Game* game) {
-	LinkedList* lst=initLinkedList();
-    game->moves= lst;
+	game->moves=initLinkedList();
 }
+
+/*Receives an array of points and its size and adding to game.moves*/
+void addMove(Point** points, int cnt, Game* game){
+	LinkedList* lst=(*game).moves;
+	/*if the moves list has a "tail" - remove it*/
+	if(!theEnd(lst)){
+		removeTail(game);
+	}
+	insert((*game).moves,points,cnt);
+}
+
+/*In case of adding a move in the middle of game.moves List - Clearing the redo part of the list*/
+void removeTail(Game* game){
+	LinkedList* lst=(*game).moves;
+	while(!theEnd(lst)){
+		deleteNode(lst,lst->current->next);
+	}
+}
+
 
 /* Creates board mallocs and call to initBlockCells*/
 void initBoard(Game* game) {
@@ -357,6 +375,8 @@ void freeMem(Game* game){
         free((*game).cols);
         free((*game).blocks);
         (*game).memRelease=0;
+
+        freeListMem((*game).moves);
     }
 
 }
@@ -386,7 +406,7 @@ void emptyBoard(Game* game){
 
 /*Marks the erroneous cells with '*' */
 void markErrors(int x, int y, int z,Game* game){
-    int i, j;
+    int i, j,numErr=0;
     Point block = getBlockIndex(x,y, game);
     Point cell = getCellIndex(x,y, game);
     int id = pointToID(block.x,block.y,game);
@@ -394,7 +414,6 @@ void markErrors(int x, int y, int z,Game* game){
     if(isValidValue(x,y,z,game) == 1){
         return;
     }
-
     /*If we got here it means that this is an erroneous and we need to mark it*/
 
     /*Mark the current cell as erroneous*/
@@ -406,7 +425,7 @@ void markErrors(int x, int y, int z,Game* game){
             if(i == x){
                 continue;
             }
-            checkAndMarkCellError(i,y,z,game);
+            numErr+=checkAndMarkCellError(i,y,z,game);
         }
     }
 
@@ -416,7 +435,7 @@ void markErrors(int x, int y, int z,Game* game){
             if(i == y){
                 continue;
             }
-            checkAndMarkCellError(x,i,z,game);
+            numErr+=checkAndMarkCellError(x,i,z,game);
         }
     }
 
@@ -433,8 +452,12 @@ void markErrors(int x, int y, int z,Game* game){
                         game->numOfErrors++;
                     }
                     game->board.board[block.y][block.x].block[i][j].cntErr++;
+                    numErr++;
                 }
             }
         }
     }
+
+    /*update the number of erroneous of the cell*/
+    game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr=numErr;
 }

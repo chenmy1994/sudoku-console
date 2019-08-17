@@ -114,7 +114,7 @@ void generate(int x, int y, Game* game){
     }
 
     if(y > game->m * game->n){
-        printf(TOOMANYCELL);
+        printf(TOOMANYCELL, y);
         return;
     }
     /*when y is 0 we need to empty the board*/
@@ -135,13 +135,13 @@ void generate(int x, int y, Game* game){
                 return;
             }
         }
-        /*if(solveILP(game, 0, 0, 0) != 1){
+        if(solveILP(game, 0, 0, 0) != 1){
             cnt++;
         }
         else{
             chooseYCellsAndClearThem(game, y);
             return;
-        }*/
+        }
     }
     printf(ERRORINPUZZLEGEN);
 }

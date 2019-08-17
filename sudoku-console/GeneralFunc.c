@@ -3,6 +3,9 @@
  */
 
 #include "GeneralFunc.h"
+#define UNDOMSG "Undo: Deleted value %d for cell <%d,%d>\n"
+#define REDOMSG "Redo: Re-Set value %d from cell <%d,%d>\n"
+
 
 /*Dealing with the edit command received by user*/
 int edit(char* X, Game* game){
@@ -139,7 +142,7 @@ void save(char* X, Game* game){
 void set(int x, int y, int z, Game* game,int undoOrRedo){
     Point block, cell;
     int prevVal, id;
-    Point p,**moveCell;
+    Point **moveCell;
 
     block = getBlockIndex(x,y,game);
     cell = getCellIndex(x,y,game);
@@ -168,6 +171,8 @@ void set(int x, int y, int z, Game* game,int undoOrRedo){
     else if (z == 0){
         unMarkErrors(x, y, prevVal, game);
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = z;
+        game->cellsToFill++;
+
         /*if(isFixed(x,y, game) == 1) {
             game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = ' ';
         }*/
@@ -175,8 +180,8 @@ void set(int x, int y, int z, Game* game,int undoOrRedo){
         updateRow(y, prevVal,0,game);
         updateCol(x, prevVal,0,game);
     }
-    /*If user overridden a value with a new valid value */
-    else {
+    /*If user overwritten a value with a new valid value */
+    else if(prevVal!=z){
         unMarkErrors(x, y, prevVal, game);
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = z;
         markErrors(x, y, z, game);
@@ -192,16 +197,17 @@ void set(int x, int y, int z, Game* game,int undoOrRedo){
     if(!undoOrRedo){
 		(moveCell)=(Point**)malloc(sizeof(Point*));
 		(*moveCell)=(Point*)malloc(sizeof(Point));
-		p.x=x;
-		p.y=y;
-		p.curr=z;
-		p.prev=prevVal;
-		(*moveCell)[0]=p;
-		insert((*game).moves,moveCell,1);
+
+		(**moveCell).x=x;
+		(**moveCell).y=y;
+		(**moveCell).curr=z;
+		(**moveCell).prev=prevVal;
+		addMove(moveCell,1,game);
     }
 
     if(game->mode == 2 && game->cellsToFill == 0){
         if(game->numOfErrors == 0){
+            printBoard(game);
             printf(PUZZLESOLVED);
             /*Change mode to init*/
             game->mode = 0;
@@ -214,36 +220,54 @@ void set(int x, int y, int z, Game* game,int undoOrRedo){
 
 
 
-/*Revert the last move done by the user according to the linked list current move (updates to previous move)*/
-void undo(Game* game){
+/*Revert the last move done by the user according to the linked list current move (updates to previous move)
+ * also receives an indicator=1 'reset' preventing output for every move undone if undo was called from reset*/
+void undo(Game* game,int reset){
+	int movesNum,x,y,z,cur,i;
+	Node* currMove;
+	Point** currPoint;
 	LinkedList* movesList = (*game).moves;
 	if(theStart(movesList)){
 		printf(UNDOLIMIT);
 	}
 	else{
-		Node* currMove = (*movesList).current;
-		Point** currPoint = (*currMove).data;
-		int x=(**currPoint).x;
-		int y=(**currPoint).y;
-		int z=(**currPoint).prev;
-		set(x,y,z,game,1);
+		currMove = (*movesList).current;
+		movesNum=(*currMove).pointNum;
+		currPoint = (*currMove).data;
+		for (i=0;i<movesNum;i++){
+			x=(*currPoint)[i].x;
+			y=(*currPoint)[i].y;
+			z=(*currPoint)[i].prev;
+			cur=(*currPoint)[i].curr;
+			if(!reset){
+				printf(UNDOMSG,cur,x,y);
+			}
+			set(x,y,z,game,1);
+		}
 		prevCurr((*game).moves);
 	}
 }
 
 /*Cancel the last revert action according to the linked list current move (updates to next move)*/
 void redo(Game* game){
+	int movesNum,x,y,z,i;
+	Node* currMove;
+	Point** currPoint;
 	LinkedList* movesList = (*game).moves;
 	if(theEnd(movesList)){
 		printf(REDOLIMIT);
 	}
 	else{
-		Node* currMove = (*(*movesList).current).next;
-		Point** currPoint = (*currMove).data;
-		int x=(**currPoint).x;
-		int y=(**currPoint).y;
-		int z=(**currPoint).curr;
-		set(x,y,z,game,1);
+		currMove = (*(*movesList).current).next;
+		movesNum=(*currMove).pointNum;
+		currPoint = (*currMove).data;
+		for (i=0;i<movesNum;i++){
+			x=(*currPoint)[i].x;
+			y=(*currPoint)[i].y;
+			z=(*currPoint)[i].curr;
+			printf(REDOMSG,z,x,y);
+			set(x,y,z,game,1);
+		}
 		nextCurr((*game).moves);
 	}
 }
@@ -254,8 +278,11 @@ void num_solutions(){
 }
 
 /*Undo all moves, reverting the board to its original loaded state.*/
-void reset(){
-
+void reset(Game* game){
+	LinkedList* movesList = (*game).moves;
+	while(!theStart(movesList)){
+		undo(game,1);
+	}
 }
 
 /*Checks whether the cell in col x and row y is fixed or not*/
@@ -443,7 +470,7 @@ void updateMarkErrors(Game* game, int setValue){
 
 /*Checks whether the x y cell contains z,
  * if it does - marks it as an erroneous and updates the errors counter*/
-void checkAndMarkCellError(int x, int y, int z, Game* game){
+int checkAndMarkCellError(int x, int y, int z, Game* game){
     Point block = getBlockIndex(x,y, game);
     Point cell = getCellIndex(x,y, game);
     if(game->board.board[block.y][block.x].block[cell.y][cell.x].val == z) {
@@ -452,7 +479,9 @@ void checkAndMarkCellError(int x, int y, int z, Game* game){
             game->numOfErrors++;
         }
         game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr++;
+        return 1;
     }
+    return 0;
 }
 
 
@@ -488,7 +517,7 @@ int checkCellValid(int x, int y, int z, Game* game){
 /*Checks whether the board can be solved (1) or not (0)*/
 /*uses the ILP solver*/
 int validate(Game* game){
-    /*int ilp;
+    int ilp;
     ilp = solveILP(game, 2, 0, 0);
     if(ilp == 1){
         printf(BOARDISVALID);
@@ -496,6 +525,6 @@ int validate(Game* game){
     else{
         printf(BOARDISNOTVALID);
     }
-    return ilp;*/
+    return ilp;
 	return 1;
 }
