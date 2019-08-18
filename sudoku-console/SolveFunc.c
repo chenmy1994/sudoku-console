@@ -23,10 +23,13 @@ void hint(int x, int y,Game* game){
     int hint;
     block = getBlockIndex(x,y, game);
     cell = getCellIndex(x,y, game);
-
+    if(isFixed(x,y,game) == 1){
+        printf(CELLISFIXED, x, y);
+        return;
+    }
     if(solveILP(game, 1, x, y) == 1){
         hint = game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal;
-        printf("Hint: set cell %d %d to %d\n",x , y, hint);
+        printf("Hint: set cell <%d,%d> to %d\n",x , y, hint);
         return;
     }
 }

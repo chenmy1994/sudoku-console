@@ -54,9 +54,6 @@ void num_solutions();
 /*Undo all moves, reverting the board to its original loaded state.*/
 void reset(Game* game);
 
-/*Checks whether the cell in col x and row y is fixed or not*/
-int isFixed(int x, int y, Game* game);
-
 /*Fills the game board with the values given from the file in X*/
 int fillBoard(char* X, Game* game, int mode);
 

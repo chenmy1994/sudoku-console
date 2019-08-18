@@ -6,7 +6,7 @@
 #define SUDOKU_CONSOLE_SOLVEFUNC_H
 #include "Game.h"
 #include "GurobiFunc.h"
-
+#define CELLISFIXED "Error: cell <%d, %d> is fixed.\n"
 
 /*Fills all cell values with probability greater than users input*/
 void guess();

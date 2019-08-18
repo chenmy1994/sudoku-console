@@ -125,9 +125,11 @@ void freeMem(Game* game);
 /*Initialize all memory allocations*/
 void initAll (Game* game);
 
-
 /*Empties the board completely*/
 void emptyBoard(Game* game);
+
+/*Checks whether the cell in col x and row y is fixed or not*/
+int isFixed(int x, int y, Game* game);
 
 
 #endif /*SUDOKU_CONSOLE_GAME_H*/

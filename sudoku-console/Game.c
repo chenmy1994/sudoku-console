@@ -461,3 +461,14 @@ void markErrors(int x, int y, int z,Game* game){
     /*update the number of erroneous of the cell*/
     game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr=numErr;
 }
+
+/*Checks whether the cell in col x and row y is fixed or not*/
+int isFixed(int x, int y, Game* game){
+    Point block, cell;
+    block = getBlockIndex(x,y,game);
+    cell = getCellIndex(x,y,game);
+    if(game->board.board[block.y][block.x].block[cell.y][cell.x].fixed == '.'){
+        return 1;
+    }
+    return 0;
+}

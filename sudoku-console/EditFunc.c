@@ -11,12 +11,13 @@ void fillEmptyCellsArray(Game* game, Point** emptyCells){
     Point block, cell, p;
     for(i = 0; i < game->m * game->n; i++){
         for(j = 0; j < game->m * game->n; j++) {
-            p.x = i + 1;
-            p.y = j + 1;
+            p.x = j + 1;
+            p.y = i + 1;
             cell = getCellIndex(j + 1, i + 1, game);
             block = getBlockIndex(j + 1, i + 1, game);
             if(game->board.board[block.y][block.x].block[cell.y][cell.x].val == 0){
-                (*emptyCells)[cnt] = p;
+                (*emptyCells)[cnt].x = p.x;
+                (*emptyCells)[cnt].y = p.y;
                 cnt++;
             }
         }
@@ -27,7 +28,7 @@ void fillEmptyCellsArray(Game* game, Point** emptyCells){
 Point chooseEmptyCell(Game* game){
     int index;
     Point p;
-    Point* emptyCells =  (Point*)malloc(game->cellsToFill * sizeof(Point));
+    Point* emptyCells = (Point*)malloc(game->cellsToFill * sizeof(Point));
     fillEmptyCellsArray(game, &emptyCells);
     index = rand() % game->cellsToFill;
     p.x = emptyCells[index].x;
@@ -44,12 +45,13 @@ int fillValid(int col, int row, Game* game){
     block = getBlockIndex(col, row, game);
     for(k = 0; k < game->m * game->n; k++){
         if(isValidValue(col, row, k + 1, game) == 1){
-            game->board.board[block.y][block.x].block[cell.y][cell.x].val = k;
+            game->board.board[block.y][block.x].block[cell.y][cell.x].val = k + 1;
             updateRow(row, k + 1, 1, game);
             updateCol(col, k + 1, 1, game);
             updateBlock(pointToID(block.x, block.y, game), k + 1, 1, game);
             /*Mark that this is a random cell*/
             game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = 'r';
+            game->cellsToFill--;
             return 1;
         }
     }
@@ -58,12 +60,19 @@ int fillValid(int col, int row, Game* game){
 
 /*Reset board to original state before starting generate function*/
 void resetBoardOnGenerate(Game* game, int opCode){
-    int i, j, k;
+    int i, j, k, ilpVal;
     Point block, cell;
     for(i = 0; i < game->m * game->n; i++) {
         for (j = 0; j < game->m * game->n; j++) {
             cell = getCellIndex(j + 1, i + 1, game);
             block = getBlockIndex(j + 1, i + 1, game);
+            ilpVal = game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal;
+            if(opCode == 1){
+                if(ilpVal != 0){
+                    game->board.board[block.y][block.x].block[cell.y][cell.x].val = ilpVal;
+                    game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
+                }
+            }
             if(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == 'r'){
                 k  = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
                 game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
@@ -79,13 +88,14 @@ void resetBoardOnGenerate(Game* game, int opCode){
 
 }
 
+
 /*Randomly chooses y cells from the board and clear the values of all other cells*/
 void chooseYCellsAndClearThem(Game* game, int y){
-    int i, cellsToClear, row, col, k;
+    int i, cellsToClear, row, col, k, N;
     Point block, cell;
-
+    N = game->m * game->n * game->m * game->n;
     resetBoardOnGenerate(game, 1);
-    cellsToClear = (game->m * game->n) - y;
+    cellsToClear = N - y;
 
     for(i = 0; i < cellsToClear; i++){
         row = rand() % (game->n * game->m);
@@ -98,10 +108,13 @@ void chooseYCellsAndClearThem(Game* game, int y){
             continue;
         }
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = 0;
+        game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = ' ';
+        game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
         updateRow(row + 1, k, 0, game);
         updateCol(col + 1, k, 0, game);
         updateBlock(pointToID(block.x, block.y, game), k, 0, game);
     }
+    game->cellsToFill = y;
 }
 
 /*Generates a puzzle by randomly filling number of cells provided by user*/
@@ -135,6 +148,7 @@ void generate(int x, int y, Game* game){
                 return;
             }
         }
+
         if(solveILP(game, 0, 0, 0) != 1){
             cnt++;
         }

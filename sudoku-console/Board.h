@@ -39,7 +39,5 @@ typedef struct {
     int markError;
 }Board;
 
-/*Free all board memory*/
-void destroyBoard(Board* board);
 
 #endif /*SUDOKU_CONSOLE_BOARD_H*/
