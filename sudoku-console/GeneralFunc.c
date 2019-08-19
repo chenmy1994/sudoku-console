@@ -509,6 +509,10 @@ int checkCellValid(int x, int y, int z, Game* game){
 /*uses the ILP solver*/
 int validate(Game* game){
     int ilp;
+    if(game->numOfErrors > 0){
+        printf(BOARDISNOTVALID);
+        return 0;
+    }
     ilp = solveILP(game, 2, 0, 0);
     if(ilp == 1){
         printf(BOARDISVALID);
@@ -517,5 +521,4 @@ int validate(Game* game){
         printf(BOARDISNOTVALID);
     }
     return ilp;
-	return 1;
 }

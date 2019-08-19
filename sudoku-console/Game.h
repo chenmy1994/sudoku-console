@@ -12,6 +12,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#define BOARDISVALID "Board is valid\n"
+#define BOARDISNOTVALID "Board is not valid\n"
+#define ERRORSOLVEMODE "Error: This command is available in Solve mode ONLY. \n"
 #define MALLOCFAIL "Error: malloc has failed\n"
 #define ERROROPENFILE "Error: failed opening file\n"
 #define FAILEDREADINGFILE "Error: failed reading file\n"
@@ -131,5 +134,10 @@ void emptyBoard(Game* game);
 /*Checks whether the cell in col x and row y is fixed or not*/
 int isFixed(int x, int y, Game* game);
 
+/*Computes all helpful arrays from the beginning*/
+void updateAllArrs(Game* game);
+
+/*Fill double array with zeroes*/
+void fillZeroesDouble(double** arr, int len);
 
 #endif /*SUDOKU_CONSOLE_GAME_H*/

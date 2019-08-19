@@ -15,8 +15,7 @@
 
 #define BOARDSAVED "Board saved to: %s\n"
 #define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell.\n"
-#define BOARDISVALID "Board is valid\n"
-#define BOARDISNOTVALID "Board is not valid\n"
+
 #define UNDOLIMIT "Error: There are no more moves to Undo\n"
 #define REDOLIMIT "Error: There are no more moves to Redo\n"
 
@@ -34,7 +33,6 @@ void exitGame(Game* game);
 int solve(char* X, Game* game);
 
 /*Saves the current game board to the specified file*/
-/*TODO - should be splitting between SolveFunc and EditFunc */
 void save(char* X, Game* game);
 
 /*Set new value of cell
@@ -74,7 +72,6 @@ int buildNumber (char* buff, int* i);
 
 /*Update the "mark errors" setting according to users input */
 void updateMarkErrors(Game* game, int setValue);
-
 
 /*prints that reading file has failed and closes fp*/
 void failedReadingFile(FILE** fp, Game* game);

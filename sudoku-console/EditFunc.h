@@ -25,7 +25,7 @@ int saveEdit(Game* game);
 int checkError(Game* game);
 
 /*Reset board to original state before starting generate function*/
-void resetBoardOnGenerate(Game* game, int opCode);
+void resetBoardOnGenerate(Game* game, int opCode, int resetCellsToFill);
 
 /*fills the given col, row in the board with a valid value and update the relevant arrays*/
 int fillValid(int col, int row, Game* game);

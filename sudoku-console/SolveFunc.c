@@ -8,13 +8,61 @@
 #define autofillMSG "Set single legal value %d for Cell <%d,%d>\n"
 
 /*Fills all cell values with probability greater than users input*/
-void guess(){
-
+void guess(int x, Game* game){
+    /*this is just bullshit so make will compile*/
+    x = game->n;
+    if ( x > 0){
+        return;
+    }
 }
 
+int checkBeforeHint(int x, int y, Game* game){
+    int val;
+    Point block, cell;
+    if(game->mode != 2){
+        printf(ERRORSOLVEMODE);
+        return 0;
+    }
+    if(isFixed(x,y,game) == 1){
+        printf(CELLISFIXED, x, y);
+        return 0;
+    }
+    block = getBlockIndex(x,y, game);
+    cell = getCellIndex(x,y, game);
+    val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+    if(val != 0){
+        printf(CELLISFILLED, x, y);
+        return 0;
+    }
+    return 1;
+}
 /*Shows a guess to the user for a single cell X,Y*/
-void guessHint(){
+void guessHint(int x, int y, Game* game){
+    if(checkBeforeHint(x,y, game) == 0){
+        return;
+    }
+    if(solveLP(game, 1, x, y) == 1){
+        printGuessAndScores(x,y,game);
+        return;
+    }
+    printf(BOARDISNOTVALID);
+}
 
+/*When given cell x,y (col, row) it prints all the values that got a score higher than 0
+ * on the LP solver and their scores.*/
+void printGuessAndScores(int x, int y, Game* game){
+    Point block, cell;
+    int i;
+    double* aux;
+    block = getBlockIndex(x,y, game);
+    cell = getCellIndex(x,y, game);
+    aux = game->board.board[block.y][block.x].block[cell.y][cell.x].auxiliary;
+    printf("Hint: below is a list of (values,scores) of cell <%d, %d>:\n", x, y);
+    for(i = 0; i < game->m * game->n; i++){
+        if(aux[i] > 0){
+            printf("(%d,%f)\n", i + 1, aux[i]);
+        }
+    }
 }
 
 /*Give a hint to the user by showing the solution of the input cell*/
@@ -23,8 +71,7 @@ void hint(int x, int y,Game* game){
     int hint;
     block = getBlockIndex(x,y, game);
     cell = getCellIndex(x,y, game);
-    if(isFixed(x,y,game) == 1){
-        printf(CELLISFIXED, x, y);
+    if(checkBeforeHint(x,y, game) == 0){
         return;
     }
     if(solveILP(game, 1, x, y) == 1){
@@ -32,6 +79,7 @@ void hint(int x, int y,Game* game){
         printf("Hint: set cell <%d,%d> to %d\n",x , y, hint);
         return;
     }
+    printf(BOARDISNOTVALID);
 }
 
 /*Automatically fill obvious values - cells which contain a single legal value.

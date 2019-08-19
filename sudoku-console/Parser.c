@@ -67,7 +67,7 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdGuess:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					guess();
+					guess(atoi(x), game);
 				}
 				return 1;
 			case cmdGenerate:
@@ -98,7 +98,7 @@ int getCommand (char* stream,Game* game){
 				return 0;
 			case cmdGuessHint:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					guessHint();
+					guessHint(atoi(x), atoi(y), game);
 				}
 				return 1;
 			case cmdSolNum:

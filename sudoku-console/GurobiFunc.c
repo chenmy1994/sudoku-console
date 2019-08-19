@@ -18,15 +18,12 @@
 
 #include "GurobiFunc.h"
 
-void calculateObjFun(double **obj);
-
 /*initialize the malloc of the given arrays*/
 void initArr(int**** arrR, int**** arrC, int**** arrB,int N){
     int i, j;
     (*arrR) = (int***)malloc(N* sizeof(int**));
     (*arrC) = (int***)malloc(N* sizeof(int**));
     (*arrB) = (int***)malloc(N* sizeof(int**));
-
     for(i = 0; i < N; i++){
         (*arrR)[i] = (int**)malloc(N* sizeof(int*));
         (*arrC)[i] = (int**)malloc(N* sizeof(int*));
@@ -129,7 +126,7 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model){
 }
 
 /*set var type of the vtype array, it will be set to set
- * where set can be GRB_BINART and etc..*/
+ * where set can be GRB_BINARY and etc..*/
 void setVarType(char** vtype, int transCounter, char set){
     int i;
     for(i = 0; i < transCounter; i++){
@@ -165,13 +162,40 @@ int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus){
 
 }
 
+/*Set all auxiliary arrays to 0*/
+void clearLP(Game* game){
+    int i, j;
+    Point cell, block;
+    for(i = 0; i < game->m * game->n; i++) {
+        for (j = 0; j < game->m * game->n; j++) {
+            block = getBlockIndex(j + 1, i + 1, game);
+            cell = getCellIndex(j + 1, i + 1, game);
+            fillZeroesDouble(&(game->board.board[block.y][block.x].block[cell.y][cell.x].auxiliary), game->n * game->m);
+        }
+    }
+}
+
 /*Solves the current board using Linear Programming
  * Fills the probs array of the relvant cells in the board
  * guess = 0 fills all cells, guessHint = 1 fills only X Y cell
  * Return 0 if there is no solution*/
 int solveLP (Game* game, int opCode, int x, int y){
+    clearLP(game);
     return solveGenral(1, game, opCode, x, y);
 
+}
+
+/*Set all ilp values to 0*/
+void clearIlpVal(Game* game){
+    int i, j;
+    Point cell, block;
+    for(i = 0; i < game->m * game->n; i++){
+        for(j = 0; j< game->m * game->n; j++) {
+            block = getBlockIndex(j + 1, i + 1, game);
+            cell = getCellIndex(j + 1, i + 1, game);
+            game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal = 0;
+        }
+    }
 }
 
 /*Solves the current board using Linear Programming
@@ -179,58 +203,103 @@ int solveLP (Game* game, int opCode, int x, int y){
  * guess = 0 fills all cells, guessHint = 1 fills only X Y cell
  * Return 0 if there is no solution*/
 int solveILP (Game* game, int opCode, int x, int y){
+    clearIlpVal(game);
     return solveGenral(0, game, opCode, x, y);
 }
 
-/*Fill double array with zeroes*/
-void fillZeroesDouble(double** arr, int len){
-    int i;
-    for(i=0; i< len; i++){
-        (*arr)[i] = 0;
-    }
-}
+
 
  /*Fills the coefficents of the objection function
  * indicator = 0 means we are in ILP,
  * indicator = 1 means we are in LP*/
-void fillObjFun(double** obj, int indicator, int transCount) {
+void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray) {
     if(indicator == 0){
         fillZeroesDouble(obj, transCount);
     }
     else{
-        calculateObjFun(obj);
+        printf("got here?\n");
+
+        calculateObjFun(obj, transArray, transCount);
     }
 }
 
+/*Explanation of the objection function:
+ * */
 /*calculates the coefficents of the objection function in LP*/
-void calculateObjFun(double **obj) {
-    (*obj)[0] = 1;
-    /*TODO - think of a good objection function*/
+void calculateObjFun(double **obj, Truple** transArray, int transCount) {
+    int i, j, row, col, val;
+    fillZeroesDouble(obj, transCount);
+    for(i = 0; i < transCount; i++){
+        for(j = i + 1; j < transCount; j++){
+            row = (*transArray)[i].i;
+            col = (*transArray)[i].j;
+            val = (*transArray)[i].k;
+            if((*transArray)[j].k == val){
+                if((*transArray)[j].i == row || (*transArray)[j].j == col){
+                    (*obj)[i]++;
+                    (*obj)[j]++;
+                }
+            }
+        }
+    }
+    for(i = 0; i < transCount; i++) {
+        if((*obj)[i] != 0){
+            (*obj)[i] = 1 / (*obj)[i];
+        }
+        else{
+            (*obj)[i] = 1;
+        }
+    }
 
 }
 
 
- /*Fills the relevant cell's ILPVals
- * generate = 0 fills all cells, hint = 1 fills only X Y cell, validate = 2
- * Returns 0 if there is no solution*/
-void solAssign (double** solArray,Truple** transArray, int transCounter, int opCode, int X, int Y, Game* game){
-    int l;
+ /*Fills the relevant cell's ILPVals or Auxiliary arrays
+ * opCode == 1
+ * hint - should update ILPVal for X Y only or (indicator == 0)
+ * guessHint - should update auxiliary array of X Y only (indicator == 1)
+ *
+ * opCode == 0
+ * generate - should fill the whole board with ILPVal (indicator == 0)
+ * guess - should fill the whole board auxiliary arrays (indicator == 1)
+ */
+void solAssign (double** solArray,Truple** transArray, int transCounter, int opCode, int X, int Y, Game* game, int indicator){
+    int l, cnt = 0;
     Point block = getBlockIndex(X,Y,game);
     Point cell = getCellIndex(X,Y,game);
-    if (opCode == 1){ /*hint, should update ILPVal for X Y only*/
+
+    if (opCode == 1){
         for (l = 0; l < transCounter; l++){
-            if(((*transArray)[l].i==Y) && ((*transArray)[l].j==X) && ((*solArray)[l]==1)){
-                game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal = (*transArray)[l].k;
-                return ;
+            if(indicator == 0){
+                if(((*transArray)[l].i==Y) && ((*transArray)[l].j==X) && ((*solArray)[l]==1)){
+                    game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal = (*transArray)[l].k;
+                    return ;
+                }
+            }
+            else{
+                if(((*transArray)[l].i==Y) && ((*transArray)[l].j==X)){
+                    game->board.board[block.y][block.x].block[cell.y][cell.x].auxiliary[(*transArray)[l].k - 1] = (*solArray)[l];
+                    cnt++;
+                }
+                if (cnt == game->m * game->n){
+                    return;
+                }
             }
         }
     }
     else{
         for (l = 0; l < transCounter; l++){
-            if((*solArray)[l] == 1){
-                block = getBlockIndex((*transArray)[l].j,(*transArray)[l].i,game);
-                cell = getCellIndex((*transArray)[l].j,(*transArray)[l].i,game);
-                game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal = (*transArray)[l].k;
+            block = getBlockIndex((*transArray)[l].j,(*transArray)[l].i,game);
+            cell = getCellIndex((*transArray)[l].j,(*transArray)[l].i,game);
+            if(indicator == 0){
+                if((*solArray)[l] == 1){
+                    game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal = (*transArray)[l].k;
+                }
+            }
+            else{
+                if((*solArray)[l] > 0){
+                    game->board.board[block.y][block.x].block[cell.y][cell.x].auxiliary[(*transArray)[l].k - 1] = (*solArray)[l];
+                }
             }
         }
     }
@@ -290,59 +359,96 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
       Create environment - log file is mip1.log*/
     error = GRBloadenv(&env, "mip1.log");
     if(checkAndHandleError(error, &env, "GRBloadenv()") == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 
     if(turnOffPrintAndCreateModel(&env, &model) == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 
 
    /* fill the objection function*/
-    fillObjFun(&obj, indicator, transCounter);
+    fillObjFun(&obj, indicator, transCounter, &transArray);
 
     if(indicator == 0){
         setVarType(&vtype, transCounter, GRB_BINARY);
     }
     else{
+        printf("got here?\n");
+
         setVarType(&vtype, transCounter, GRB_CONTINUOUS);
     }
 
     /*Add vars to the model*/
     if(addVars(&model, transCounter, &vtype, &obj, &env) == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 
 
     /*updates the model*/
     if(updateModel(&env, &model) == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
     /*add constraints per cell*/
     if(addCellCons(&ind, &val, &transArray,&env, &model, transCounter) == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 
     if(addAllCons(&model, &env, &rowsCon, &colsCon, &blocksCon, &ind, &val, N) == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
         return -1;
     }
 
     if(optimizeModel(&env, &model, &optimstatus) == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 
     error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
     if(checkAndHandleError(error, &env, "GRBgettdblattr()") == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 
 
-     /* get the solution - the assignment to each variable
-    transCounter--;
-    number of variables, the size of "sol" should match*/
-
     error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0, transCounter, sol);
     if(checkAndHandleError(error, &env, "GRBgetdblattrarray()") == -1){
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 
@@ -350,12 +456,18 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
     if (optimstatus == GRB_OPTIMAL || optimstatus == GRB_INF_OR_UNBD) {
         /*If we are in guess command or hint we need to fill the ILPVal field in each cell*/
         if (opCode != 2){
-            solAssign(&sol, &transArray, transCounter, opCode, x, y, game);
+                solAssign(&sol, &transArray, transCounter, opCode, x, y, game, indicator);
         }
+
     }
-           /* error or calculation stopped*/
+    /* error or calculation stopped*/
     else {
         printf("Optimization was stopped early\n");
+        freeArr(&sol, &ind, &val, &obj, N, &transArray, &vtype,&rowsCon, &colsCon, &blocksCon);
+        GRBfreemodel(model);
+
+        /* TODO - Move free env to exit*/
+        GRBfreeenv(env);
         return -1;
     }
 

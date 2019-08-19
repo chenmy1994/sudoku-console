@@ -82,6 +82,7 @@ void initBlock (int i, int j, Game* game){
             (*game).board.board[i][j].block[l][k].appendix = ' ';
             (*game).board.board[i][j].block[l][k].fixed = ' ';
             (*game).board.board[i][j].block[l][k].val = 0;
+            (*game).board.board[i][j].block[l][k].ILPVal = 0;
             (*game).board.board[i][j].block[l][k].auxiliary = (double*) calloc((*game).n*(*game).m, sizeof(double));
             (*game).board.board[i][j].block[l][k].cntErr = 0;
         }
@@ -130,7 +131,6 @@ void printBoard(Game* game) {
                     appendix = (*game).board.board[block.y][block.x].block[cell.y][cell.x].appendix;
                     fixed = (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed;
 
-
                     if(game->board.markError == 0){
                         printf("%c",fixed);
                     }
@@ -140,7 +140,7 @@ void printBoard(Game* game) {
                                 printf("%c",appendix);
                             }
                             else{
-                                printf("%c",fixed);
+                                printf("%c",'.');
                             }
                         }
                         else{
@@ -385,7 +385,7 @@ void freeMem(Game* game){
 void emptyBoard(Game* game){
     int i,j,k;
     Point cell, block;
-
+    game->cellsToFill = game->n * game->m * game->n * game->m;
     for(i = 0; i < game->m * game->n; i++) {
         for (j = 0; j < game->m * game->n; j++) {
             cell = getCellIndex(j + 1, i + 1, game);
@@ -471,4 +471,33 @@ int isFixed(int x, int y, Game* game){
         return 1;
     }
     return 0;
+}
+
+/*Computes all helpful arrays from the beginning*/
+void updateAllArrs(Game* game){
+    int i,j, k;
+    Point block, cell;
+    setZero(game);
+
+    for (i = 0; i < game->n * game->m; ++i) {
+        for (j = 0; j < game->n * game->m; ++j) {
+            block = getBlockIndex(j + 1, i + 1, game);
+            cell = getCellIndex(j + 1, i + 1, game);
+            k = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+            if(k == 0){
+                continue;
+            }
+            updateRow(i + 1, k, 1, game);
+            updateCol(j+ 1, k, 1, game);
+            updateBlock(pointToID(block.x, block.y, game), k, 1, game);
+        }
+    }
+}
+
+/*Fill double array with zeroes*/
+void fillZeroesDouble(double** arr, int len){
+    int i;
+    for(i=0; i< len; i++){
+        (*arr)[i] = 0;
+    }
 }

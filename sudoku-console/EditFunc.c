@@ -59,9 +59,10 @@ int fillValid(int col, int row, Game* game){
 }
 
 /*Reset board to original state before starting generate function*/
-void resetBoardOnGenerate(Game* game, int opCode){
+void resetBoardOnGenerate(Game* game, int opCode, int resetCellsToFill){
     int i, j, k, ilpVal;
     Point block, cell;
+    game->cellsToFill = resetCellsToFill;
     for(i = 0; i < game->m * game->n; i++) {
         for (j = 0; j < game->m * game->n; j++) {
             cell = getCellIndex(j + 1, i + 1, game);
@@ -94,7 +95,7 @@ void chooseYCellsAndClearThem(Game* game, int y){
     int i, cellsToClear, row, col, k, N;
     Point block, cell;
     N = game->m * game->n * game->m * game->n;
-    resetBoardOnGenerate(game, 1);
+    resetBoardOnGenerate(game, 1, N - y);
     cellsToClear = N - y;
 
     for(i = 0; i < cellsToClear; i++){
@@ -110,23 +111,21 @@ void chooseYCellsAndClearThem(Game* game, int y){
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = 0;
         game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = ' ';
         game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
-        updateRow(row + 1, k, 0, game);
-        updateCol(col + 1, k, 0, game);
-        updateBlock(pointToID(block.x, block.y, game), k, 0, game);
     }
-    game->cellsToFill = y;
+    updateAllArrs(game);
 }
 
 /*Generates a puzzle by randomly filling number of cells provided by user*/
 void generate(int x, int y, Game* game){
     Point p;
-    int i, cnt = 0;
+    int i, cnt = 0, resetCellsToFill;
+    resetCellsToFill = game->cellsToFill;
     if(game->cellsToFill < x){
         printf(NOTENOUGHCELLS, x);
         return;
     }
 
-    if(y > game->m * game->n){
+    if(y > game->m * game->n * game->m * game->n){
         printf(TOOMANYCELL, y);
         return;
     }
@@ -139,7 +138,7 @@ void generate(int x, int y, Game* game){
         for(i = 0; i < x; i++){
             p = chooseEmptyCell(game);
             if(fillValid(p.x, p.y, game) == 0){
-                resetBoardOnGenerate(game, 0);
+                resetBoardOnGenerate(game, 0, resetCellsToFill);
                 cnt++;
                 i = 0;
             }
@@ -148,7 +147,6 @@ void generate(int x, int y, Game* game){
                 return;
             }
         }
-
         if(solveILP(game, 0, 0, 0) != 1){
             cnt++;
         }
@@ -156,6 +154,10 @@ void generate(int x, int y, Game* game){
             chooseYCellsAndClearThem(game, y);
             return;
         }
+
+        /*clean board since solveILP failed*/
+        resetBoardOnGenerate(game, 0, resetCellsToFill);
+
     }
     printf(ERRORINPUZZLEGEN);
 }

@@ -50,7 +50,7 @@ int solveILP (Game* game, int opCode, int x, int y);
 /* Fills the relevant cell's ILPVals
  * generate = 0 fills all cells, hint = 1 fills only X Y cell, validate = 2
  * Returns 0 if there is no solution*/
-void solAssign (double** solArray,Truple** transArray, int transCounter, int opCode, int X, int Y, Game* game);
+void solAssign (double** solArray,Truple** transArray, int transCounter, int opCode, int X, int Y, Game* game, int indicator);
 
 
 /*initialize malloc of gurobi needed arrays*/
@@ -63,8 +63,7 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model);
 /*Fills the coefficents of the objection function
  * ind = 0 means we are in ILP,
  * ind = 1 means we are in LP*/
-void fillObjFun(double** obj, int ind, int transCount);
-
+void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray);
 
 /* Add the coefficients of the objective function to the model
  * and add all the relevant constraints*/
@@ -100,13 +99,17 @@ void cleanArr(int** ind, double ** val, int transCounter);
 int addCellCons(int** ind, double** val, Truple** transArray,
                 GRBenv** env, GRBmodel** model, int transCounter);
 
-
 /*updates model*/
 int updateModel(GRBenv** env, GRBmodel** model);
 
-
 /*Optimize model*/
 int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus);
+
+/*Set all ilp values to 0*/
+void clearIlpVal(Game* game);
+
+/*calculates the coefficents of the objection function in LP*/
+void calculateObjFun(double **obj, Truple** transArray, int transCount);
 
 #endif
 

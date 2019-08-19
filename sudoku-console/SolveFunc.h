@@ -7,12 +7,17 @@
 #include "Game.h"
 #include "GurobiFunc.h"
 #define CELLISFIXED "Error: cell <%d, %d> is fixed.\n"
+#define CELLISFILLED "Error: cell <%d, %d> is filled.\n"
 
 /*Fills all cell values with probability greater than users input*/
-void guess();
+void guess(int x, Game* game);
 
 /*Shows a guess to the user for a single cell X,Y*/
-void guessHint();
+void guessHint(int x, int y, Game* game);
+
+/*When given cell x,y (col, row) it prints all the values that got a score higher than 0
+ * on the LP solver and their scores.*/
+void printGuessAndScores(int x, int y, Game* game);
 
 /*Give a hint to the user by showing the solution of the input cell*/
 void hint(int x, int y,Game* game);
