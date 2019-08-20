@@ -10,7 +10,7 @@
 #define CELLISFILLED "Error: cell <%d, %d> is filled.\n"
 
 /*Fills all cell values with probability greater than users input*/
-void guess(int x, Game* game);
+void guess(double x, Game* game);
 
 /*Shows a guess to the user for a single cell X,Y*/
 void guessHint(int x, int y, Game* game);
@@ -33,9 +33,21 @@ void fillSingleValue(Point** valArray,int cnt,Game* game);
  */
 int singleValidValue(int col,int row,Game* game);
 
-
 /*Automatically fill obvious values - cells which contain a single legal value.
  * return 0 if the board has erroneous, otherwise 1*/
 int autofill(Game* game);
+
+/* Fills the values of each cell by the solution we got from solveLP
+ * Also computes it by the orders in the excerise*/
+void fillGuessValues(Game* game, double threshold);
+
+/* When given cell x - col, y - row, it randomize a legal value
+ * Legal value means it is possible for it to be put in that cell
+ * and has a higher score than the threshold*/
+void randValue(int x, int y,Game* game, double threshold);
+
+
+/* Fill the given cell x - col, y - row with the value z*/
+void fillValue(int x, int y, int z, Game* game);
 
 #endif /*SUDOKU_CONSOLE_SOLVEFUNC_H*/

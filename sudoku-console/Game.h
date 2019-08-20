@@ -20,7 +20,7 @@
 #define FAILEDREADINGFILE "Error: failed reading file\n"
 #define PUZZLESOLVED "Well Done! \n The puzzle was solved successfully.\n"
 #define ERRORSOL "Sorry..\n The solution is erroneous.\n"
-#define errorErroneous "Error: The board is erroneous and therefore autofill can't be executed\n"
+#define errorErroneous "Error: The board is erroneous and therefore %s can't be executed\n"
 /* Sudoku contains:
  * m - num of column in block which is also num of block rows in board
  * n - num of rows in block which is also num of block cols in board

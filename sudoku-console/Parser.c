@@ -20,6 +20,7 @@
 int getCommand (char* stream,Game* game){
 	char* cmdType;
 	int cmdIndex;
+    double d;
     char* x;
     char* y;
     char* z;
@@ -67,7 +68,8 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdGuess:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					guess(atoi(x), game);
+                    sscanf(x, "%lf", &d);
+                    guess(d, game);
 				}
 				return 1;
 			case cmdGenerate:

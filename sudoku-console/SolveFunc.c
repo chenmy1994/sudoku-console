@@ -8,14 +8,99 @@
 #define autofillMSG "Set single legal value %d for Cell <%d,%d>\n"
 
 /*Fills all cell values with probability greater than users input*/
-void guess(int x, Game* game){
+void guess(double x, Game* game){
     /*this is just bullshit so make will compile*/
-    x = game->n;
-    if ( x > 0){
+    if(game->mode != 2){
+        printf(ERRORSOLVEMODE);
         return;
     }
+    if(game->numOfErrors > 0){
+        printf(errorErroneous, "guess");
+        return;
+    }
+    if(solveLP(game, 0, 0, 0) == 1){
+        fillGuessValues(game, x);
+        return;
+    }
+    printf(BOARDISNOTVALID);
 }
 
+/* When given cell x - col, y - row, it randomize a legal value
+ * Legal value means it is possible for it to be put in that cell
+ * and has a higher score than the threshold*/
+void randValue(int x, int y,Game* game, double threshold){
+    int i, cnt = 0;
+    double* scores ,sum = 0.0, randVal;
+    double* probs;
+    int* index;
+    Point block, cell;
+
+    probs = (double*) malloc(game->m * game->n * sizeof(double));
+    index = (int*) malloc(game->m * game->n * sizeof(int));
+
+    block = getBlockIndex(x,y, game);
+    cell = getCellIndex(x,y, game);
+    scores = game->board.board[block.y][block.x].block[cell.y][cell.x].auxiliary;
+
+    for (i = 0; i < game->n * game->m; i++){
+        if(scores[i] >= threshold){
+            if(isValidValue(x,y,i + 1, game) == 1){
+                sum+= scores[i];
+                probs[cnt] = scores[i];
+                index[cnt] = i + 1;
+                cnt++;
+            }
+        }
+    }
+
+    for(i = 0; i < cnt; i++){
+        probs [i] = probs[i] / sum;
+    }
+
+    randVal = (double) rand() / RAND_MAX;
+
+    for(i = 0; i < cnt; i++){
+        sum += probs[i];
+        if(randVal < sum){
+            fillValue(x,y,index[i], game);
+            break;
+        }
+    }
+    free(probs);
+    free(index);
+}
+
+/* Fill the given cell x - col, y - row with the value z*/
+void fillValue(int x, int y, int z, Game* game){
+    Point block, cell;
+    block = getBlockIndex(x,y, game);
+    cell = getCellIndex(x,y, game);
+
+    game->board.board[block.y][block.x].block[cell.y][cell.x].val = z;
+    updateCol(x, z, 1, game);
+    updateRow(y, z, 1, game);
+    updateBlock(pointToID(block.x, block.y, game), z, 1, game);
+
+}
+
+/* Fills the values of each cell by the solution we got from solveLP
+ * Also computes it by the orders in the excerise*/
+void fillGuessValues(Game* game, double threshold){
+    int i, j, val;
+    Point block, cell;
+
+    for(i = 0; i <game->n * game->m; i++){
+        for(j = 0; j <game->n * game->m; j++) {
+            block = getBlockIndex(j + 1, i + 1, game);
+            cell = getCellIndex(j + 1, i + 1, game);
+            val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+            if(val == 0){
+                randValue(j + 1, i + 1, game, threshold);
+            }
+        }
+    }
+
+}
 int checkBeforeHint(int x, int y, Game* game){
     int val;
     Point block, cell;
@@ -88,7 +173,7 @@ int autofill(Game* game){
 	int cnt,singleVal,i,j,N,size;
 	Point block,cell,**moveCell;
 	if((*game).numOfErrors>0){
-		printf(errorErroneous);
+		printf(errorErroneous, "autofill");
 		return 0;
 	}
 	cnt=0;

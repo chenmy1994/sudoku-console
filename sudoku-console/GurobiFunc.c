@@ -212,30 +212,34 @@ int solveILP (Game* game, int opCode, int x, int y){
  /*Fills the coefficents of the objection function
  * indicator = 0 means we are in ILP,
  * indicator = 1 means we are in LP*/
-void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray) {
+void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray, Game* game) {
     if(indicator == 0){
         fillZeroesDouble(obj, transCount);
     }
     else{
-        printf("got here?\n");
-
-        calculateObjFun(obj, transArray, transCount);
+        calculateObjFun(obj, transArray, transCount, game);
     }
 }
 
 /*Explanation of the objection function:
  * */
 /*calculates the coefficents of the objection function in LP*/
-void calculateObjFun(double **obj, Truple** transArray, int transCount) {
-    int i, j, row, col, val;
+void calculateObjFun(double **obj, Truple** transArray, int transCount, Game* game) {
+    int i, j, row, col, val, id ,tmpID;
+    Point block, tmpBlock;
+
     fillZeroesDouble(obj, transCount);
     for(i = 0; i < transCount; i++){
+        block = getBlockIndex((*transArray)[i].j, (*transArray)[i].i, game);
+        id = pointToID(block.x, block.y, game);
         for(j = i + 1; j < transCount; j++){
+            tmpBlock = getBlockIndex((*transArray)[j].j, (*transArray)[j].i, game);
+            tmpID = pointToID(tmpBlock.x, tmpBlock.y, game);
             row = (*transArray)[i].i;
             col = (*transArray)[i].j;
             val = (*transArray)[i].k;
             if((*transArray)[j].k == val){
-                if((*transArray)[j].i == row || (*transArray)[j].j == col){
+                if((*transArray)[j].i == row || (*transArray)[j].j == col || id == tmpID){
                     (*obj)[i]++;
                     (*obj)[j]++;
                 }
@@ -376,14 +380,12 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
 
 
    /* fill the objection function*/
-    fillObjFun(&obj, indicator, transCounter, &transArray);
+    fillObjFun(&obj, indicator, transCounter, &transArray, game);
 
     if(indicator == 0){
         setVarType(&vtype, transCounter, GRB_BINARY);
     }
     else{
-        printf("got here?\n");
-
         setVarType(&vtype, transCounter, GRB_CONTINUOUS);
     }
 

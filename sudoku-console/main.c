@@ -12,6 +12,8 @@ int main() {
     int cmdVal = 0, seed;
     char cmd[1025];
 	SP_BUFF_SET()
+
+	beginGame(game, &seed);
     /*Opening message*/
     printf("Welcome to our magnificent Sudoku-Console game!\n");
     printf("Please enter one of the following commands:  \n");

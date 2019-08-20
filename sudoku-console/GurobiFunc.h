@@ -63,7 +63,7 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model);
 /*Fills the coefficents of the objection function
  * ind = 0 means we are in ILP,
  * ind = 1 means we are in LP*/
-void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray);
+void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray, Game* game);
 
 /* Add the coefficients of the objective function to the model
  * and add all the relevant constraints*/
@@ -109,7 +109,7 @@ int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus);
 void clearIlpVal(Game* game);
 
 /*calculates the coefficents of the objection function in LP*/
-void calculateObjFun(double **obj, Truple** transArray, int transCount);
+void calculateObjFun(double **obj, Truple** transArray, int transCount, Game* game);
 
 #endif
 
