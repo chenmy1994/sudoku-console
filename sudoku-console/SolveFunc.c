@@ -106,6 +106,7 @@ void fillGuessValues(Game* game, double threshold){
             }
         }
     }
+    (*game).cellsToFill-=cnt;
 	addMove(moveCell,cnt,game);
 }
 

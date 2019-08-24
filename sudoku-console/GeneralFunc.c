@@ -285,10 +285,9 @@ int num_solutions(Game* game){
 		printf(errorErroneous, "num_solutions");
 		return 0;
 	}
-
 	/*Keep searching for more solutions until you're back to
 	 * first empty cell and done with it*/
-	while(!((isEmpty(stk)) && done)){
+	while((!((isEmpty(stk)) && done)&&((*game).cellsToFill>0))){
 		block = getBlockIndex(j + 1, i + 1, game);
 		cell = getCellIndex(j + 1, i + 1, game);
 		val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
