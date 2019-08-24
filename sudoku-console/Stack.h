@@ -16,9 +16,18 @@ typedef struct {
     int count;
 }Stack;
 
+/*Initialize LinkedList Object*/
+Stack* initStack();
+
 /*Inserts new element to the stack*/
 void push(Stack* stk, Point* point);
 
 /*Removes head of stack, new head is previous element*/
-void pop(Stack* stk);
+Elem* pop(Stack* stk);
+
+/*Checks if stack is empty, return 1 if empty, 0 otherwise*/
+int isEmpty(Stack* stk);
+
+/*Returns head of stack*/
+Elem* top(Stack* stk);
 #endif /*SUDOKU_CONSOLE_STACK_H*/

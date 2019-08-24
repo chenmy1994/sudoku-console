@@ -105,7 +105,7 @@ int getCommand (char* stream,Game* game){
 				return 1;
 			case cmdSolNum:
 				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					num_solutions();
+					num_solutions(game);
 				}
 				return 1;
 			case cmdAutofill:

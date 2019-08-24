@@ -194,6 +194,10 @@ Point getCellIndex (int x, int y, Game* game){
 int isValidValue (int x, int y, int z,Game *game){
     Point p = getBlockIndex(x,y, game);
     int id = pointToID(p.x, p.y, game);
+    /*printf("row conflict: %d\n",(*game).rows[y - 1][z-1]);
+    printf("col conflict: %d\n",(*game).cols[x - 1][z-1]);
+    printf("block conflict: %d\n",(*game).blocks[id][z-1]);
+*/
     if(((*game).rows[y - 1][z-1]==0)&&((*game).cols[x - 1][z-1]==0)&&((*game).blocks[id][z-1]==0)){
         return 1;
     }

@@ -19,6 +19,8 @@
 #define UNDOLIMIT "Error: There are no more moves to Undo\n"
 #define REDOLIMIT "Error: There are no more moves to Redo\n"
 
+void popAndUpdate(Game* game,Stack** stk);
+
 /*Checks whether the x y cell contains z,
  * if it does - marks it as an erroneous and updates the errors counter*/
 int checkAndMarkCellError(int x, int y, int z, Game* game);
@@ -47,7 +49,7 @@ void undo(Game* game,int reset);
 void redo(Game* game);
 
 /*Prints the number of solution for the current board*/
-void num_solutions();
+int num_solutions(Game* game);
 
 /*Undo all moves, reverting the board to its original loaded state.*/
 void reset(Game* game);

@@ -273,8 +273,117 @@ void redo(Game* game){
 }
 
 /*Prints the number of solution for the current board*/
-void num_solutions(){
+int num_solutions(Game* game){
+	int dir, guess, val, i=0, j=0, done=0, solNum=0, N=((*game).n)*((*game).m);
+	Point block, cell, *moveCell;
+	Elem* elem;
+	Stack* stk = initStack();
+	/*direction 1 = moving forward, 0 = moving backwards*/
+	dir=1;
+	/*If the board is erroneous it is an error*/
+	if((*game).numOfErrors>0){
+		printf(errorErroneous, "num_solutions");
+		return 0;
+	}
 
+	/*Keep searching for more solutions until you're back to
+	 * first empty cell and done with it*/
+	while(!((isEmpty(stk)) && done)){
+		block = getBlockIndex(j + 1, i + 1, game);
+		cell = getCellIndex(j + 1, i + 1, game);
+		val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+		/*if it's an empty new cell or if we're going backwards*/
+		if((val == 0)||(dir==0)){
+			for(guess=val;guess<N;guess++){
+				if(isValidValue(j+1,i+1,guess+1,game)==1){
+					/*if we updated a guess value for a cell*/
+					if(val!=0){
+						/*pop the previous guess from the stack*/
+						popAndUpdate(game,&stk);
+					}
+					game->board.board[block.y][block.x].block[cell.y][cell.x].val = guess+1;
+					updateCol(j+1, guess+1, 1, game);
+					updateRow(i+1, guess+1, 1, game);
+					updateBlock(pointToID(block.x, block.y, game), guess+1, 1, game);
+					moveCell=(Point*)malloc(sizeof(Point));
+					(*moveCell).x=j+1;
+					(*moveCell).y=i+1;
+					(*moveCell).prev=0;
+					(*moveCell).curr=guess+1;
+					/*push the new guess to the stack*/
+					push(stk,moveCell);
+					dir=1;
+					/*if the number of valid guesses for each empty cell equals cellsToFill -
+					 * count as additional valid solution*/
+					if((*stk).count==(*game).cellsToFill){
+						solNum++;
+					}
+
+					/*we found a valid guess for that cell - stop searching*/
+					break;
+				}
+			}
+			/* if we have guessed last cell in board
+			 * OR
+			 * if we didn't find valid guess for a cell*/
+			if((guess==N)||(*stk).count==(*game).cellsToFill){
+				if(isEmpty(stk)==0){
+					elem=top(stk);
+					moveCell=elem->data;
+					/*Finished guessing for current head cell - pop head of stack*/
+					if(((*moveCell).x==j+1)&&((*moveCell).y==i+1)){
+						popAndUpdate(game,&stk);
+					}
+					/*update current cell indexes to head of stack*/
+					if(isEmpty(stk)==0){
+						elem=top(stk);
+						moveCell=elem->data;
+						i=(*moveCell).y-1;
+						j=(*moveCell).x-1;
+					}
+					/*mark we're going backwards*/
+					dir=0;
+					/*mark we're done with guessing for this cell*/
+					done=1;
+				}
+
+			}
+			/*We still got guesses for this cell*/
+			else{
+				done=0;
+			}
+		}
+
+		/*Promote i,j indexes when it wasn't updated to head cell*/
+		if(!done){
+			if(j==N-1){
+				i++;
+				j=0;
+			}
+			else{
+				j++;
+			}
+		}
+
+	}
+	printf("The number of solutions for this board is %d\n", solNum);
+	free(stk);
+	return 1;
+}
+
+void popAndUpdate(Game* game,Stack** stk){
+	Elem* elem;
+	Point block, cell,*moveCell;
+	elem=pop(*stk);
+	moveCell=elem->data;
+	block = getBlockIndex((*moveCell).x, (*moveCell).y, game);
+	cell = getCellIndex((*moveCell).x, (*moveCell).y, game);
+	game->board.board[block.y][block.x].block[cell.y][cell.x].val = 0;
+	updateCol((*moveCell).x, (*moveCell).curr, 0, game);
+	updateRow((*moveCell).y, (*moveCell).curr, 0, game);
+	updateBlock(pointToID(block.x, block.y, game), (*moveCell).curr, 0, game);
+	free(moveCell);
+	free(elem);
 }
 
 /*Undo all moves, reverting the board to its original loaded state.*/
@@ -508,7 +617,7 @@ int checkCellValid(int x, int y, int z, Game* game){
 /*Checks whether the board can be solved (1) or not (0)*/
 /*uses the ILP solver*/
 int validate(Game* game){
-    int ilp;
+    int ilp=0;
     if(game->numOfErrors > 0){
         printf(BOARDISNOTVALID);
         return 0;
