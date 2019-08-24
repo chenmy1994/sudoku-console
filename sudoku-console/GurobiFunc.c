@@ -298,6 +298,7 @@ void solAssign (double** solArray,Truple** transArray, int transCounter, int opC
             if(indicator == 0){
                 if((*solArray)[l] == 1){
                     game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal = (*transArray)[l].k;
+                    game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = 's';
                 }
             }
             else{

@@ -386,8 +386,8 @@ void freeMem(Game* game){
 }
 
 /*Empties the board completely*/
-void emptyBoard(Game* game){
-    int i,j,k;
+void emptyBoard(Point** moveCell,Game* game){
+    int i,j,k,cnt=0;
     Point cell, block;
     game->cellsToFill = game->n * game->m * game->n * game->m;
     for(i = 0; i < game->m * game->n; i++) {
@@ -402,10 +402,16 @@ void emptyBoard(Game* game){
                 updateRow(i + 1, k, 0, game);
                 updateCol(j + 1, k, 0, game);
                 updateBlock(pointToID(block.x, block.y, game), k, 0, game);
+
+    			(*moveCell)[cnt].x=j+1;
+    			(*moveCell)[cnt].y=i+1;
+    			(*moveCell)[cnt].prev=k;
+    			(*moveCell)[cnt].curr=0;
+    			cnt++;
             }
         }
     }
-
+	addMove(moveCell,cnt,game);
 }
 
 /*Marks the erroneous cells with '*' */
@@ -478,8 +484,8 @@ int isFixed(int x, int y, Game* game){
 }
 
 /*Computes all helpful arrays from the beginning*/
-void updateAllArrs(Game* game){
-    int i,j, k;
+int updateAllArrs(Point** moveCell,int cnt, Game* game){
+    int i, j, k;
     Point block, cell;
     setZero(game);
 
@@ -491,11 +497,21 @@ void updateAllArrs(Game* game){
             if(k == 0){
                 continue;
             }
+
             updateRow(i + 1, k, 1, game);
             updateCol(j+ 1, k, 1, game);
             updateBlock(pointToID(block.x, block.y, game), k, 1, game);
+            if ( game->board.board[block.y][block.x].block[cell.y][cell.x].appendix!='c'){
+				(*moveCell)[cnt].x=j+1;
+				(*moveCell)[cnt].y=i+1;
+				(*moveCell)[cnt].prev=0;
+				(*moveCell)[cnt].curr=k;
+				cnt++;
+            }
+            game->board.board[block.y][block.x].block[cell.y][cell.x].appendix =' ';
         }
     }
+    return cnt;
 }
 
 /*Fill double array with zeroes*/

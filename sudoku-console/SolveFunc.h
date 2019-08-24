@@ -44,7 +44,7 @@ void fillGuessValues(Game* game, double threshold);
 /* When given cell x - col, y - row, it randomize a legal value
  * Legal value means it is possible for it to be put in that cell
  * and has a higher score than the threshold*/
-void randValue(int x, int y,Game* game, double threshold);
+void randValue(int x, int y, Point* moveCell, Game* game, double threshold);
 
 
 /* Fill the given cell x - col, y - row with the value z*/

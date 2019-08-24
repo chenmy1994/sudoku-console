@@ -59,8 +59,8 @@ int fillValid(int col, int row, Game* game){
 }
 
 /*Reset board to original state before starting generate function*/
-void resetBoardOnGenerate(Game* game, int opCode, int resetCellsToFill){
-    int i, j, k, ilpVal;
+int resetBoardOnGenerate(Point** moveCell,Game* game, int opCode, int resetCellsToFill){
+    int i, j, k, ilpVal, cnt=0;
     Point block, cell;
     game->cellsToFill = resetCellsToFill;
     for(i = 0; i < game->m * game->n; i++) {
@@ -74,8 +74,18 @@ void resetBoardOnGenerate(Game* game, int opCode, int resetCellsToFill){
                     game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
                 }
             }
-            if(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == 'r'){
-                k  = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+            k  = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+
+            if((k!=0)&&(opCode==1)&&(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == ' ')){
+            	game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = 'c';
+    			(*moveCell)[cnt].x=j+1;
+    			(*moveCell)[cnt].y=i+1;
+    			(*moveCell)[cnt].prev=k;
+    			(*moveCell)[cnt].curr=0;
+    			cnt++;
+            }
+            if((game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == 'r') ||
+            	(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == 's' )){
                 game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
                 if(opCode == 0){
                     game->board.board[block.y][block.x].block[cell.y][cell.x].val = 0;
@@ -86,16 +96,17 @@ void resetBoardOnGenerate(Game* game, int opCode, int resetCellsToFill){
             }
         }
     }
+    return cnt;
 
 }
 
 
 /*Randomly chooses y cells from the board and clear the values of all other cells*/
-void chooseYCellsAndClearThem(Game* game, int y){
-    int i, cellsToClear, row, col, k, N;
+void chooseYCellsAndClearThem(Point** moveCell,Game* game, int y){
+    int i, cellsToClear, cnt, row, col, k, N;
     Point block, cell;
     N = game->m * game->n * game->m * game->n;
-    resetBoardOnGenerate(game, 1, N - y);
+    cnt = resetBoardOnGenerate(moveCell,game, 1, N - y);
     cellsToClear = N - y;
 
     for(i = 0; i < cellsToClear; i++){
@@ -112,33 +123,39 @@ void chooseYCellsAndClearThem(Game* game, int y){
         game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = ' ';
         game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
     }
-    updateAllArrs(game);
+
+    cnt=updateAllArrs(moveCell,cnt,game);
+	addMove(moveCell,cnt,game);
 }
 
 /*Generates a puzzle by randomly filling number of cells provided by user*/
 void generate(int x, int y, Game* game){
-    Point p;
-    int i, cnt = 0, resetCellsToFill;
+    Point p, **moveCell;
+    int i, cnt = 0, resetCellsToFill,N=(*game).n*(*game).m;
     resetCellsToFill = game->cellsToFill;
     if(game->cellsToFill < x){
         printf(NOTENOUGHCELLS, x);
         return;
     }
 
-    if(y > game->m * game->n * game->m * game->n){
+    if(y > N*N){
         printf(TOOMANYCELL, y);
         return;
     }
+
+	(moveCell)=(Point**)malloc(sizeof(Point*));
+	(*moveCell)=(Point*)malloc(2*N*N*sizeof(Point));
+
     /*when y is 0 we need to empty the board*/
     if(y == 0){
-        emptyBoard(game);
+        emptyBoard(moveCell,game);
         return;
     }
     while(cnt < 1000){
         for(i = 0; i < x; i++){
             p = chooseEmptyCell(game);
             if(fillValid(p.x, p.y, game) == 0){
-                resetBoardOnGenerate(game, 0, resetCellsToFill);
+                resetBoardOnGenerate(moveCell,game, 0, resetCellsToFill);
                 cnt++;
                 i = 0;
             }
@@ -151,12 +168,12 @@ void generate(int x, int y, Game* game){
             cnt++;
         }
         else{
-            chooseYCellsAndClearThem(game, y);
+            chooseYCellsAndClearThem(moveCell,game, y);
             return;
         }
 
         /*clean board since solveILP failed*/
-        resetBoardOnGenerate(game, 0, resetCellsToFill);
+        resetBoardOnGenerate(moveCell,game, 0, resetCellsToFill);
 
     }
     printf(ERRORINPUZZLEGEN);

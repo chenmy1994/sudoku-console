@@ -129,13 +129,13 @@ void freeMem(Game* game);
 void initAll (Game* game);
 
 /*Empties the board completely*/
-void emptyBoard(Game* game);
+void emptyBoard(Point** moveCell, Game* game);
 
 /*Checks whether the cell in col x and row y is fixed or not*/
 int isFixed(int x, int y, Game* game);
 
 /*Computes all helpful arrays from the beginning*/
-void updateAllArrs(Game* game);
+int updateAllArrs(Point** moveCell, int cnt, Game* game);
 
 /*Fill double array with zeroes*/
 void fillZeroesDouble(double** arr, int len);

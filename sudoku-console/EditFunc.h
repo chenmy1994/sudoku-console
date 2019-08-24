@@ -25,7 +25,7 @@ int saveEdit(Game* game);
 int checkError(Game* game);
 
 /*Reset board to original state before starting generate function*/
-void resetBoardOnGenerate(Game* game, int opCode, int resetCellsToFill);
+int resetBoardOnGenerate(Point** moveCell, Game* game, int opCode, int resetCellsToFill);
 
 /*fills the given col, row in the board with a valid value and update the relevant arrays*/
 int fillValid(int col, int row, Game* game);
@@ -34,7 +34,7 @@ int fillValid(int col, int row, Game* game);
 Point chooseEmptyCell(Game* game);
 
 /*Randomly chooses y cells from the board and clear the values of all other cells*/
-void chooseYCellsAndClearThem(Game* game, int y);
+void chooseYCellsAndClearThem(Point** moveCell, Game* game, int y);
 
 
 #endif /*SUDOKU_CONSOLE_EDITFUNC_H*/
