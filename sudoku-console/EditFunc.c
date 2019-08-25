@@ -106,9 +106,12 @@ void chooseYCellsAndClearThem(Point** moveCell,Game* game, int y){
     int i, cellsToClear, cnt, row, col, k, N;
     Point block, cell;
     N = game->m * game->n * game->m * game->n;
+    /*Set the new board fields*/
     cnt = resetBoardOnGenerate(moveCell,game, 1, N - y);
     cellsToClear = N - y;
-
+    game->numOfErrors = 0;
+    fillZeroesCntErr(game);
+    /*Delete (N-y) cells so at the end we will have y cells on the printed board*/
     for(i = 0; i < cellsToClear; i++){
         row = rand() % (game->n * game->m);
         col = rand() % (game->n * game->m);
@@ -124,7 +127,7 @@ void chooseYCellsAndClearThem(Point** moveCell,Game* game, int y){
         game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
     }
 
-    cnt=updateAllArrs(moveCell,cnt,game);
+    cnt = updateAllArrs(moveCell,cnt,game);
 	addMove(moveCell,cnt,game);
 }
 
@@ -151,35 +154,45 @@ void generate(int x, int y, Game* game){
         emptyBoard(moveCell,game);
         return;
     }
+
+    /*We need to stop trying when we reach 1000 tries*/
     while(cnt < 1000){
         for(i = 0; i < x; i++){
+            /*Choose an empty cell*/
             p = chooseEmptyCell(game);
+            /*Try to fill it with valid value
+             * If failed to fill, bring the board to it's previous state
+             * and count it as "failure"*/
             if(fillValid(p.x, p.y, game) == 0){
                 resetBoardOnGenerate(moveCell,game, 0, resetCellsToFill);
                 cnt++;
                 i = 0;
             }
+            /*If we reached 1000 tries - stop trying*/
             if(cnt == 1000){
                 printf(ERRORINPUZZLEGEN);
                 return;
             }
         }
+        /*Check if the given board with x added cells is valid
+         * If it is not valid, count it as "failure"*/
         if(solveILP(game, 0, 0, 0) != 1){
             cnt++;
         }
+        /* If it is valid - choose Y cells and clear everything but them*/
         else{
             chooseYCellsAndClearThem(moveCell,game, y);
             return;
         }
-
-        /*clean board since solveILP failed*/
+        /*Clean board since solveILP failed*/
         resetBoardOnGenerate(moveCell,game, 0, resetCellsToFill);
-
     }
+
+    /*If we reached here it means cnt == 1000*/
     printf(ERRORINPUZZLEGEN);
 }
 
-
+/*Save has extra limitations in edit mode*/
 int saveEdit(Game* game){
     int isErr;
     isErr = checkError(game);

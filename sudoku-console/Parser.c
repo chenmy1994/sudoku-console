@@ -14,16 +14,16 @@
 #define errorArgNum "Error: You're missing arguments, number of arguments require for the command is %d\n"
 #define errorArgValue "%sCommand input should be %s"
 #define errorArgRange "Error: There is a problem with your %s input.\n"
-
+#define NUMOFARG "Error: The command %s requires %d arguments only.\n"
 
 /* Get command from user, call the matching function for a valid command.*/
 int getCommand (char* stream,Game* game){
 	char* cmdType;
 	int cmdIndex;
-    double d;
     char* x;
     char* y;
     char* z;
+    char* extra;
 	/*Received input from user successfully*/
 	 if(fgets(stream,1024,stdin)!=NULL){
 		/*user input isn't empty*/
@@ -32,93 +32,109 @@ int getCommand (char* stream,Game* game){
 			x=strtok(NULL," \t\r\n"); /*first argument*/
 			y=strtok(NULL," \t\r\n"); /*second argument*/
 			z=strtok(NULL," \t\r\n"); /*third argument*/
+			extra=strtok(NULL," \t\r\n"); /*third argument*/
 
 			cmdIndex=strToEnumIndex(cmdType);
 
 			switch(cmdIndex){
 			case cmdSolve:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-                    return solve(x, game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
-				return 1;
+				return solve(x, game);
 			case cmdEdit:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-                    return edit(x, game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+				    return 0;
 				}
-				return 1;
+				return edit(x, game);
 			case cmdMarkErr:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					updateMarkErrors(game, atoi(x));
-				}
-				return 1;
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0) {
+                    return 0;
+                }
+				updateMarkErrors(game, atoi(x));
+    			return 10;
 			case cmdPrint:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					printBoard(game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
-				return 1;
+				printBoard(game);
+				return 10;
 			case cmdSet:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					set(atoi(x), atoi(y), atoi(z), game,0);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
+				set(atoi(x), atoi(y), atoi(z), game,0);
 				return 1;
 			case cmdValidate:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					validate(game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
-				return 1;
+				validate(game);
+				return 10;
 			case cmdGuess:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-                    sscanf(x, "%lf", &d);
-                    guess(d, game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
+				guess(atof(x), game);
 				return 1;
 			case cmdGenerate:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					generate(atoi(x), atoi(y), game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
+				generate(atoi(x), atoi(y), game);
 				return 1;
 			case cmdUndo:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					undo(game,0);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
+				undo(game,0);
 				return 1;
 			case cmdRedo:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					redo(game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
+				redo(game);
 				return 1;
 			case cmdSave:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					save(x, game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
-				return 1;
+				save(x, game);
+				return 10;
 			case cmdHint:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					hint(atoi(x), atoi(y),game);
-				    return 1;
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+				    return 0;
 				}
-				return 0;
+                hint(atoi(x), atoi(y),game);
+                return 10;
 			case cmdGuessHint:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					guessHint(atoi(x), atoi(y), game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
-				return 1;
+				guessHint(atoi(x), atoi(y), game);
+				return 10;
 			case cmdSolNum:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					num_solutions(game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
-				return 1;
+				num_solutions(game);
+				return 10;
 			case cmdAutofill:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					autofill(game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
+				autofill(game);
 				return 1;
 			case cmdReset:
-				if(checkValidInput(cmdIndex,x,y,z,game)!=0){
-					reset(game);
+				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
 				}
+				reset(game);
 				return 1;
 			case cmdExit:
+			    if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
+                    return 0;
+                }
 				exitGame(game);
 				return 2;
 			default:
@@ -134,58 +150,40 @@ char* enumToStr(cmdType cmd){
 	switch(cmd){
 	case cmdSolve:
 		return "solve";
-		break;
 	case cmdEdit:
 		return "edit";
-		break;
 	case cmdMarkErr:
 		return "mark_errors";
-		break;
 	case cmdPrint:
 		return "print_board";
-		break;
 	case cmdSet:
 		return "set";
-		break;
 	case cmdValidate:
 		return "validate";
-		break;
 	case cmdGuess:
 		return "guess";
-		break;
 	case cmdGenerate:
 		return "generate";
-		break;
 	case cmdUndo:
 		return "undo";
-		break;
 	case cmdRedo:
 		return "redo";
-		break;
 	case cmdSave:
 		return "save";
-		break;
 	case cmdHint:
 		return "hint";
-		break;
 	case cmdGuessHint:
 		return "guess_hint";
-		break;
 	case cmdSolNum:
 		return "num_solutions";
-		break;
 	case cmdAutofill:
 		return "autofill";
-		break;
 	case cmdReset:
 		return "reset";
-		break;
 	case cmdExit:
 		return "exit";
-		break;
 	default:
 		return "";
-		break;
 	}
 }
 
@@ -207,82 +205,110 @@ int strToEnumIndex(char* cmdStr){
 /*Receives the user input (command and arguments) and return:
  * for valid input and arguments - return 1
  * for invalid number of arguments, value not in range or not matching game mode - prints relevant error and return 0 */
-int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
+int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* game){
 	int N=(*game).n*(*game).m;
 	switch(cmdIndex){
 	case cmdSolve:
-		/*input checks for solve*/
+        if (x == NULL || y != NULL){
+            printf(NUMOFARG, "solve",1);
+            return 0;
+        }
 		break;
 	case cmdEdit:
-		/*input checks for edit*/
+        if (y != NULL){
+            printf(NUMOFARG, "edit",1);
+            return 0;
+        }
 		break;
 	case cmdSave:
-		/*input checks for save*/
-		break;
+        if (y != NULL || x == NULL){
+            printf(NUMOFARG, "save",1);
+            return 0;
+        }
+        if((*game).mode==0) {
+            printf(errorEditSolve);
+            return 0;
+        }
+
+        return 1;
+
 	case cmdMarkErr:
+        if (x == NULL || y != NULL){
+            printf(NUMOFARG, "mark_errors",1);
+            return 0;
+        }
 		if((*game).mode!=0){
 			if((*game).mode!=1){
-				if(x!=NULL){
-					if((isNumeric(x))&&((atoi(x)==1) || (atoi(x)==0))){
-						return 1;
-					}
-					printf(errorArgValue,"Error: ","1 or 0\n");
-				}
-				else{	printf(errorArgNum,1);	}
+                if((isNumeric(x))&&((atoi(x)==1) || (atoi(x)==0))){
+                    return 1;
+                }
+                printf(errorArgValue,"Error: ","1 or 0\n");
 			}
 			else{	printf(errorSpecMode,"Solve");	}
 		}
 		else{	printf(errorEditSolve);	}
 		return 0;
-		break;
 	case cmdSet:
+        if (extra != NULL || x == NULL || y == NULL || z == NULL){
+            printf(NUMOFARG, "set",3);
+            return 0;
+        }
 		if((*game).mode!=0){
-			if ( (x!=NULL) && (y!=NULL) && (z!=NULL) ){
-				if((isNumeric(x)) && (atoi(x)<=N) && (atoi(x)>0)){
-					if((isNumeric(y)) && (atoi(y)<=N) && (atoi(y)>0)){
-						if ((isNumeric(x)) && (atoi(z)<=N) && (atoi(x)>=0)){
-							return 1;
-						}
-						printf(errorArgRange,"third");
-					}
-					else{	printf(errorArgRange,"second");	}
-				}
-				else{	printf(errorArgRange,"first");	}
-				printf(errorArgValue,"","a valid number between 0 and ");
-				printf("%d.\n",N);
-			}
-			else{	printf(errorArgNum,3);	}
-		}
+            if((isNumeric(x)) && (atoi(x)<=N) && (atoi(x)>0)){
+                if((isNumeric(y)) && (atoi(y)<=N) && (atoi(y)>0)){
+                    if ((isNumeric(x)) && (atoi(z)<=N) && (atoi(x)>=0)){
+                        return 1;
+                    }
+                    printf(errorArgRange,"third");
+                }
+                else{	printf(errorArgRange,"second");	}
+            }
+            else{	printf(errorArgRange,"first");	}
+            printf(errorArgValue,"","a valid number between 0 and ");
+            printf("%d.\n",N);
+        }
 		else{	printf(errorEditSolve);	}
 		return 0;
-		break;
 	case cmdGuess:
+        if (y != NULL || x == NULL){
+            printf(NUMOFARG, "guess",1);
+            return 0;
+        }
 		if((*game).mode!=0){
 			if((*game).mode!=1){
-				if (x!=NULL){
-					if((isDouble(x)) && (atof(x)<=1) && (atof(x)>=0) ){
-						return 1;
-					}
-					printf(errorArgValue,"Error: ","a valid floating point value between 0 and 1\n");
-				}
-				else{	printf(errorArgNum,1);	}
+                if((isDouble(x)) && (atof(x)<=1) && (atof(x)>=0) ){
+                    return 1;
+                }
+                printf(errorArgValue,"Error: ","a valid floating point value between 0 and 1\n");
 			}
 			else{	printf(errorSpecMode,"Solve");	}
 		}
 		else{	printf(errorEditSolve);	}
 		return 0;
-		break;
 	case cmdGenerate:
+        if (z != NULL || x == NULL || y == NULL){
+            printf(NUMOFARG, "generate",2);
+            return 0;
+        }
 		if((*game).mode!=0){
 			if((*game).mode!=2){
-				return 1;
+
+                if(atoi(x) < 0 || atoi(x) > N * N || atoi(y) < 0 || atoi(y) > N * N){
+                    printf(errorArgValue, "Error: ", "numbers between 0 and ");
+                    printf("%d.\n",N * N);
+                    return 0;
+                }
+			    return 1;
 			}
 			else{	printf(errorSpecMode,"Edit");	}
 		}
 		else{	printf(errorEditSolve);	}
 		return 0;
-		break;
 	case cmdAutofill:
+        if (x != NULL){
+            printf(NUMOFARG, "autofill",0);
+            return 0;
+        }
 		if((*game).mode!=0){
 			if((*game).mode!=1){
 				return 1;
@@ -291,35 +317,38 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game){
 		}
 		else{	printf(errorEditSolve);	}
 		return 0;
-		break;
 	case cmdHint: 	case cmdGuessHint:
+        if (z != NULL || x == NULL || y == NULL){
+            printf(NUMOFARG, "hint/guess_hint",2);
+            return 0;
+        }
 		if((*game).mode!=0){
 			if((*game).mode!=1){
-				if ( (x!=NULL) && (y!=NULL) ){
-					if((isNumeric(x)) && (atoi(x)<=N)){
-						if ((isNumeric(y)) && (atoi(y)<=N)) {
-							return 1;
-						}
-						printf(errorArgRange,"second");
-					}
-					else{	printf(errorArgRange,"first");	}
-					printf(errorArgValue,"","a valid number between 0 and ");
-					printf("%d.\n",N);
-				}
-				else{	printf(errorArgNum,2);	}
+                if((isNumeric(x)) && (atoi(x)<=N)){
+                    if ((isNumeric(y)) && (atoi(y)<=N)) {
+                        return 1;
+                    }
+                    printf(errorArgRange,"second");
+                }
+                else{	printf(errorArgRange,"first");	}
+                printf(errorArgValue,"","a valid number between 0 and ");
+                printf("%d.\n",N);
 			}
 			else{	printf(errorSpecMode,"Solve");	}
 		}
 		else{	printf(errorEditSolve);	}
 		return 0;
-		break;
-	case cmdPrint: 	case cmdValidate: 	case cmdReset: 	case cmdSolNum:	case cmdUndo:	case cmdRedo:
-		if((*game).mode!=0){
+	case cmdPrint: 	case cmdValidate: 	case cmdReset: 	case cmdSolNum:	case cmdUndo:	case cmdRedo: case cmdExit:
+        if (x != NULL){
+            printf(NUMOFARG, enumToStr(cmdIndex),0);
+            return 0;
+        }
+	    if((*game).mode!=0){
 			return 1;
+		}else{
+		    printf(errorEditSolve);
 		}
-		else{	printf(errorEditSolve);	}
 		return 0;
-		break;
 	}
 	return -1;
 }

@@ -100,6 +100,7 @@ void printDashes(int numOfDashes){
         }
     }
 }
+
 /*Prints the current board*/
 void printBoard(Game* game) {
     int i, j, rowLen, colLen, x, y;
@@ -140,7 +141,7 @@ void printBoard(Game* game) {
                                 printf("%c",appendix);
                             }
                             else{
-                                printf("%c",'.');
+                                printf("%c",' ');
                             }
                         }
                         else{
@@ -194,10 +195,7 @@ Point getCellIndex (int x, int y, Game* game){
 int isValidValue (int x, int y, int z,Game *game){
     Point p = getBlockIndex(x,y, game);
     int id = pointToID(p.x, p.y, game);
-    /*printf("row conflict: %d\n",(*game).rows[y - 1][z-1]);
-    printf("col conflict: %d\n",(*game).cols[x - 1][z-1]);
-    printf("block conflict: %d\n",(*game).blocks[id][z-1]);
-*/
+
     if(((*game).rows[y - 1][z-1]==0)&&((*game).cols[x - 1][z-1]==0)&&((*game).blocks[id][z-1]==0)){
         return 1;
     }
@@ -514,10 +512,25 @@ int updateAllArrs(Point** moveCell,int cnt, Game* game){
     return cnt;
 }
 
-/*Fill double array with zeroes*/
-void fillZeroesDouble(double** arr, int len){
+/*Fill double array with set*/
+void fillDoubleArray(double** arr, int len, double set){
     int i;
     for(i=0; i< len; i++){
-        (*arr)[i] = 0;
+        (*arr)[i] = set;
+    }
+}
+
+
+/*Fills all cntErr field of the whole board with 0's'*/
+void fillZeroesCntErr(Game* game){
+    int i, j, N;
+    Point block, cell;
+    N = game->n * game->m;
+    for (i = 0; i < N; i++){
+        for (j = 0; j < N; j++) {
+            block = getBlockIndex(j + 1, i + 1,game);
+            cell = getCellIndex(j + 1, i + 1,game);
+            game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr = 0;
+        }
     }
 }

@@ -6,12 +6,10 @@
 #include "Parser.h"
 #include "SPBufferset.h"
 #define GETCOMMANDMSG "Enter a command..\n"
-int main() {
-    Game game;
-    int cmdVal = 0, seed;
-    char cmd[1025];
-	SP_BUFF_SET()
 
+/*Initializing game and printing the user the available commands*/
+void initGame(Game* game){
+    int seed;
     /*Opening message*/
     printf("Welcome to our magnificent Sudoku-Console game!\n");
     printf("Please enter one of the following commands:  \n");
@@ -20,25 +18,58 @@ int main() {
     printf("Where 'X' includes a full or relative path to the board file  \n");
     printf("For Edit command ONLY - In case 'X' is NOT provided a 9X9 board is initialized \n");
 
-    /*TODO - receive input file from user and update board dimensions*/
-    game.memRelease = 0;
-    game.mode=0;
+    /*Setting indicator to release memory to 0, since there is no memory to release yet*/
+    game->memRelease = 0;
+
+    /*Setting the game mode to init*/
+    game->mode = 0;
+
+    /*Setting seed to srand, since we use randomization later*/
     seed = 17;
     srand(seed);
 
-    /*while no exit command*/
+}
+
+/*The game is waiting for user's commands and respond to them*/
+void playGame(Game* game){
+    int cmdVal = 0;
+    char cmd[1025];
+
+    /*While no exit command*/
     while(cmdVal != 2) {
         printf(GETCOMMANDMSG);
-        cmdVal = getCommand(cmd, &game);
-        /*if EOF or exit*/
-        if(cmdVal == 0 || cmdVal == 2){
+        cmdVal = getCommand(cmd, game);
+
+        /*if EOF or exit or command that didn't change the board*/
+        if(cmdVal == 0 || cmdVal == 2 || cmdVal == 10){
             continue;
         }
-        if(game.memRelease == 1 && game.mode == 0){
+
+        /*if we are in init mode*/
+        if(game->mode == 0){
             continue;
         }
-        printBoard(&game);
+        printBoard(game);
+
+        /*If we are in solve mode and the board is completed*/
+        if(game->mode == 2 && game->cellsToFill == 0){
+            if(game->numOfErrors == 0){
+                printf(PUZZLESOLVED);
+                /*Change mode to init*/
+                changeMode(0 ,game);
+                continue;
+            }
+            printf(ERRORSOL);
+        }
     }
-    /*TODO - parsing user commands and acting accordingly*/
+}
+
+int main() {
+    Game game;
+	SP_BUFF_SET()
+
+    initGame(&game);
+    playGame(&game);
+
     return 0;
 }

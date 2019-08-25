@@ -65,10 +65,9 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model);
  * ind = 1 means we are in LP*/
 void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray, Game* game);
 
-/* Add the coefficients of the objective function to the model
- * and add all the relevant constraints*/
+/*Add all the relevant constraints*/
 int addAllCons(GRBmodel** model, GRBenv** env, int**** rowsCon, int**** colsCon, int**** blocksCon,
-                      int** ind, double** val, int N);
+               int** ind, double** val, int N, Truple** transArray, int transCounter);
 
 
 /*Add vars to model*/
@@ -84,8 +83,6 @@ void setVarType(char** vtype, int transCounter, char set);
  * indicator = 0 is ILP
  * indicator = 1 is LP*/
 int solveGenral(int indicator, Game* game, int opCode, int x, int y);
-
-
 
 /*Free all the malloc we made in order to make the gurobi optimize the model*/
 void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple** transArray,
@@ -110,6 +107,11 @@ void clearIlpVal(Game* game);
 
 /*calculates the coefficents of the objection function in LP*/
 void calculateObjFun(double **obj, Truple** transArray, int transCount, Game* game);
+
+/*Free everything that was allocated*/
+void freeEverything(double** sol, int** ind, double** val, double** obj, int N, Truple** transArray,
+                    char** vtype,int**** rowsCon, int**** colsCon, int**** blocksCon,
+                    GRBenv** env, GRBmodel** model, int indModel);
 
 #endif
 

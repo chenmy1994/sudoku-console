@@ -18,9 +18,11 @@
 #define MALLOCFAIL "Error: malloc has failed\n"
 #define ERROROPENFILE "Error: failed opening file\n"
 #define FAILEDREADINGFILE "Error: failed reading file\n"
-#define PUZZLESOLVED "Well Done! \n The puzzle was solved successfully.\n"
-#define ERRORSOL "Sorry..\n The solution is erroneous.\n"
+#define PUZZLESOLVED "Well Done! \nThe puzzle was solved successfully.\n The game is now set to Init mode\n "
+#define ERRORSOL "Sorry..\nThe solution is erroneous.\n"
 #define errorErroneous "Error: The board is erroneous and therefore %s can't be executed\n"
+#define FUNFAILGUR "Error: The function %s has failed because of Gurobi.\nPlease Try again.\n"
+
 /* Sudoku contains:
  * m - num of column in block which is also num of block rows in board
  * n - num of rows in block which is also num of block cols in board
@@ -138,6 +140,9 @@ int isFixed(int x, int y, Game* game);
 int updateAllArrs(Point** moveCell, int cnt, Game* game);
 
 /*Fill double array with zeroes*/
-void fillZeroesDouble(double** arr, int len);
+void fillDoubleArray(double** arr, int len, double set);
+
+/*Fills all cntErr field of the whole board with 0's'*/
+void fillZeroesCntErr(Game* game);
 
 #endif /*SUDOKU_CONSOLE_GAME_H*/

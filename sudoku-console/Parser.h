@@ -18,7 +18,7 @@ int isDouble(const char *s);
 /*Receives the user input (command and arguments) and return:
 * for valid input and arguments - return 1
 * for invalid number of arguments or value not in range, prints relevant error - return 0 */
-int checkValidInput(int cmdIndex,char* x, char* y, char* z,Game* game);
+int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* game);
 
 /*Converts an enum item to his char* value (for string comparison)*/
 char* enumToStr (cmdType cmd);

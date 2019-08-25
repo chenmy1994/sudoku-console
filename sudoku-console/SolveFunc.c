@@ -9,6 +9,7 @@
 
 /*Fills all cell values with probability greater than users input*/
 void guess(double x, Game* game){
+    int lp;
     if(game->mode != 2){
         printf(ERRORSOLVEMODE);
         return;
@@ -17,11 +18,16 @@ void guess(double x, Game* game){
         printf(errorErroneous, "guess");
         return;
     }
-    if(solveLP(game, 0, 0, 0) == 1){
+    lp = solveLP(game, 0, 0, 0);
+    if(lp == 1){
         fillGuessValues(game, x);
         return;
     }
-    printf(BOARDISNOTVALID);
+    else if (lp == 0){
+        printf(BOARDISNOTVALID);
+    }
+    printf(FUNFAILGUR, "guess");
+
 }
 
 /* When given cell x - col, y - row, it randomize a legal value
@@ -87,13 +93,13 @@ void fillValue(int x, int y, int z, Game* game){
 }
 
 /* Fills the values of each cell by the solution we got from solveLP
- * Also computes it by the orders in the excerise*/
+ * Also computes it by the orders in the exercise*/
 void fillGuessValues(Game* game, double threshold){
-    int i, j, val, size, cnt=0;
+    int i, j, val, size, cnt = 0;
     Point block, cell, **moveCell;
-	size=(*game).cellsToFill;
-	(moveCell)=(Point**)malloc(sizeof(Point*));
-	(*moveCell)=(Point*)malloc(size*sizeof(Point));
+	size = (*game).cellsToFill;
+	(moveCell) = (Point**)malloc(sizeof(Point*));
+	(*moveCell) = (Point*)malloc(size*sizeof(Point));
 
     for(i = 0; i <game->n * game->m; i++){
         for(j = 0; j <game->n * game->m; j++) {
@@ -106,21 +112,31 @@ void fillGuessValues(Game* game, double threshold){
             }
         }
     }
+    /*Update number of cellsToFill*/
     (*game).cellsToFill-=cnt;
 	addMove(moveCell,cnt,game);
 }
 
+/*General check which need to be executed before hint and guess_hint*/
 int checkBeforeHint(int x, int y, Game* game){
     int val;
     Point block, cell;
+
+    /*Checks if we are in Solve mode*/
     if(game->mode != 2){
         printf(ERRORSOLVEMODE);
         return 0;
     }
+
+    /*Checks if the user wants to get hint for a fixed cell,
+     * if he does - an Error is printed*/
     if(isFixed(x,y,game) == 1){
         printf(CELLISFIXED, x, y);
         return 0;
     }
+
+    /*Checks if the user wants to get hint for an already filled cell,
+     * if he does - an Error is printed*/
     block = getBlockIndex(x,y, game);
     cell = getCellIndex(x,y, game);
     val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
@@ -128,18 +144,27 @@ int checkBeforeHint(int x, int y, Game* game){
         printf(CELLISFILLED, x, y);
         return 0;
     }
+
+    /*If we got here then everything is alright*/
     return 1;
 }
+
 /*Shows a guess to the user for a single cell X,Y*/
 void guessHint(int x, int y, Game* game){
+    int lp;
     if(checkBeforeHint(x,y, game) == 0){
         return;
     }
-    if(solveLP(game, 1, x, y) == 1){
+    lp = solveLP(game, 1, x, y);
+    if(lp == 1){
         printGuessAndScores(x,y,game);
         return;
     }
-    printf(BOARDISNOTVALID);
+    else if (lp == 0){
+        printf(BOARDISNOTVALID);
+        return;
+    }
+    printf(FUNFAILGUR, "guess_hint");
 }
 
 /*When given cell x,y (col, row) it prints all the values that got a score higher than 0
@@ -162,18 +187,23 @@ void printGuessAndScores(int x, int y, Game* game){
 /*Give a hint to the user by showing the solution of the input cell*/
 void hint(int x, int y,Game* game){
     Point block, cell;
-    int hint;
+    int hint, ilp;
     block = getBlockIndex(x,y, game);
     cell = getCellIndex(x,y, game);
     if(checkBeforeHint(x,y, game) == 0){
         return;
     }
-    if(solveILP(game, 1, x, y) == 1){
+    ilp = solveILP(game, 1, x, y);
+    if(ilp == 1){
         hint = game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal;
         printf("Hint: set cell <%d,%d> to %d\n",x , y, hint);
         return;
     }
-    printf(BOARDISNOTVALID);
+    else if (ilp == 0){
+        printf(BOARDISNOTVALID);
+        return;
+    }
+    printf(FUNFAILGUR, "hint");
 }
 
 /*Automatically fill obvious values - cells which contain a single legal value.

@@ -29,6 +29,8 @@ int solve(char* X, Game* game){
     if(loadBoard(X, game,2)==1) {
         /*change mode to solve mode*/
         changeMode(2, game);
+        /*Default mark_errors is 1*/
+        updateMarkErrors(game, 1);
         return 1;
     }
     return 0;
@@ -104,8 +106,12 @@ void save(char* X, Game* game){
     int i, j, val;
     Point block, cell;
     char fixed;
+    /*If we  are in edit mode*/
     if(game->mode == 1){
-        if(saveEdit(game) == 0 && validate(game) != 1){
+        if(saveEdit(game) == 0){
+            return;
+        }
+        if(validate(game) != 1){
             return;
         }
     }
@@ -203,18 +209,6 @@ void set(int x, int y, int z, Game* game,int undoOrRedo){
 		(**moveCell).curr=z;
 		(**moveCell).prev=prevVal;
 		addMove(moveCell,1,game);
-    }
-
-    if(game->mode == 2 && game->cellsToFill == 0){
-        if(game->numOfErrors == 0){
-            printBoard(game);
-            printf(PUZZLESOLVED);
-            /*Change mode to init*/
-            game->mode = 0;
-            return;
-        }
-        printf(ERRORSOL);
-        return;
     }
 }
 
@@ -540,6 +534,7 @@ int loadBoard(char* X, Game* game, int mode){
         freeMem(game);
     }
     /*A path were provided*/
+    /*TODO - Check if it possible to enter a 1 digit file*/
     if((X!=NULL)&&(strlen(X) > 1)) {
         return fillBoard(X, game,mode);
     }
@@ -557,6 +552,8 @@ void createEmptyBoard(Game* game){
 /*Changes the mode of the game to the newMode*/
 void changeMode(int newMode, Game* game){
     game->mode = newMode;
+
+    /*If we change the mode to "Edit" then markError is always 1*/
     if(newMode == 1){
         game->board.markError = 1;
     }
@@ -625,8 +622,11 @@ int validate(Game* game){
     if(ilp == 1){
         printf(BOARDISVALID);
     }
-    else{
+    else if (ilp == 0){
         printf(BOARDISNOTVALID);
+    }
+    else{
+        printf(FUNFAILGUR, "validate");
     }
     return ilp;
 }
