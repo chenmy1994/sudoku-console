@@ -338,7 +338,7 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* ga
 		}
 		else{	printf(errorEditSolve);	}
 		return 0;
-	case cmdPrint: 	case cmdValidate: 	case cmdReset: 	case cmdSolNum:	case cmdUndo:	case cmdRedo: case cmdExit:
+	case cmdPrint: 	case cmdValidate: 	case cmdReset: 	case cmdSolNum:	case cmdUndo:	case cmdRedo:
         if (x != NULL){
             printf(NUMOFARG, enumToStr(cmdIndex),0);
             return 0;
@@ -349,6 +349,13 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* ga
 		    printf(errorEditSolve);
 		}
 		return 0;
+    case cmdExit:
+        if (x != NULL){
+            printf(NUMOFARG, enumToStr(cmdIndex),0);
+            return 0;
+        }
+        return 1;
+
 	}
 	return -1;
 }

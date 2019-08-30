@@ -14,11 +14,11 @@
 
 #define BOARDISVALID "Board is valid\n"
 #define BOARDISNOTVALID "Board is not valid\n"
-#define ERRORSOLVEMODE "Error: This command is available in Solve mode ONLY. \n"
+#define ERRORSOLVEMODE "Error: This command is available in Solve mode ONLY.\n"
 #define MALLOCFAIL "Error: malloc has failed\n"
 #define ERROROPENFILE "Error: failed opening file\n"
 #define FAILEDREADINGFILE "Error: failed reading file\n"
-#define PUZZLESOLVED "Well Done! \nThe puzzle was solved successfully.\n The game is now set to Init mode\n "
+#define PUZZLESOLVED "Well Done! \nThe puzzle was solved successfully.\nThe game is now set to Init mode\n"
 #define ERRORSOL "Sorry..\nThe solution is erroneous.\n"
 #define errorErroneous "Error: The board is erroneous and therefore %s can't be executed\n"
 #define FUNFAILGUR "Error: The function %s has failed because of Gurobi.\nPlease Try again.\n"
