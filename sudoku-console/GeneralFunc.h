@@ -39,7 +39,7 @@ void save(char* X, Game* game);
 
 /*Set new value of cell
  *  * receives an indicator (1) if the set command was sent from a undo or redo command, 0 otherwise*/
-void set(int x, int y, int z, Game* game,int undoOrRedo);
+int set(int x, int y, int z, Game* game,int undoOrRedo);
 
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)
  * also receives an indicator=1 'reset' preventing output for every move undone if undo was called from reset*/

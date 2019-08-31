@@ -33,7 +33,7 @@ void guess(double x, Game* game){
 /* When given cell x - col, y - row, it randomize a legal value
  * Legal value means it is possible for it to be put in that cell
  * and has a higher score than the threshold*/
-void randValue(int x, int y, Point* moveCell,Game* game, double threshold){
+int randValue(int x, int y, Point* moveCell,Game* game, double threshold){
     int i, cnt = 0;
     double* scores ,sum = 0.0, randVal;
     double* probs;
@@ -72,11 +72,14 @@ void randValue(int x, int y, Point* moveCell,Game* game, double threshold){
             (*moveCell).y=y;
             (*moveCell).prev=0;
             (*moveCell).curr=index[i];
-            break;
+            free(probs);
+            free(index);
+            return 1;
         }
     }
     free(probs);
     free(index);
+    return 0;
 }
 
 /* Fill the given cell x - col, y - row with the value z*/
@@ -107,8 +110,9 @@ void fillGuessValues(Game* game, double threshold){
             cell = getCellIndex(j + 1, i + 1, game);
             val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
             if(val == 0){
-                randValue(j + 1, i + 1, &((*moveCell)[cnt]), game, threshold);
-                cnt++;
+                if(randValue(j + 1, i + 1, &((*moveCell)[cnt]), game, threshold) == 1){
+                    cnt++;
+                }
             }
         }
     }

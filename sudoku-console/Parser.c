@@ -63,8 +63,7 @@ int getCommand (char* stream,Game* game){
 				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
                     return 0;
 				}
-				set(atoi(x), atoi(y), atoi(z), game,0);
-				return 1;
+				return set(atoi(x), atoi(y), atoi(z), game,0);
 			case cmdValidate:
 				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
                     return 0;

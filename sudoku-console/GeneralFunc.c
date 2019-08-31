@@ -145,7 +145,7 @@ void save(char* X, Game* game){
 
 /*Set new value of cell
  * receives an indicator (1) if the set command was sent from a undo or redo command, 0 otherwise*/
-void set(int x, int y, int z, Game* game,int undoOrRedo){
+int set(int x, int y, int z, Game* game,int undoOrRedo){
     Point block, cell;
     int prevVal, id;
     Point **moveCell;
@@ -159,7 +159,7 @@ void set(int x, int y, int z, Game* game,int undoOrRedo){
     if (game->mode == 2){
         if(isFixed(x,y, game) == 1){
             printf(ERRORSETSOLVE);
-            return;
+            return 0;
         }
     }
 
@@ -210,6 +210,7 @@ void set(int x, int y, int z, Game* game,int undoOrRedo){
 		(**moveCell).prev=prevVal;
 		addMove(moveCell,1,game);
     }
+    return 1;
 }
 
 

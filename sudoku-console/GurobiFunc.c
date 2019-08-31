@@ -206,7 +206,13 @@ int solveILP (Game* game, int opCode, int x, int y){
     return solveGenral(0, game, opCode, x, y);
 }
 
-
+void randCoeff (double** obj, Game* game, int transCount){
+    int i, N;
+    N = game->n;
+    for(i = 0; i < transCount; i++){
+        (*obj)[i] = rand() % N;
+    }
+}
 
  /*Fills the coefficents of the objection function
  * indicator = 0 means we are in ILP,
@@ -214,6 +220,9 @@ int solveILP (Game* game, int opCode, int x, int y){
 void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray, Game* game) {
     if(indicator == 0){
         fillDoubleArray(obj, transCount, 0.0);
+    }
+    else if (indicator == 1){
+        randCoeff(obj, game, transCount);
     }
     else{
         calculateObjFun(obj, transArray, transCount, game);

@@ -5,7 +5,7 @@
 
 #include "Parser.h"
 #include "SPBufferset.h"
-#define GETCOMMANDMSG "Enter a command..\n"
+#define GETCOMMANDMSG "Enter a command:\n"
 
 /*Initializing game and printing the user the available commands*/
 void initGame(Game* game){
