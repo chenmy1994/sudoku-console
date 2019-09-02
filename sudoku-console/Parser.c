@@ -27,7 +27,7 @@ int getCommand (char* stream,Game* game){
 	/*Received input from user successfully*/
 	 if(fgets(stream,1024,stdin)!=NULL){
 		/*user input isn't empty*/
-		if (*stream!='\n'){
+		if ((*stream)!='\n' && (*stream)!='\r' && (*stream)!='\t'){
 			cmdType= strtok(stream," \t\r\n"); /*cmdType*/
 			x=strtok(NULL," \t\r\n"); /*first argument*/
 			y=strtok(NULL," \t\r\n"); /*second argument*/
@@ -141,7 +141,7 @@ int getCommand (char* stream,Game* game){
 			}
 		}
 	}
-	return 0;
+	return -1;
 }
 
 /*Converts an enum item to his char* value (for string comparison)*/

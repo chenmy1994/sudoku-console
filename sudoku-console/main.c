@@ -6,6 +6,7 @@
 #include "Parser.h"
 #include "SPBufferset.h"
 #define GETCOMMANDMSG "Enter a command:\n"
+#define EOFMSG "Error: Reached EOF. \n"
 
 /*Initializing game and printing the user the available commands*/
 void initGame(Game* game){
@@ -39,8 +40,13 @@ void playGame(Game* game){
     while(cmdVal != 2) {
         printf(GETCOMMANDMSG);
         cmdVal = getCommand(cmd, game);
-
-        /*if EOF or exit or command that didn't change the board*/
+        /*if EOF*/
+        if(cmdVal == -1){
+            printf(EOFMSG);
+            exitGame(game);
+            return;
+        }
+        /*if invalid command (0), exit(2) or command that didn't change the board(10)*/
         if(cmdVal == 0 || cmdVal == 2 || cmdVal == 10){
             continue;
         }

@@ -145,4 +145,8 @@ void fillDoubleArray(double** arr, int len, double set);
 /*Fills all cntErr field of the whole board with 0's'*/
 void fillZeroesCntErr(Game* game);
 
+
+/*Deep copy of struct game from gameToCopy to game*/
+void deepCopyGame(Game* newGame, Game* gameToCopy);
+
 #endif /*SUDOKU_CONSOLE_GAME_H*/

@@ -149,7 +149,7 @@ int set(int x, int y, int z, Game* game,int undoOrRedo){
     Point block, cell;
     int prevVal, id;
     Point **moveCell;
-
+    printf("mode is %d\n", game->mode);
     block = getBlockIndex(x,y,game);
     cell = getCellIndex(x,y,game);
     prevVal = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
@@ -424,7 +424,6 @@ int buildNumber (char* buff, int* i){
 }
 
 /*Fills the game board with the values given from the file in X*/
-
 int fillBoard(char* X, Game* game, int mode){
     FILE *fp;
     int setM = 0, setN = 0, x = 1, y = 1, val, i, len;
@@ -528,16 +527,29 @@ int fillBoard(char* X, Game* game, int mode){
 
 }
 
+
 /*Frees and Allocates the memory of the game*/
 int loadBoard(char* X, Game* game, int mode){
-	/*There was already a game open*/
-    if(game->memRelease == 1){
-        freeMem(game);
-    }
+    Game tmpGame;
+    tmpGame.memRelease = 0;
     /*A path were provided*/
-    /*TODO - Check if it possible to enter a 1 digit file*/
+    /*TODO - Check if it possible to enter a 1 digit file
+     * need to move checking to parser*/
     if((X!=NULL)&&(strlen(X) > 1)) {
-        return fillBoard(X, game,mode);
+        if(fillBoard(X, &tmpGame,mode) == 1){
+            if(game->memRelease == 1){
+                freeMem(game);
+            }
+            deepCopyGame(game, &tmpGame);
+            freeMem(&tmpGame);
+            return 1;
+        }
+        else{
+            if(tmpGame.memRelease == 1){
+                freeMem(&tmpGame);
+            }
+            return 0;
+        }
     }
     createEmptyBoard(game);
     return 1;

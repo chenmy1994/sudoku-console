@@ -91,8 +91,14 @@ int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBenv**
 
 /*Checks and handles error during Gurobi work*/
 int checkAndHandleError(int error,GRBenv** env, char* string){
-    if (error) {
-        printf("ERROR %d, %s: %s\n", error,string, GRBgeterrormsg((*env)));
+    static int cnt = 1;
+    if(cnt == 1){
+        if (error) {
+            printf("ERROR %d, %s: %s\n", error,string, GRBgeterrormsg((*env)));
+            return -1;
+        }
+    }
+    if(error){
         return -1;
     }
     return 1;
@@ -477,7 +483,7 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
     }
     /* error or calculation stopped*/
     else {
-        printf("Optimization was stopped early\n");
+        /*printf("Optimization was stopped early\n");*/
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model,1);
         return -1;

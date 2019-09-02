@@ -534,3 +534,76 @@ void fillZeroesCntErr(Game* game){
         }
     }
 }
+
+/*Copies array double values from arrToCopy to newArr*/
+void deepCopyArrDouble(double ** newArr, double** arrToCopy, int N){
+    int i;
+    for(i = 0; i < N; i++){
+            (*newArr)[i] = (*arrToCopy)[i];
+    }
+}
+
+/*Copies the values of the board*/
+void deepCopyBoard(Game* newGame, Game* gameToCopy){
+    int i, j, N;
+    Point block, cell;
+    double** arrNewGame;
+    double** arrGameToCopy;
+
+    N = gameToCopy->n * gameToCopy->m;
+    for (i = 0; i < N; i++){
+        for (j = 0; j < N; j++) {
+            block = getBlockIndex(j + 1, i + 1,gameToCopy);
+            cell = getCellIndex(j + 1, i + 1,gameToCopy);
+            newGame->board.board[block.y][block.x].block[cell.y][cell.x].cntErr =
+                    gameToCopy->board.board[block.y][block.x].block[cell.y][cell.x].cntErr;
+            newGame->board.board[block.y][block.x].block[cell.y][cell.x].val =
+                    gameToCopy->board.board[block.y][block.x].block[cell.y][cell.x].val;
+            newGame->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal =
+                    gameToCopy->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal;
+            newGame->board.board[block.y][block.x].block[cell.y][cell.x].fixed =
+                    gameToCopy->board.board[block.y][block.x].block[cell.y][cell.x].fixed;
+            newGame->board.board[block.y][block.x].block[cell.y][cell.x].appendix =
+                    gameToCopy->board.board[block.y][block.x].block[cell.y][cell.x].appendix;
+            arrNewGame = &(newGame->board.board[block.y][block.x].block[cell.y][cell.x].auxiliary);
+            arrGameToCopy = &(gameToCopy->board.board[block.y][block.x].block[cell.y][cell.x].auxiliary);
+            deepCopyArrDouble(arrNewGame, arrGameToCopy, N);
+        }
+    }
+}
+
+/*Copies array int values from arrToCopy to newArr*/
+void deepCopyArr(int*** newArr, int*** arrToCopy, int N){
+    int i, j;
+    for(i = 0; i < N; i++){
+        for(j = 0; j < N; j++) {
+            (*newArr)[i][j] = (*arrToCopy)[i][j];
+        }
+    }
+}
+
+/*Copies all values of helpful arrays*/
+void deepCopyHelpArr(Game* newGame, Game* gameToCopy){
+    int N;
+    N = gameToCopy->m * gameToCopy->n;
+    deepCopyArr(&(newGame->rows), &(gameToCopy->rows), N);
+    deepCopyArr(&(newGame->cols), &(gameToCopy->cols), N);
+    deepCopyArr(&(newGame->blocks), &(gameToCopy->blocks), N);
+}
+
+/*Deep copy of struct game from gameToCopy to game*/
+void deepCopyGame(Game* newGame, Game* gameToCopy){
+    /*Initialize newGame dimensions and the whole struct*/
+    newGame->m = gameToCopy->m;
+    newGame->n = gameToCopy->n;
+    initAll(newGame);
+
+    /*Fill the newGame with the values of gameToCopy*/
+    newGame->cellsToFill = gameToCopy ->cellsToFill;
+    newGame->numOfErrors = gameToCopy ->numOfErrors;
+    newGame->mode = gameToCopy ->mode;
+    newGame->memRelease = 1;
+    deepCopyBoard(newGame, gameToCopy);
+    deepCopyHelpArr(newGame, gameToCopy);
+    /*TODO - need to add deepCopy of moves linked list*/
+}
