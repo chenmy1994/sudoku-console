@@ -69,7 +69,7 @@ void fillArray(Game* game, Truple** transArray, int* transCounter,
 }
 
 /*Add constraints to the model from the given array - could be rows, cols or blocks*/
-int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBenv** env, GRBmodel** model){
+int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBmodel** model){
     int i, k ,l, conCounter = 0, error;
     for(i = 0; i < N; i++){
         for(k = 0; k < N; k++){
@@ -79,7 +79,7 @@ int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBenv**
             }
             if(l > 0) {
                 error = GRBaddconstr((*model), l, (*ind), (*val), GRB_EQUAL, 1.0, conName);
-                if(checkAndHandleError(error, env, "GRBaddconstr()") == -1){
+                if(error){
                     return -1;
                 }
                 conCounter++;
@@ -90,11 +90,12 @@ int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBenv**
 }
 
 /*Checks and handles error during Gurobi work*/
-int checkAndHandleError(int error,GRBenv** env, char* string){
+/*int checkAndHandleError(int error,GRBenv** env, char* string){
     static int cnt = 1;
     if(cnt == 1){
         if (error) {
             printf("ERROR %d, %s: %s\n", error,string, GRBgeterrormsg((*env)));
+            cnt++;
             return -1;
         }
     }
@@ -102,7 +103,7 @@ int checkAndHandleError(int error,GRBenv** env, char* string){
         return -1;
     }
     return 1;
-}
+}*/
 
 /*initialize malloc of gurobi needed arrays*/
 void initGrbArr(double** sol,int** ind,double** val,double** obj,char** vtype,int transCounter){
@@ -118,13 +119,13 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model){
     int error = 0;
      /* turn off gurobi's prints*/
     error = GRBsetintparam((*env), GRB_INT_PAR_LOGTOCONSOLE, 0);
-    if(checkAndHandleError(error, env, "GRBsetintattr()") == -1){
+    if(error){
         return -1;
     }
 
      /*   Create an empty model named "mip1"*/
     error = GRBnewmodel((*env), model, "mip1", 0, NULL, NULL, NULL, NULL, NULL);
-    if(checkAndHandleError(error, env, "GRBnewmodel()") == -1){
+    if(error){
         return -1;
     }
 
@@ -141,24 +142,24 @@ void setVarType(char** vtype, int transCounter, char set){
 }
 
 /*Optimize model*/
-int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus){
+int optimizeModel(GRBmodel** model, int* optimstatus){
     int error = 0;
 
      /* Optimize model - need to call this before calculation*/
     error = GRBoptimize((*model));
-    if(checkAndHandleError(error, env, "GRBoptimize()") == -1){
+    if(error){
         return -1;
     }
 
      /* Write model to 'mip1.lp' - this is not necessary but very helpful*/
     error = GRBwrite((*model), "mip1.lp");
-    if(checkAndHandleError(error, env, "GRBwrite()") == -1){
+    if(error){
         return -1;
     }
 
      /* Get solution information*/
     error = GRBgetintattr((*model), GRB_INT_ATTR_STATUS, optimstatus);
-    if(checkAndHandleError(error, env, "GRBgetintattr()") == -1){
+    if(error){
         return -1;
     }
 
@@ -343,26 +344,26 @@ void solAssign (double** solArray,Truple** transArray, int transCounter,
 
 
 /*Add all the relevant constraints*/
-int addAllCons(GRBmodel** model, GRBenv** env, int**** rowsCon, int**** colsCon, int**** blocksCon,
+int addAllCons(GRBmodel** model, int**** rowsCon, int**** colsCon, int**** blocksCon,
                         int** ind, double** val, int N, Truple** transArray, int transCounter){
 
      /*Add constraints per cell*/
-     if(addCellCons(ind, val, transArray,env, model, transCounter) == -1){
+     if(addCellCons(ind, val, transArray, model, transCounter) == -1){
          return -1;
      }
 
      /*Add rows constraints*/
-    if(addCons(N, ind, val, "row.", rowsCon, env, model) == -1){
+    if(addCons(N, ind, val, "row.", rowsCon, model) == -1){
     return -1;
     }
 
      /*Add cols constraints*/
-    if(addCons(N, ind, val, "col.", colsCon, env, model) == -1){
+    if(addCons(N, ind, val, "col.", colsCon, model) == -1){
     return -1;
     }
 
      /*Add blocks constraints*/
-    if(addCons(N, ind, val, "block.", blocksCon, env, model) == -1){
+    if(addCons(N, ind, val, "block.", blocksCon, model) == -1){
     return -1;
     }
 
@@ -404,7 +405,7 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
 
     /*Create environment - log file is mip1.log*/
     error = GRBloadenv(&env, "mip1.log");
-    if(checkAndHandleError(error, &env, "GRBloadenv()") == -1){
+    if(error){
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model, 0);
 
@@ -431,35 +432,35 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
     }
 
     /*Add vars to the model*/
-    if(addVars(&model, transCounter, &vtype, &obj, &env) == -1){
+    if(addVars(&model, transCounter, &vtype, &obj) == -1){
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model,1);
         return -1;
     }
 
     /*Updates the model*/
-    if(updateModel(&env, &model) == -1){
+    if(updateModel(&model) == -1){
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model,1);
         return -1;
     }
 
     /*Add all the relevant constraints*/
-    if(addAllCons(&model, &env, &rowsCon, &colsCon, &blocksCon, &ind, &val, N, &transArray, transCounter) == -1){
+    if(addAllCons(&model, &rowsCon, &colsCon, &blocksCon, &ind, &val, N, &transArray, transCounter) == -1){
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model, 1);
         return -1;
     }
 
     /* Optimize the model*/
-    if(optimizeModel(&env, &model, &optimstatus) == -1){
+    if(optimizeModel(&model, &optimstatus) == -1){
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model,1);
         return 0;
     }
 
     error = GRBgetdblattr(model, GRB_DBL_ATTR_OBJVAL, &objval);
-    if(checkAndHandleError(error, &env, "GRBgettdblattr()") == -1){
+    if(error){
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model,1);
         return 0;
@@ -467,7 +468,7 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
 
 
     error = GRBgetdblattrarray(model, GRB_DBL_ATTR_X, 0, transCounter, sol);
-    if(checkAndHandleError(error, &env, "GRBgetdblattrarray()") == -1){
+    if(error){
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model,1);
         return 0;
@@ -483,7 +484,6 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
     }
     /* error or calculation stopped*/
     else {
-        /*printf("Optimization was stopped early\n");*/
         freeEverything(&sol,&ind,&val,&obj,N, &transArray,
                        &vtype,&rowsCon,&colsCon, &blocksCon, &env, & model,1);
         return -1;
@@ -524,7 +524,7 @@ void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple*
 }
 
 /*Add vars to model*/
-int addVars(GRBmodel** model,int transCounter, char** vtype, double** obj, GRBenv** env){
+int addVars(GRBmodel** model,int transCounter, char** vtype, double** obj){
     double* upperBound;
     double* lowerBound;
     int error = 0;
@@ -541,15 +541,15 @@ int addVars(GRBmodel** model,int transCounter, char** vtype, double** obj, GRBen
 
     free(upperBound);
     free(lowerBound);
-    if(checkAndHandleError(error, env, "GRBaddvars()") == -1){
+    if(error){
         return -1;
     }
     return 1;
 }
 
 /*Add constraints to each cell*/
-int addCellCons(int** ind, double** val, Truple** transArray,
-                GRBenv** env, GRBmodel** model, int transCounter){
+int addCellCons(int** ind, double** val, Truple** transArray
+                , GRBmodel** model, int transCounter){
     int error = 0, i, cnt = 0;
     char* conName = "cell.";
     Truple tmp;
@@ -578,7 +578,7 @@ int addCellCons(int** ind, double** val, Truple** transArray,
                 continue;
             }
             error = GRBaddconstr((*model), cnt, (*ind), (*val), GRB_EQUAL, 1.0, conName);
-            if(checkAndHandleError(error, env, "GRBaddconstr()") == -1){
+            if(error){
                 return -1;
             }
             cleanArr(ind, val, transCounter);
@@ -592,7 +592,7 @@ int addCellCons(int** ind, double** val, Truple** transArray,
 
     /*Add the last cell contraint*/
     error = GRBaddconstr((*model), cnt, (*ind), (*val), GRB_EQUAL, 1.0, conName);
-    if(checkAndHandleError(error, env, "GRBaddconstr()") == -1){
+    if(error){
         return -1;
     }
 
@@ -622,17 +622,17 @@ void freeEverything(double** sol, int** ind, double** val, double** obj, int N, 
     GRBfreeenv(*env);
 }
 /*updates model*/
-int updateModel(GRBenv** env, GRBmodel** model){
+int updateModel(GRBmodel** model){
     int error = 0;
     /*Change objective sense to maximization*/
     error = GRBsetintattr((*model), GRB_INT_ATTR_MODELSENSE, GRB_MAXIMIZE);
-    if(checkAndHandleError(error, env, "GRBsetintattr()") == -1){
+    if(error){
         return -1;
     }
 
    /*update the model - to integrate new variables*/
     error = GRBupdatemodel((*model));
-    if(checkAndHandleError(error, env, "GRBupdatemodel()") == -1){
+    if(error){
         return -1;
     }
     return 1;

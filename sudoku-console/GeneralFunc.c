@@ -111,7 +111,8 @@ void save(char* X, Game* game){
         if(saveEdit(game) == 0){
             return;
         }
-        if(validate(game) != 1){
+        if(validate(game, 0) != 1){
+            printf("Error: Couldn't save the board because it is not solvable.\n");
             return;
         }
     }
@@ -149,7 +150,6 @@ int set(int x, int y, int z, Game* game,int undoOrRedo){
     Point block, cell;
     int prevVal, id;
     Point **moveCell;
-    printf("mode is %d\n", game->mode);
     block = getBlockIndex(x,y,game);
     cell = getCellIndex(x,y,game);
     prevVal = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
@@ -217,13 +217,14 @@ int set(int x, int y, int z, Game* game,int undoOrRedo){
 
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)
  * also receives an indicator=1 'reset' preventing output for every move undone if undo was called from reset*/
-void undo(Game* game,int reset){
+int undo(Game* game,int reset){
 	int movesNum,x,y,z,cur,i;
 	Node* currMove;
 	Point** currPoint;
 	LinkedList* movesList = (*game).moves;
 	if(theStart(movesList)){
 		printf(UNDOLIMIT);
+        return 0;
 	}
 	else{
 		currMove = (*movesList).current;
@@ -241,16 +242,18 @@ void undo(Game* game,int reset){
 		}
 		prevCurr((*game).moves);
 	}
+    return 1;
 }
 
 /*Cancel the last revert action according to the linked list current move (updates to next move)*/
-void redo(Game* game){
+int redo(Game* game){
 	int movesNum,x,y,z,i;
 	Node* currMove;
 	Point** currPoint;
 	LinkedList* movesList = (*game).moves;
 	if(theEnd(movesList)){
 		printf(REDOLIMIT);
+        return 0;
 	}
 	else{
 		currMove = (*(*movesList).current).next;
@@ -265,6 +268,7 @@ void redo(Game* game){
 		}
 		nextCurr((*game).moves);
 	}
+    return 1;
 }
 
 /*Prints the number of solution for the current board*/
@@ -381,11 +385,15 @@ void popAndUpdate(Game* game,Stack** stk){
 }
 
 /*Undo all moves, reverting the board to its original loaded state.*/
-void reset(Game* game){
+int reset(Game* game){
 	LinkedList* movesList = (*game).moves;
+	if(movesList->count == 0){
+        return 0;
+	}
 	while(!theStart(movesList)){
 		undo(game,1);
 	}
+    return 1;
 }
 
 
@@ -623,15 +631,19 @@ int checkCellValid(int x, int y, int z, Game* game){
     return 1;
 }
 
-/*Checks whether the board can be solved (1) or not (0)*/
+/*Checks whether the board can be solved (1) or not (0)
+ * Also decides if to print the result (1) or not (0)*/
 /*uses the ILP solver*/
-int validate(Game* game){
+int validate(Game* game, int ind){
     int ilp=0;
     if(game->numOfErrors > 0){
         printf(BOARDISNOTVALID);
         return 0;
     }
     ilp = solveILP(game, 2, 0, 0);
+    if(ind == 0){
+        return ilp;
+    }
     if(ilp == 1){
         printf(BOARDISVALID);
     }

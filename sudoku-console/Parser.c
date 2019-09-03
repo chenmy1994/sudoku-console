@@ -8,141 +8,151 @@
 #include <string.h>
 #include <ctype.h>
 
-#define errorCommand "Error: invalid command\n"
-#define errorSpecMode "Error: This command is only available in %s mode\n"
-#define errorEditSolve "You can only use 'Edit X' or 'Solve X' command\n"
-#define errorArgNum "Error: You're missing arguments, number of arguments require for the command is %d\n"
-#define errorArgValue "%sCommand input should be %s"
-#define errorArgRange "Error: There is a problem with your %s input.\n"
+#define CMDTOOLONG "Error: Too many characters were entered in a single line.\nPlease enter 256 characters at most.\n"
+#define errorCommand "Error: Invalid command.\n"
+#define errorSpecMode "Error: %s command is only available in %s mode.\n"
+#define errorEditSolve "You can only use 'Edit X' or 'Solve X' command.\n"
+#define errorCurrMode "Error: The command %s is unavailable in %s mode.\n"
+#define cmdIsValidInModes "The available modes for %s command are %s%s.\n"
+#define errorArgNum "Error: You're missing arguments, number of arguments require for the command is %d.\n"
+#define errorArgValue "%s command input should be %s."
+#define errorArgRange "Error: There is a problem with your %s argument.\n"
 #define NUMOFARG "Error: The command %s requires %d arguments only.\n"
+
+/*Prints a relevant error message when value is not in range*/
+void printInvalidRange(int N, char* arg, int ind){
+    printf(errorArgRange,arg);
+    printf(errorArgValue,arg,"a valid number between ");
+    printf("%d and %d.\n",ind, N);
+}
+
+/*Checks the given argument is a number in the correct range (ind-N)*/
+int checkArgValue (char* argVal, int N, int ind, char* argName){
+    if(isNumeric(argVal) == 0 || atoi(argVal) > N || atoi(argVal) < ind){
+        printInvalidRange(N, argName, ind);
+        return 0;
+    }
+    return 1;
+}
+
+/*Returns the name of each mode*/
+char* modeToName(int mode){
+    if (mode == 0){
+        return "<Init>";
+    }
+    if(mode == 1){
+        return "<Edit>";
+    }
+    if(mode == 2){
+        return "<Solve>";
+    }
+    return "";
+}
+
+/*Step 1 - Check if the current mode is valid for the user's command*/
+int checkValidModeForCmd(Game* game, int opt1, int opt2, int cmdIndex){
+    if(game->mode == opt1 || game ->mode == opt2){
+        return 1;
+    }
+    printf(errorCurrMode, enumToStr(cmdIndex), modeToName(game->mode));
+    printf(cmdIsValidInModes, enumToStr(cmdIndex), modeToName(opt1), modeToName(opt2));
+    return 0;
+}
 
 /* Get command from user, call the matching function for a valid command.*/
 int getCommand (char* stream,Game* game){
-	char* cmdType;
+	char* cmdType = NULL;
 	int cmdIndex;
     char* x;
     char* y;
     char* z;
     char* extra;
+    /*While we didn't get any command and we keep getting input from the user*/
+    while(cmdType == NULL){
+        /*EOF Reached*/
+        if(fgets(stream,1024,stdin) == NULL){
+            return -1;
+        }
+        if(strlen(stream) > 256){
+            printf(CMDTOOLONG);
+            return 0;
+        }
+        if ((*stream)!='\n') {
+            cmdType = strtok(stream, " \t\r\n"); /*cmdType*/
+        }
+    }
 	/*Received input from user successfully*/
-	 if(fgets(stream,1024,stdin)!=NULL){
+	/* if(fgets(stream,1024,stdin)!=NULL){*/
 		/*user input isn't empty*/
-		if ((*stream)!='\n' && (*stream)!='\r' && (*stream)!='\t'){
-			cmdType= strtok(stream," \t\r\n"); /*cmdType*/
+		/*if ((*stream)!='\n' && (*stream)!='\r' && (*stream)!='\t' ){*/
+			/*cmdType= strtok(stream," \t\r\n"); cmdType*/
 			x=strtok(NULL," \t\r\n"); /*first argument*/
 			y=strtok(NULL," \t\r\n"); /*second argument*/
 			z=strtok(NULL," \t\r\n"); /*third argument*/
-			extra=strtok(NULL," \t\r\n"); /*third argument*/
+			extra=strtok(NULL," \t\r\n"); /*extra argument*/
 
-			cmdIndex=strToEnumIndex(cmdType);
-
-			switch(cmdIndex){
-			case cmdSolve:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				return solve(x, game);
-			case cmdEdit:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-				    return 0;
-				}
-				return edit(x, game);
-			case cmdMarkErr:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0) {
+			cmdIndex = strToEnumIndex(cmdType);
+			/*Check if the input is valid*/
+            if(checkValidInput(cmdIndex,x,y,z,extra,game) != 1){
+                return 0;
+            }
+            /* If we got here - the input is valid
+             * so we need to execute the command*/
+            switch(cmdIndex){
+                case cmdSolve:
+                    return solve(x, game);
+                case cmdEdit:
+                    return edit(x, game);
+                case cmdMarkErr:
+                    updateMarkErrors(game, atoi(x));
+                    return 10;
+                case cmdPrint:
+                    printBoard(game);
+                    return 10;
+                case cmdSet:
+                    return set(atoi(x), atoi(y), atoi(z), game,0);
+                case cmdValidate:
+                    validate(game, 1);
+                    return 10;
+                case cmdGuess:
+                    return guess(atof(x), game);
+                case cmdGenerate:
+                    return generate(atoi(x), atoi(y), game);
+                case cmdUndo:
+                    return undo(game,0);
+                case cmdRedo:
+                    return redo(game);
+                case cmdSave:
+                    save(x, game);
+                    return 10;
+                case cmdHint:
+                    hint(atoi(x), atoi(y),game);
+                    return 10;
+                case cmdGuessHint:
+                    guessHint(atoi(x), atoi(y), game);
+                    return 10;
+                case cmdSolNum:
+                    num_solutions(game);
+                    return 10;
+                case cmdAutofill:
+                    return autofill(game);
+                case cmdReset:
+                    return reset(game);
+                case cmdExit:
+                    exitGame(game);
+                    return 2;
+                /*We shouldn't get there anyway since we handled this in checkValidInput*/
+                default:
+                    printf(errorCommand);
                     return 0;
                 }
-				updateMarkErrors(game, atoi(x));
-    			return 10;
-			case cmdPrint:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				printBoard(game);
-				return 10;
-			case cmdSet:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				return set(atoi(x), atoi(y), atoi(z), game,0);
-			case cmdValidate:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				validate(game);
-				return 10;
-			case cmdGuess:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				guess(atof(x), game);
-				return 1;
-			case cmdGenerate:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				generate(atoi(x), atoi(y), game);
-				return 1;
-			case cmdUndo:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				undo(game,0);
-				return 1;
-			case cmdRedo:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				redo(game);
-				return 1;
-			case cmdSave:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				save(x, game);
-				return 10;
-			case cmdHint:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-				    return 0;
-				}
-                hint(atoi(x), atoi(y),game);
-                return 10;
-			case cmdGuessHint:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				guessHint(atoi(x), atoi(y), game);
-				return 10;
-			case cmdSolNum:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				num_solutions(game);
-				return 10;
-			case cmdAutofill:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				autofill(game);
-				return 1;
-			case cmdReset:
-				if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-				}
-				reset(game);
-				return 1;
-			case cmdExit:
-			    if(checkValidInput(cmdIndex,x,y,z,extra,game)==0){
-                    return 0;
-                }
-				exitGame(game);
-				return 2;
-			default:
-				printf(errorCommand);
-			}
 		}
-	}
-	return -1;
-}
+		/*If the command was just \n*/
+		/*return -2;
+	}*/
+	/*Reached EOF*/
+	/*return -1;
+}*/
 
 /*Converts an enum item to his char* value (for string comparison)*/
 char* enumToStr(cmdType cmd){
@@ -205,163 +215,199 @@ int strToEnumIndex(char* cmdStr){
  * for valid input and arguments - return 1
  * for invalid number of arguments, value not in range or not matching game mode - prints relevant error and return 0 */
 int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* game){
-	int N=(*game).n*(*game).m;
+	int N = (*game).n*(*game).m;
+
 	switch(cmdIndex){
-	case cmdSolve:
-        if (x == NULL || y != NULL){
-            printf(NUMOFARG, "solve",1);
-            return 0;
-        }
-		break;
-	case cmdEdit:
-        if (y != NULL){
-            printf(NUMOFARG, "edit",1);
-            return 0;
-        }
-		break;
-	case cmdSave:
-        if (y != NULL || x == NULL){
-            printf(NUMOFARG, "save",1);
-            return 0;
-        }
-        if((*game).mode==0) {
-            printf(errorEditSolve);
-            return 0;
-        }
-
-        return 1;
-
-	case cmdMarkErr:
-        if (x == NULL || y != NULL){
-            printf(NUMOFARG, "mark_errors",1);
-            return 0;
-        }
-		if((*game).mode!=0){
-			if((*game).mode!=1){
-                if((isNumeric(x))&&((atoi(x)==1) || (atoi(x)==0))){
-                    return 1;
-                }
-                printf(errorArgValue,"Error: ","1 or 0\n");
-			}
-			else{	printf(errorSpecMode,"Solve");	}
-		}
-		else{	printf(errorEditSolve);	}
-		return 0;
-	case cmdSet:
-        if (extra != NULL || x == NULL || y == NULL || z == NULL){
-            printf(NUMOFARG, "set",3);
-            return 0;
-        }
-		if((*game).mode!=0){
-            if((isNumeric(x)) && (atoi(x)<=N) && (atoi(x)>0)){
-                if((isNumeric(y)) && (atoi(y)<=N) && (atoi(y)>0)){
-                    if ((isNumeric(x)) && (atoi(z)<=N) && (atoi(x)>=0)){
-                        return 1;
-                    }
-                    printf(errorArgRange,"third");
-                }
-                else{	printf(errorArgRange,"second");	}
+        case cmdSolve:
+            /* Step 1 - Solve command is valid in all modes*/
+            /* Step 2 - If there is no first argument (x == NULL)
+             * or there is an extra argument (y != NULL)
+             * then the command doesn't have the correct number of parameters*/
+            if (x == NULL || y != NULL){
+                printf(NUMOFARG, "solve",1);
+                return 0;
             }
-            else{	printf(errorArgRange,"first");	}
-            printf(errorArgValue,"","a valid number between 0 and ");
-            printf("%d.\n",N);
-        }
-		else{	printf(errorEditSolve);	}
-		return 0;
-	case cmdGuess:
-        if (y != NULL || x == NULL){
-            printf(NUMOFARG, "guess",1);
-            return 0;
-        }
-		if((*game).mode!=0){
-			if((*game).mode!=1){
-                if((isDouble(x)) && (atof(x)<=1) && (atof(x)>=0) ){
-                    return 1;
-                }
-                printf(errorArgValue,"Error: ","a valid floating point value between 0 and 1\n");
-			}
-			else{	printf(errorSpecMode,"Solve");	}
-		}
-		else{	printf(errorEditSolve);	}
-		return 0;
-	case cmdGenerate:
-        if (z != NULL || x == NULL || y == NULL){
-            printf(NUMOFARG, "generate",2);
-            return 0;
-        }
-		if((*game).mode!=0){
-			if((*game).mode!=2){
+            /*Step 1 and 2 went well. Steps 3-5 are checked in solve function*/
+            return 1;
+        case cmdEdit:
+            /* Step 1 - Edit command is valid in all modes*/
+            /* Step 2 - If there is an extra argument (y != NULL)
+             * then the command doesn't have the correct number of parameters*/
+            if (y != NULL){
+                printf(NUMOFARG, "edit",1);
+                return 0;
+            }
+            /*Step 1 and 2 went well. Steps 3-5 are checked in edit function*/
+            return 1;
+        case cmdSave:
+            /*Step 1 - Save command is valid in edit (1) and solve (2) modes*/
+            if(checkValidModeForCmd(game, 1, 2, cmdIndex) == 0){
+                return 0;
+            }
+            /* Step 2 - If there is no first argument(x == NULL)
+             * or there is an extra argument (y != NULL)
+             * then the command doesn't have the correct number of parameters*/
+            if (y != NULL || x == NULL){
+                printf(NUMOFARG, "save",1);
+                return 0;
+            }
+            /*Step 1 and 2 went well. Steps 3-5 are checked in edit function*/
+            return 1;
+        case cmdMarkErr:
+            /*Step 1 - mark_errors command is valid in Solve mode(2) only*/
+            if(checkValidModeForCmd(game, 2, -1, cmdIndex) == 0){
+                return 0;
+            }
+            /* Step 2 - If there is no first argument (x == NULL)
+             * or there is an extra argument (y != NULL)
+             * then the command doesn't have the correct number of parameters*/
+            if (x == NULL || y != NULL){
+                printf(NUMOFARG, "mark_errors",1);
+                return 0;
+            }
+            /*Step 3 - Check if the given parameters are correct*/
+            if((isNumeric(x))&&((atoi(x)!=1) && (atoi(x)!=0))){
+                printf(errorArgValue,"Error: ","1 or 0\n");
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+             * Steps 4-5 are checked in the function*/
+            return 1;
+        case cmdSet:
+            /*Step 1 - set command is valid in Edit mode(1) and Solve mode(2) only*/
+            if(checkValidModeForCmd(game, 1, 2, cmdIndex) == 0){
+                return 0;
+            }
+            /*Step 2 - set command requires 3 arguments only*/
+            if (extra != NULL || x == NULL || y == NULL || z == NULL){
+                printf(NUMOFARG, "set",3);
+                return 0;
+            }
+            /*Step 3 - the parameters are correct*/
+            if(checkArgValue(x, N, 1, "first") == 0){
+                return 0;
+            }
+            if(checkArgValue(y, N, 1, "second") == 0){
+                return 0;
+            }
+            if(checkArgValue(z, N, 1, "third") == 0){
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+             * Steps 4-5 are checked in the function*/
+            return 1;
+        case cmdGuess:
+            /*Step 1 - guess command is valid in Solve mode(2) only*/
+            if(checkValidModeForCmd(game, 2, -1, cmdIndex) == 0){
+                return 0;
+            }
+            /* Step 2 - If there is no path gives (x == NULL)
+             * or there is an extra argument (y != NULL)
+             * then the command doesn't have the correct number of parameters*/
+            if (y != NULL || x == NULL){
+                printf(NUMOFARG, "guess",1);
+                return 0;
+            }
+            /*Step 3 - Check that the given argument is correct*/
+            if((isDouble(x)) == 0 || (atof(x)>1) || (atof(x)<0) ){
+                printf(errorArgValue,"Error: ","a valid floating point value between 0 and 1.\n");
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+            * Steps 4-5 are checked in the function*/
+            return 1;
+        case cmdGenerate:
+            /*Step 1 - generate command is valid in Edit mode(1) only*/
+            if(checkValidModeForCmd(game, 1, -1, cmdIndex) == 0){
+                return 0;
+            }
+            /* Step 2 - If there is no first parameter (x == NULL)
+             * or there is no second parameter (y == NULL)
+             * or there is an extra argument (z != NULL)
+             * then the command doesn't have the correct number of parameters*/
+            if (z != NULL || x == NULL || y == NULL){
+                printf(NUMOFARG, "generate",2);
+                return 0;
+            }
+            /*Step 3 - Check the parameters are correct*/
+            if(checkArgValue(x, N*N, 0,"first") == 0){
+                return 0;
+            }
+            if(checkArgValue(y, N*N, 0,"second") == 0){
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+            * Steps 4-5 are checked in the function*/
+            return 1;
+        case cmdAutofill:
+            /*Step 1 - autofill command is valid in Solve mode(2) only*/
+            if(checkValidModeForCmd(game, 2, -1, cmdIndex) == 0){
+                return 0;
+            }
+            /*Step 2 - autofill shouldn't have any arguments*/
+            if (x != NULL){
+                printf(NUMOFARG, "autofill",0);
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+           * Steps 4-5 are checked in the function*/
+            return 1;
+        case cmdHint: 	case cmdGuessHint:
+            /*Step 1 - hint and guess_hint commands are valid in Solve mode(2) only*/
+            if(checkValidModeForCmd(game, 2, -1, cmdIndex) == 0){
+                return 0;
+            }
+            /* Step 2 - If there is no first parameter (x == NULL)
+            * or there is no second parameter (y == NULL)
+            * or there is an extra argument (z != NULL)
+            * then the command doesn't have the correct number of parameters*/
+            if (z != NULL || x == NULL || y == NULL){
+                printf(NUMOFARG, enumToStr(cmdIndex),2);
+                return 0;
+            }
+            /*Step 3 - check the parameters are correct*/
+            if(checkArgValue(x, N, 1,"first") == 0){
+                return 0;
+            }
+            if(checkArgValue(y, N, 1,"second") == 0){
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+            * Steps 4-5 are checked in the function*/
+            return 1;
 
-                if(atoi(x) < 0 || atoi(x) > N * N || atoi(y) < 0 || atoi(y) > N * N){
-                    printf(errorArgValue, "Error: ", "numbers between 0 and ");
-                    printf("%d.\n",N * N);
-                    return 0;
-                }
-			    return 1;
-			}
-			else{	printf(errorSpecMode,"Edit");	}
-		}
-		else{	printf(errorEditSolve);	}
-		return 0;
-	case cmdAutofill:
-        if (x != NULL){
-            printf(NUMOFARG, "autofill",0);
-            return 0;
-        }
-		if((*game).mode!=0){
-			if((*game).mode!=1){
-				return 1;
-			}
-			else{	printf(errorSpecMode,"Solve");	}
-		}
-		else{	printf(errorEditSolve);	}
-		return 0;
-	case cmdHint: 	case cmdGuessHint:
-        if (z != NULL || x == NULL || y == NULL){
-            printf(NUMOFARG, "hint/guess_hint",2);
-            return 0;
-        }
-		if((*game).mode!=0){
-			if((*game).mode!=1){
-                if((isNumeric(x)) && (atoi(x)<=N)){
-                    if ((isNumeric(y)) && (atoi(y)<=N)) {
-                        return 1;
-                    }
-                    printf(errorArgRange,"second");
-                }
-                else{	printf(errorArgRange,"first");	}
-                printf(errorArgValue,"","a valid number between 0 and ");
-                printf("%d.\n",N);
-			}
-			else{	printf(errorSpecMode,"Solve");	}
-		}
-		else{	printf(errorEditSolve);	}
-		return 0;
-	case cmdPrint: 	case cmdValidate: 	case cmdReset: 	case cmdSolNum:	case cmdUndo:	case cmdRedo:
-        if (x != NULL){
-            printf(NUMOFARG, enumToStr(cmdIndex),0);
-            return 0;
-        }
-	    if((*game).mode!=0){
-			return 1;
-		}else{
-		    printf(errorEditSolve);
-		}
-		return 0;
-    case cmdExit:
-        if (x != NULL){
-            printf(NUMOFARG, enumToStr(cmdIndex),0);
-            return 0;
-        }
-        return 1;
-
+        case cmdPrint: 	case cmdValidate: 	case cmdReset: 	case cmdSolNum:	case cmdUndo:	case cmdRedo:
+            /*Step 1 - these commands are valid in Edit mode(1) and Solve mode(2) only*/
+            if(checkValidModeForCmd(game, 1, 2, cmdIndex) == 0){
+                return 0;
+            }
+            /*Step 2 - These commands shouldn't have arguments*/
+            if (x != NULL){
+                printf(NUMOFARG, enumToStr(cmdIndex),0);
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+           * Steps 4-5 are checked in the function*/
+            return 1;
+        case cmdExit:
+            /*Step 1 - Exit command is available in all modes*/
+            /*Step 2 - Exit command shouldn't have arguments*/
+            if (x != NULL){
+                printf(NUMOFARG, enumToStr(cmdIndex),0);
+                return 0;
+            }
+            /* Step 1, 2 and 3 went well.
+             * Steps 4-5 are checked in the function*/
+            return 1;
+        /*If we got here, the command isn't valid*/
+        default:
+            printf(errorCommand);
+            return -1;
 	}
-	return -1;
 }
 
 /*Return 1 if the string input is a number, 0 otherwise*/
-int isNumeric(const char *str)
-{
+int isNumeric(const char *str){
     while(*str != '\0')
     {
         if(*str < '0' || *str > '9')

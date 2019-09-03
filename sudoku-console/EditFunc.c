@@ -132,18 +132,13 @@ void chooseYCellsAndClearThem(Point** moveCell,Game* game, int y){
 }
 
 /*Generates a puzzle by randomly filling number of cells provided by user*/
-void generate(int x, int y, Game* game){
+int generate(int x, int y, Game* game){
     Point p, **moveCell;
     int i, cnt = 0, resetCellsToFill,N=(*game).n*(*game).m;
     resetCellsToFill = game->cellsToFill;
     if(game->cellsToFill < x){
         printf(NOTENOUGHCELLS, x);
-        return;
-    }
-
-    if(y > N*N){
-        printf(TOOMANYCELL, y);
-        return;
+        return 0;
     }
 
 	(moveCell)=(Point**)malloc(sizeof(Point*));
@@ -152,7 +147,7 @@ void generate(int x, int y, Game* game){
     /*when y is 0 we need to empty the board*/
     if(y == 0){
         emptyBoard(moveCell,game);
-        return;
+        return 1;
     }
 
     /*We need to stop trying when we reach 1000 tries*/
@@ -171,7 +166,7 @@ void generate(int x, int y, Game* game){
             /*If we reached 1000 tries - stop trying*/
             if(cnt == 1000){
                 printf(ERRORINPUZZLEGEN);
-                return;
+                return 0;
             }
         }
         /*Check if the given board with x added cells is valid
@@ -182,7 +177,7 @@ void generate(int x, int y, Game* game){
         /* If it is valid - choose Y cells and clear everything but them*/
         else{
             chooseYCellsAndClearThem(moveCell,game, y);
-            return;
+            return 1;
         }
         /*Clean board since solveILP failed*/
         resetBoardOnGenerate(moveCell,game, 0, resetCellsToFill);
@@ -190,6 +185,7 @@ void generate(int x, int y, Game* game){
 
     /*If we reached here it means cnt == 1000*/
     printf(ERRORINPUZZLEGEN);
+    return 0;
 }
 
 /*Save has extra limitations in edit mode*/

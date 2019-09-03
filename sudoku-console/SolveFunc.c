@@ -6,28 +6,29 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define autofillMSG "Set single legal value %d for Cell <%d,%d>\n"
+#define NOCELLSTOFILL "There were no 'obvious' values to fill\n"
 
 /*Fills all cell values with probability greater than users input*/
-void guess(double x, Game* game){
+int guess(double x, Game* game){
     int lp;
-    if(game->mode != 2){
-        printf(ERRORSOLVEMODE);
-        return;
-    }
+    /*If the board is erroneous*/
     if(game->numOfErrors > 0){
         printf(errorErroneous, "guess");
-        return;
+        return 0;
     }
+    /*Solve the board*/
     lp = solveLP(game, 0, 0, 0);
+    /*if the board is solvable fill guess values*/
     if(lp == 1){
         fillGuessValues(game, x);
-        return;
+        return 1;
     }
     else if (lp == 0){
         printf(BOARDISNOTVALID);
+        return 0;
     }
     printf(FUNFAILGUR, "guess");
-
+    return 0;
 }
 
 /* When given cell x - col, y - row, it randomize a legal value
@@ -111,6 +112,8 @@ void fillGuessValues(Game* game, double threshold){
             val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
             if(val == 0){
                 if(randValue(j + 1, i + 1, &((*moveCell)[cnt]), game, threshold) == 1){
+                    val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+                    printf("Guess: cell <%d,%d> was set to %d.\n", j+1,i+1, val);
                     cnt++;
                 }
             }
@@ -241,7 +244,9 @@ int autofill(Game* game){
 			}
 		}
 	}
-
+    if(cnt == 0){
+        printf(NOCELLSTOFILL);
+    }
 	fillSingleValue(moveCell,cnt,game);
 	addMove(moveCell,cnt,game);
 	return 1;

@@ -10,7 +10,7 @@
 #define CELLISFILLED "Error: cell <%d, %d> is filled.\n"
 
 /*Fills all cell values with probability greater than users input*/
-void guess(double x, Game* game);
+int guess(double x, Game* game);
 
 /*Shows a guess to the user for a single cell X,Y*/
 void guessHint(int x, int y, Game* game);

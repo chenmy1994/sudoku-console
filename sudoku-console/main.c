@@ -38,7 +38,10 @@ void playGame(Game* game){
 
     /*While no exit command*/
     while(cmdVal != 2) {
-        printf(GETCOMMANDMSG);
+        /*If the command isn't just \n*/
+        if(cmdVal != -2){
+            printf(GETCOMMANDMSG);
+        }
         cmdVal = getCommand(cmd, game);
         /*if EOF*/
         if(cmdVal == -1){
@@ -50,7 +53,6 @@ void playGame(Game* game){
         if(cmdVal == 0 || cmdVal == 2 || cmdVal == 10){
             continue;
         }
-
         /*if we are in init mode*/
         if(game->mode == 0){
             continue;

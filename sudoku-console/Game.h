@@ -12,8 +12,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#define BOARDISVALID "Board is valid\n"
-#define BOARDISNOTVALID "Board is not valid\n"
+#define BOARDISVALID "The current board is solvable.\n"
+#define BOARDISNOTVALID "The current board is NOT solvable.\n"
 #define ERRORSOLVEMODE "Error: This command is available in Solve mode ONLY.\n"
 #define MALLOCFAIL "Error: malloc has failed\n"
 #define ERROROPENFILE "Error: failed opening file\n"

@@ -6,8 +6,8 @@
 #define SUDOKU_CONSOLE_EDITFUNC_H
 #define ERRORBOARD "Error: board contains erroneous, please fix it before saving.\n"
 #define NOTENOUGHCELLS "Error: the board doesn't contain %d empty cells.\n"
-#define ERRORINPUZZLEGEN "Error: there is a problem in the puzzle generator. \n"
-#define TOOMANYCELL "Error: %d is too large for this board.\n"
+#define ERRORINPUZZLEGEN "Error: Generate function tried 1000 iterations and couldn't succeed.\n"
+
 #include "Game.h"
 #include "GurobiFunc.h"
 
@@ -16,9 +16,9 @@
 void fillEmptyCellsArray(Game* game, Point** emptyCells);
 
 /*Generates a puzzle by randomly filling number of cells provided by user*/
-void generate(int x, int y, Game* game);
+int generate(int x, int y, Game* game);
 
-
+/*Save has extra limitations in edit mode*/
 int saveEdit(Game* game);
 
 /*Checks if there are errors in the board*/

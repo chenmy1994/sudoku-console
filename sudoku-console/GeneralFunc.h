@@ -43,16 +43,16 @@ int set(int x, int y, int z, Game* game,int undoOrRedo);
 
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)
  * also receives an indicator=1 'reset' preventing output for every move undone if undo was called from reset*/
-void undo(Game* game,int reset);
+int undo(Game* game,int reset);
 
 /*Cancel the last revert action according to the linked list current move (updates to next move)*/
-void redo(Game* game);
+int redo(Game* game);
 
 /*Prints the number of solution for the current board*/
 int num_solutions(Game* game);
 
 /*Undo all moves, reverting the board to its original loaded state.*/
-void reset(Game* game);
+int reset(Game* game);
 
 /*Fills the game board with the values given from the file in X*/
 int fillBoard(char* X, Game* game, int mode);
@@ -84,6 +84,6 @@ int checkCellValid(int x, int y, int z, Game* game);
 
 /*Checks whether the board can be solved (1) or not (0)*/
 /*uses the ILP solver*/
-int validate(Game* game);
+int validate(Game* game, int ind);
 
 #endif /*SUDOKU_CONSOLE_GENERALFUNC_H*/

@@ -21,7 +21,7 @@ typedef struct{
 
 
 /*Add constraints to the model from the given array - could be rows, cols or blocks*/
-int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBenv** env, GRBmodel** model);
+int addCons(int N, int** ind, double** val, char* conName, int**** arr, GRBmodel** model);
 
 
 /*initialize the malloc of the given arrays*/
@@ -33,7 +33,7 @@ void  fillArray(Game* game, Truple** transArray, int* transCounter,
                            int**** rowsCon, int**** colsCon, int**** blocksCon);
 
 /*Checks and handles error during Gurobi work*/
-int checkAndHandleError(int error,GRBenv** env, char* string);
+/*int checkAndHandleError(int error,GRBenv** env, char* string);*/
 
 /*Solves the current board using Linear Programming
  * Fills the probs array of the relvant cells in the board
@@ -66,12 +66,12 @@ int turnOffPrintAndCreateModel(GRBenv** env, GRBmodel** model);
 void fillObjFun(double** obj, int indicator, int transCount, Truple** transArray, Game* game);
 
 /*Add all the relevant constraints*/
-int addAllCons(GRBmodel** model, GRBenv** env, int**** rowsCon, int**** colsCon, int**** blocksCon,
+int addAllCons(GRBmodel** model, int**** rowsCon, int**** colsCon, int**** blocksCon,
                int** ind, double** val, int N, Truple** transArray, int transCounter);
 
 
 /*Add vars to model*/
-int addVars(GRBmodel** model,int transCounter, char** vtype, double** obj, GRBenv** env);
+int addVars(GRBmodel** model,int transCounter, char** vtype, double** obj);
 
 /*set var type of the vtype array, it will be set to set
  * where set can be GRB_BINART and etc..*/
@@ -93,14 +93,14 @@ void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple*
 void cleanArr(int** ind, double ** val, int transCounter);
 
 /*Add constraints to each cell*/
-int addCellCons(int** ind, double** val, Truple** transArray,
-                GRBenv** env, GRBmodel** model, int transCounter);
+int addCellCons(int** ind, double** val, Truple** transArray
+                , GRBmodel** model, int transCounter);
 
 /*updates model*/
-int updateModel(GRBenv** env, GRBmodel** model);
+int updateModel(GRBmodel** model);
 
 /*Optimize model*/
-int optimizeModel(GRBenv** env, GRBmodel** model, int* optimstatus);
+int optimizeModel(GRBmodel** model, int* optimstatus);
 
 /*Set all ilp values to 0*/
 void clearIlpVal(Game* game);
