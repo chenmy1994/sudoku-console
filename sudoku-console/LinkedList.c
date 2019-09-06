@@ -10,9 +10,9 @@
 
 /*Initialize LinkedList Object*/
 LinkedList* initLinkedList(){
-	LinkedList* lst=(LinkedList*)malloc(sizeof(LinkedList));
-	lst->first=(Node*)malloc(sizeof(Node));
-	lst->last=(Node*)malloc(sizeof(Node));
+	LinkedList* lst=(LinkedList*)mallocWithGuard(sizeof(LinkedList));
+	lst->first=(Node*)mallocWithGuard(sizeof(Node));
+	lst->last=(Node*)mallocWithGuard(sizeof(Node));
 	setNext(lst->first,lst->last);
 	lst->current=lst->first;
 	lst->count=0;
@@ -20,7 +20,7 @@ LinkedList* initLinkedList(){
 }
 /*Inserts new node to linked list*/
 void insert(LinkedList* lst,Point** points,int len){
-    Node* newNode = (Node*)malloc(sizeof(Node));
+    Node* newNode = (Node*)mallocWithGuard(sizeof(Node));
     newNode->pointNum=len;
     newNode->data = points;
     setNext(newNode,lst->last);

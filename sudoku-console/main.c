@@ -28,7 +28,6 @@ void initGame(Game* game){
     /*Setting seed to srand, since we use randomization later*/
     seed = 17;
     srand(seed);
-
 }
 
 /*The game is waiting for user's commands and respond to them*/
@@ -38,10 +37,7 @@ void playGame(Game* game){
 
     /*While no exit command*/
     while(cmdVal != 2) {
-        /*If the command isn't just \n*/
-        if(cmdVal != -2){
-            printf(GETCOMMANDMSG);
-        }
+        printf(GETCOMMANDMSG);
         cmdVal = getCommand(cmd, game);
         /*if EOF*/
         if(cmdVal == -1){

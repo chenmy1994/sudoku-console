@@ -15,6 +15,7 @@ void fillEmptyCellsArray(Game* game, Point** emptyCells){
             p.y = i + 1;
             cell = getCellIndex(j + 1, i + 1, game);
             block = getBlockIndex(j + 1, i + 1, game);
+            /*If the cell is empty add it to the array*/
             if(game->board.board[block.y][block.x].block[cell.y][cell.x].val == 0){
                 (*emptyCells)[cnt].x = p.x;
                 (*emptyCells)[cnt].y = p.y;
@@ -28,7 +29,7 @@ void fillEmptyCellsArray(Game* game, Point** emptyCells){
 Point chooseEmptyCell(Game* game){
     int index;
     Point p;
-    Point* emptyCells = (Point*)malloc(game->cellsToFill * sizeof(Point));
+    Point* emptyCells = (Point*)mallocWithGuard(game->cellsToFill * sizeof(Point));
     fillEmptyCellsArray(game, &emptyCells);
     index = rand() % game->cellsToFill;
     p.x = emptyCells[index].x;
@@ -37,13 +38,14 @@ Point chooseEmptyCell(Game* game){
     return p;
 }
 
-/*fills the given col, row in the board with a valid value and update the relevant arrays*/
+/*Fills the given col, row in the board with a valid value and update the relevant arrays*/
 int fillValid(int col, int row, Game* game){
     int k;
     Point cell, block;
     cell = getCellIndex(col, row, game);
     block = getBlockIndex(col, row, game);
     for(k = 0; k < game->m * game->n; k++){
+        /*If the value (k+1) is valid for cell (col,row)*/
         if(isValidValue(col, row, k + 1, game) == 1){
             game->board.board[block.y][block.x].block[cell.y][cell.x].val = k + 1;
             updateRow(row, k + 1, 1, game);
@@ -68,6 +70,7 @@ int resetBoardOnGenerate(Point** moveCell,Game* game, int opCode, int resetCells
             cell = getCellIndex(j + 1, i + 1, game);
             block = getBlockIndex(j + 1, i + 1, game);
             ilpVal = game->board.board[block.y][block.x].block[cell.y][cell.x].ILPVal;
+            /*If generate function succeeded (opCode == 1)*/
             if(opCode == 1){
                 if(ilpVal != 0){
                     game->board.board[block.y][block.x].block[cell.y][cell.x].val = ilpVal;
@@ -84,6 +87,8 @@ int resetBoardOnGenerate(Point** moveCell,Game* game, int opCode, int resetCells
     			(*moveCell)[cnt].curr=0;
     			cnt++;
             }
+            /*If generate function had failure during the execution
+             * then we need to reset the board and the helpful arrays*/
             if((game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == 'r') ||
             	(game->board.board[block.y][block.x].block[cell.y][cell.x].appendix == 's' )){
                 game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
@@ -118,15 +123,19 @@ void chooseYCellsAndClearThem(Point** moveCell,Game* game, int y){
         cell = getCellIndex(col + 1, row + 1, game);
         block = getBlockIndex(col + 1, row + 1, game);
         k = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+        /*If cell's value was 0 (since we already choose it)
+         * randomize another cell*/
         if(k == 0){
             i--;
             continue;
         }
+        /*Clean the choosen cell*/
         game->board.board[block.y][block.x].block[cell.y][cell.x].val = 0;
         game->board.board[block.y][block.x].block[cell.y][cell.x].fixed = ' ';
         game->board.board[block.y][block.x].block[cell.y][cell.x].appendix = ' ';
     }
 
+    /*Update all helpful arrays*/
     cnt = updateAllArrs(moveCell,cnt,game);
 	addMove(moveCell,cnt,game);
 }
@@ -136,13 +145,15 @@ int generate(int x, int y, Game* game){
     Point p, **moveCell;
     int i, cnt = 0, resetCellsToFill,N=(*game).n*(*game).m;
     resetCellsToFill = game->cellsToFill;
+    /*If we have less cells to fill than the given x
+     * stop execting the generate function*/
     if(game->cellsToFill < x){
         printf(NOTENOUGHCELLS, x);
         return 0;
     }
 
-	(moveCell)=(Point**)malloc(sizeof(Point*));
-	(*moveCell)=(Point*)malloc(2*N*N*sizeof(Point));
+	(moveCell)=(Point**)mallocWithGuard(sizeof(Point*));
+	(*moveCell)=(Point*)mallocWithGuard(2*N*N*sizeof(Point));
 
     /*when y is 0 we need to empty the board*/
     if(y == 0){
@@ -190,20 +201,9 @@ int generate(int x, int y, Game* game){
 
 /*Save has extra limitations in edit mode*/
 int saveEdit(Game* game){
-    int isErr;
-    isErr = checkError(game);
-    if(isErr == 0){
+    if(game->numOfErrors > 0){
         printf(ERRORBOARD);
         return 0;
     }
-
     return 1;
-}
-
-/*Checks if there are errors in the board*/
-int checkError(Game* game){
-    if(game->numOfErrors == 0){
-        return 1;
-    }
-    return 0;
 }

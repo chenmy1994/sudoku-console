@@ -6,7 +6,7 @@
 #include <stdlib.h>
 /*Initialize LinkedList Object*/
 Stack* initStack(){
-	Stack* stk=(Stack*)malloc(sizeof(Stack));
+	Stack* stk=(Stack*)mallocWithGuard(sizeof(Stack));
 	stk->count=0;
 	return stk;
 }
@@ -14,7 +14,7 @@ Stack* initStack(){
 /*Inserts new element to the stack*/
 void push(Stack* stk, Point* point){
     Elem* elem;
-    elem = (Elem*) malloc(sizeof(Elem));
+    elem = (Elem*) mallocWithGuard(sizeof(Elem));
     elem->data=point;
     if(!isEmpty(stk)) {
         elem->prev = stk->head;

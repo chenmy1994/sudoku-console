@@ -15,9 +15,8 @@
 #define BOARDISVALID "The current board is solvable.\n"
 #define BOARDISNOTVALID "The current board is NOT solvable.\n"
 #define ERRORSOLVEMODE "Error: This command is available in Solve mode ONLY.\n"
-#define MALLOCFAIL "Error: malloc has failed\n"
 #define ERROROPENFILE "Error: failed opening file\n"
-#define FAILEDREADINGFILE "Error: failed reading file\n"
+#define FAILEDREADINGFILE "Error: failed reading file \n"
 #define PUZZLESOLVED "Well Done! \nThe puzzle was solved successfully.\nThe game is now set to Init mode\n"
 #define ERRORSOL "Sorry..\nThe solution is erroneous.\n"
 #define errorErroneous "Error: The board is erroneous and therefore %s can't be executed\n"
@@ -59,30 +58,11 @@ void removeTail(Game* game);
 /*Receives an array of points and its size and adding to game.moves*/
 void addMove(Point** points, int cnt, Game* game);
 
-/*Checks whether the x y cell contains z,
- * if it does - marks it as an erroneous and updates the errors counter*/
-int checkAndMarkCellError(int x, int y, int z, Game* game);
-
-/* Creates LinkedList of moves for game*/
-void initMoves(Game* game);
-
-/*Sets the block cells to be ' '*/
-void initBlock (int i, int j, Game * game);
-
-/*Creates a malloc for all the blocks and call to initBlock*/
-void initBlockCells(Game * game) ;
-
-/* Creates board mallocs and call to initBlockCells*/
-void initBoard(Game* game) ;
-
 /*Prints the current board*/
 void printBoard(Game* game);
 
 /*Marks the erroneous cells with '*' */
 void markErrors(int x, int y, int z,Game* game);
-
-/*prints dashes*/
-void printDashes(int numOfDashes);
 
 /* Gets x - column and y - row from user and returns the normalized cell points*/
 Point getCellIndex (int x, int y, Game* game);
@@ -105,27 +85,8 @@ void updateCol(int col, int value, int set, Game* game);
 /*updates rows[row][value] = set */
 void updateRow(int row, int value, int set, Game* game);
 
-/*initialize the binary array of possible numbers
-*  in rows[i] for each i*/
-void initRows(Game* game);
-
-/*initialize the binary array of possible numbers
-*  in blocks[i] for each i*/
-void initBlocks(Game* game);
-
-/*initialize the binary array of possible numbers
-*  in cols[i] for each i*/
-void initCols(Game* game);
-
-/*set rows, cols and blocks to zero*/
-void setZero(Game* game);
-
-/*Fills the given array with 0's*/
-void fillZeroes(int *arr, Game* game);
-
 /*Free malloc allocations*/
 void freeMem(Game* game);
-
 
 /*Initialize all memory allocations*/
 void initAll (Game* game);
@@ -145,8 +106,8 @@ void fillDoubleArray(double** arr, int len, double set);
 /*Fills all cntErr field of the whole board with 0's'*/
 void fillZeroesCntErr(Game* game);
 
-
 /*Deep copy of struct game from gameToCopy to game*/
 void deepCopyGame(Game* newGame, Game* gameToCopy);
+
 
 #endif /*SUDOKU_CONSOLE_GAME_H*/

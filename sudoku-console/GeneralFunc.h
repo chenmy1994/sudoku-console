@@ -15,15 +15,11 @@
 
 #define BOARDSAVED "Board saved to: %s\n"
 #define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell.\n"
-
+#define ERRORCLOSE "Error: Couldn't close file.\n"
 #define UNDOLIMIT "Error: There are no more moves to Undo\n"
 #define REDOLIMIT "Error: There are no more moves to Redo\n"
 
 void popAndUpdate(Game* game,Stack** stk);
-
-/*Checks whether the x y cell contains z,
- * if it does - marks it as an erroneous and updates the errors counter*/
-int checkAndMarkCellError(int x, int y, int z, Game* game);
 
 /*Dealing with the edit command received by user*/
 int edit(char* X, Game* game);
@@ -54,30 +50,6 @@ int num_solutions(Game* game);
 /*Undo all moves, reverting the board to its original loaded state.*/
 int reset(Game* game);
 
-/*Fills the game board with the values given from the file in X*/
-int fillBoard(char* X, Game* game, int mode);
-
-/*Fills the game board with the values given from the file in X*/
-int loadBoard(char* X, Game* game, int mode);
-
-/*Changes the mode of the game to the newMode*/
-void changeMode(int newMode, Game* game);
-
-/*Checks whether char n represent a digit or dot or not*/
-int isDigitOrDot(char n);
-
-/*Creates an empty 9x9 board*/
-void createEmptyBoard(Game* game);
-
-/*builds number from current place on char* buff*/
-int buildNumber (char* buff, int* i);
-
-/*Update the "mark errors" setting according to users input */
-void updateMarkErrors(Game* game, int setValue);
-
-/*prints that reading file has failed and closes fp*/
-void failedReadingFile(FILE** fp, Game* game);
-
 /*Return 1 if there is no contradiction between this cell to another fixed cell
  * Otherwise return 0*/
 int checkCellValid(int x, int y, int z, Game* game);
@@ -85,5 +57,11 @@ int checkCellValid(int x, int y, int z, Game* game);
 /*Checks whether the board can be solved (1) or not (0)*/
 /*uses the ILP solver*/
 int validate(Game* game, int ind);
+
+/*Changes the mode of the game to the newMode*/
+void changeMode(int newMode, Game* game);
+
+/*Update the "mark errors" setting according to users input */
+void updateMarkErrors(Game* game, int setValue);
 
 #endif /*SUDOKU_CONSOLE_GENERALFUNC_H*/

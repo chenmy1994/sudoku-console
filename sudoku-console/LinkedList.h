@@ -5,6 +5,7 @@
 #ifndef SUDOKU_CONSOLE_LINKEDLIST_H
 #define SUDOKU_CONSOLE_LINKEDLIST_H
 #include "Point.h"
+#include "Board.h"
 
 typedef struct Node{
     Point** data;

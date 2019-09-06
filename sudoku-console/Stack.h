@@ -5,6 +5,7 @@
 #ifndef SUDOKU_CONSOLE_STACK_H
 #define SUDOKU_CONSOLE_STACK_H
 #include "Point.h"
+#include "Game.h"
 
 typedef struct Elem{
     Point* data;
