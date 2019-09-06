@@ -110,10 +110,8 @@ int addCellCons(int** ind, double** val, Truple** transArray
     /*If we reached here, the function has been done*/
     return 1;
 }
-
-/*Free all the mallocWithGuard we made in order to make the gurobi optimize the model*/
-void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple** transArray,
-             char** vtype,int**** rowsCon, int**** colsCon, int**** blocksCon){
+/*Free helpful arrays of gurobi*/
+void freeHelpArr(int**** rowsCon, int**** colsCon, int**** blocksCon, int N){
     int i, j;
     for(i = 0; i < N; i++){
         for(j = 0; j < N; j++){
@@ -128,7 +126,12 @@ void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple*
     free((*rowsCon));
     free((*colsCon));
     free((*blocksCon));
+}
 
+/*Free all the mallocWithGuard we made in order to make the gurobi optimize the model*/
+void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple** transArray,
+             char** vtype,int**** rowsCon, int**** colsCon, int**** blocksCon){
+    freeHelpArr(rowsCon, colsCon, blocksCon, N);
     free((*ind));
     free((*val));
     free((*sol));
@@ -137,6 +140,7 @@ void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple*
     free((*transArray));
 
 }
+
 
 /*Free everything that was allocated*/
 void freeEverything(double** sol, int** ind, double** val, double** obj, int N, Truple** transArray,
@@ -169,20 +173,22 @@ void initArr(int**** arrR, int**** arrC, int**** arrB,int N){
 }
 
 /*Fills the transArray with the corresponding Truple values*/
-void fillArray(Game* game, Truple** transArray, int* transCounter,
+int fillArray(Game* game, Truple** transArray, int* transCounter,
                             int**** rowsCon, int**** colsCon, int**** blocksCon){
     int i,j,k;
     Point block, cell;
-    int id, N = game->m * game->n;
+    int id, cnt =0, N = game->m * game->n;
 
     for (i = 0; i < N; i++) {
         for (j = 0; j < N; j++) {
+            cnt = 0;
             block = getBlockIndex(j+1, i+1, game);
             cell = getCellIndex(j+1, i+1, game);
             /*if the cell is empty - add the relevant k values as variables*/
             if((*game).board.board[block.y][block.x].block[cell.y][cell.x].val == 0){
                 for (k = 0; k < N; k++){
                     if (isValidValue(j+1,i+1,k + 1,game) == 1){
+                        cnt++;
                         (*transArray)[(*transCounter)].i = i + 1;
                         (*transArray)[(*transCounter)].j = j + 1;
                         (*transArray)[(*transCounter)].k = k + 1;
@@ -193,10 +199,15 @@ void fillArray(Game* game, Truple** transArray, int* transCounter,
                         (*transCounter)++;
                     }
                 }
+                /*If there is no legal value for the current empty cell*/
+                if(cnt == 0){
+                    return 0;
+                }
 
             }
         }
     }
+    return 1;
 }
 
 /*Add constraints to the model from the given array - could be rows, cols or blocks*/
@@ -445,8 +456,13 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
     Truple*  transArray = (Truple*)mallocWithGuard(varNum * N * sizeof(Truple));
     initArr(&rowsCon, &colsCon, &blocksCon, N);
 
-    /*Fill transArray by the explanation in top of this file and update transCounter*/
-    fillArray(game, &transArray,&transCounter, &rowsCon, &colsCon, &blocksCon);
+    /*Fill transArray by the explanation in top of this file and update transCounter
+     * If there is a cell that there is no legal value for it - return 0*/
+    if(fillArray(game, &transArray,&transCounter, &rowsCon, &colsCon, &blocksCon) == 0){
+        free(transArray);
+        freeHelpArr(&rowsCon, &colsCon, &blocksCon, N);
+        return 0;
+    }
 
    /*Initializing the needed gurobi arrays with the number of variables - transCounter */
     initGrbArr(&sol, &ind, &val, &obj, &vtype, transCounter);
