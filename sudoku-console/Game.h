@@ -5,7 +5,6 @@
 #ifndef SUDOKU_CONSOLE_GAME_H
 #define SUDOKU_CONSOLE_GAME_H
 
-#include "Board.h"
 #include "LinkedList.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +20,39 @@
 #define ERRORSOL "Sorry..\nThe solution is erroneous.\n"
 #define errorErroneous "Error: The board is erroneous and therefore %s can't be executed\n"
 #define FUNFAILGUR "Error: The function %s has failed because of Gurobi.\nPlease Try again.\n"
+
+/* Cell contains:
+ * appendix = '.' if cell is fixed, '*' if cell is an erroneous, ' ' otherwise
+ * val = the current game board
+ * auxiliary  = m*n double array for probs(solved values we get from the gurobi)
+ *              and constraints(when creating the model)
+*/
+typedef struct{
+    char appendix;
+    char fixed;
+    int val;
+    int ILPVal;
+    double* auxiliary;
+    int cntErr;
+} Cell;
+
+/* Block contains:
+ * Two dimension array of Cells.
+ * Will be set afterwards to be m*n.
+ */
+typedef struct {
+    Cell ** block;
+}Block;
+
+/* Board contains:
+ * Two dimension array of Blocks.
+ * Will be set afterwards to be n*m.
+ * markError - 1 if erroneous is displayed, 0 otherwise.
+ */
+typedef struct {
+    Block ** board;
+    int markError;
+}Board;
 
 /* Sudoku contains:
  * m - num of column in block which is also num of block rows in board

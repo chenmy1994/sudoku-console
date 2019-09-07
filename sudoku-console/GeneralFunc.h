@@ -11,7 +11,6 @@
 #include "Stack.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "GurobiFunc.h"
 
 #define BOARDSAVED "Board saved to: %s\n"
 #define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell.\n"
@@ -35,20 +34,20 @@ void save(char* X, Game* game);
 
 /*Set new value of cell
  *  * receives an indicator (1) if the set command was sent from a undo or redo command, 0 otherwise*/
-int set(int x, int y, int z, Game* game,int undoOrRedo);
+void set(int x, int y, int z, Game* game,int undoOrRedo);
 
 /*Revert the last move done by the user according to the linked list current move (updates to previous move)
  * also receives an indicator=1 'reset' preventing output for every move undone if undo was called from reset*/
-int undo(Game* game,int reset);
+void undo(Game* game,int reset);
 
 /*Cancel the last revert action according to the linked list current move (updates to next move)*/
-int redo(Game* game);
+void redo(Game* game);
 
 /*Prints the number of solution for the current board*/
 int num_solutions(Game* game);
 
 /*Undo all moves, reverting the board to its original loaded state.*/
-int reset(Game* game);
+void reset(Game* game);
 
 /*Return 1 if there is no contradiction between this cell to another fixed cell
  * Otherwise return 0*/
@@ -56,7 +55,7 @@ int checkCellValid(int x, int y, int z, Game* game);
 
 /*Checks whether the board can be solved (1) or not (0)*/
 /*uses the ILP solver*/
-int validate(Game* game, int ind);
+int validate(Game* game);
 
 /*Changes the mode of the game to the newMode*/
 void changeMode(int newMode, Game* game);

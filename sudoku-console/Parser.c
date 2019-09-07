@@ -15,7 +15,7 @@
 #define errorCurrMode "Error: The command %s is unavailable in %s mode.\n"
 #define cmdIsValidInModes "The available modes for %s command are %s%s.\n"
 /*#define errorArgNum "Error: You're missing arguments, number of arguments require for the command is %d.\n"*/
-#define errorArgValue "%s command input should be %s."
+#define errorArgValue "%s command input should be %s"
 #define errorArgRange "Error: There is a problem with your %s argument.\n"
 #define NUMOFARG "Error: The command %s requires %d arguments only.\n"
 
@@ -375,18 +375,21 @@ int getCommand (char* stream,Game* game){
                     printBoard(game);
                     return 10;
                 case cmdSet:
-                    return set(atoi(x), atoi(y), atoi(z), game,0);
+                    set(atoi(x), atoi(y), atoi(z), game,0);
+                    return 10;
                 case cmdValidate:
-                    validate(game, 1);
+                    validate(game);
                     return 10;
                 case cmdGuess:
                     return guess(atof(x), game);
                 case cmdGenerate:
                     return generate(atoi(x), atoi(y), game);
                 case cmdUndo:
-                    return undo(game,0);
+                    undo(game,0);
+                    return 10;
                 case cmdRedo:
-                    return redo(game);
+                    redo(game);
+                    return 10;
                 case cmdSave:
                     save(x, game);
                     return 10;
@@ -402,7 +405,8 @@ int getCommand (char* stream,Game* game){
                 case cmdAutofill:
                     return autofill(game);
                 case cmdReset:
-                    return reset(game);
+                    reset(game);
+                    return 10;
                 case cmdExit:
                     exitGame(game);
                     return 2;
