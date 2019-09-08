@@ -1,21 +1,3 @@
-/*
-
-*	Created by CMY on 30/07/2019.
-
-*/
-
-/* transArray - a Truple array: every index represents the number of the variable
- *              in the gurobi model and each cell contains a Truple which is
- *              i, j, k that represent row, col, value.
- *              For example, let's say transArray[8] contains the Truple 2, 4, 7
- *              it means that the variable X1,3,6 is named 8.
- * rowsCon - a 3dim int array: every cell holds the number of the variable
- *           in the gurobi model which belongs to the corresponding constraint.
- *           For example, rowsCon[2][4] is a one dim array of ints that holds
- *           all the numbers of the variables in the gurobi model which are in
- *           form X3,5,k for any k
- */
-
 #include "GurobiFunc.h"
 
 /*Add vars to model*/
@@ -92,7 +74,8 @@ int addCellCons(int** ind, double** val, Truple** transArray
             if(error){
                 return -1;
             }
-            cleanArr(ind, val, transCounter);
+            fillIntArr(ind, transCounter, 0);
+            fillDoubleArray(val, transCounter, 0);
             cnt = 0;
             (*ind)[cnt] = i;
             (*val)[cnt] = 1;
@@ -128,7 +111,7 @@ void freeHelpArr(int**** rowsCon, int**** colsCon, int**** blocksCon, int N){
     free((*blocksCon));
 }
 
-/*Free all the mallocWithGuard we made in order to make the gurobi optimize the model*/
+/*Free all the malloc we made in order to make the gurobi optimize the model*/
 void freeArr(double** sol, int** ind, double** val, double** obj, int N, Truple** transArray,
              char** vtype,int**** rowsCon, int**** colsCon, int**** blocksCon){
     freeHelpArr(rowsCon, colsCon, blocksCon, N);
@@ -154,7 +137,7 @@ void freeEverything(double** sol, int** ind, double** val, double** obj, int N, 
     GRBfreeenv(*env);
 }
 
-/*initialize the mallocWithGuard of the given arrays*/
+/*initialize the malloc of the given arrays*/
 void initArr(int**** arrR, int**** arrC, int**** arrB,int N){
     int i, j;
     (*arrR) = (int***)mallocWithGuard(N* sizeof(int**));
@@ -320,13 +303,20 @@ void clearIlpVal(Game* game){
     }
 }
 
-/*Randomize the coefficients(range: 0-N) of the objective function
+/*Randomize the coefficients(range: 1-N) of the objective function
+ * Only happens when we are in LP
+ *
+ * Explanation of this objective function:
+ * After checking several functions, we could see that
+ * a randomized is the best. Then we decided to randomize
+ * a number between 1 to N since it is one dimension of
+ * the board and it worked better than 1-N*M.
  * Only happens when we are in LP*/
 void randCoeff (double** obj, Game* game, int transCount){
     int i, N;
     N = game->n;
     for(i = 0; i < transCount; i++){
-        (*obj)[i] = rand() % N;
+        (*obj)[i] = rand() % N + 1;
     }
 }
 
@@ -559,14 +549,6 @@ int solveGenral(int indicator, Game* game, int opCode, int x, int y){
     return 1;
 }
 
-/*fill the arrays with zeroes*/
-void cleanArr(int** ind, double** val, int transCounter){
-    int i;
-    for(i = 0; i < transCounter; i++){
-        (*ind)[i] = 0;
-        (*val)[i] = 0;
-    }
-}
 
 /*Solves the current board using Linear Programming
  * Fills the probs array of the relvant cells in the board

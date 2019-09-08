@@ -8,17 +8,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#define CMDTOOLONG "Error: Too many characters were entered in a single line.\nPlease enter 256 characters at most.\n"
-#define errorCommand "Error: Invalid command.\n"
-/*#define errorSpecMode "Error: %s command is only available in %s mode.\n"
-#define errorEditSolve "You can only use 'Edit X' or 'Solve X' command.\n"*/
-#define errorCurrMode "Error: The command %s is unavailable in %s mode.\n"
-#define cmdIsValidInModes "The available modes for %s command are %s%s.\n"
-/*#define errorArgNum "Error: You're missing arguments, number of arguments require for the command is %d.\n"*/
-#define errorArgValue "%s command input should be %s"
-#define errorArgRange "Error: There is a problem with your %s argument.\n"
-#define NUMOFARG "Error: The command %s requires %d arguments only.\n"
-
 
 /*Return 1 if the string input is a number, 0 otherwise*/
 int isNumeric(const char *str){
@@ -135,7 +124,8 @@ int strToEnumIndex(char* cmdStr){
 
 /*Receives the user input (command and arguments) and return:
  * for valid input and arguments - return 1
- * for invalid number of arguments, value not in range or not matching game mode - prints relevant error and return 0 */
+ * for invalid number of arguments, value not in range or not matching game mode - prints relevant error and return 0
+ * for invalid command - returns -1 and prints message to the user*/
 int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* game){
 	int N = (*game).n*(*game).m;
 
@@ -189,7 +179,7 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* ga
             }
             /*Step 3 - Check if the given parameters are correct*/
             if((isNumeric(x))&&((atoi(x)!=1) && (atoi(x)!=0))){
-                printf(errorArgValue,"Error: ","1 or 0.\n");
+                printf(errorArgValue,"Error: ","1 or 0\n");
                 return 0;
             }
             /* Step 1, 2 and 3 went well.
@@ -375,21 +365,18 @@ int getCommand (char* stream,Game* game){
                     printBoard(game);
                     return 10;
                 case cmdSet:
-                    set(atoi(x), atoi(y), atoi(z), game,0);
-                    return 10;
+                    return set(atoi(x), atoi(y), atoi(z), game,0);
                 case cmdValidate:
-                    validate(game);
+                    validate(game, 1);
                     return 10;
                 case cmdGuess:
                     return guess(atof(x), game);
                 case cmdGenerate:
                     return generate(atoi(x), atoi(y), game);
                 case cmdUndo:
-                    undo(game,0);
-                    return 10;
+                    return undo(game,0);
                 case cmdRedo:
-                    redo(game);
-                    return 10;
+                    return redo(game);
                 case cmdSave:
                     save(x, game);
                     return 10;
@@ -405,8 +392,7 @@ int getCommand (char* stream,Game* game){
                 case cmdAutofill:
                     return autofill(game);
                 case cmdReset:
-                    reset(game);
-                    return 10;
+                    return reset(game);
                 case cmdExit:
                     exitGame(game);
                     return 2;

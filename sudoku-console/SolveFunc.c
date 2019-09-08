@@ -3,8 +3,6 @@
  */
 
 #include "SolveFunc.h"
-#define autofillMSG "Set single legal value %d for Cell <%d,%d>\n"
-#define NOCELLSTOFILL "There were no 'obvious' values to fill\n"
 
 /* Fill the given cell x - col, y - row with the value z
  * we can use this function since we fill only legal values
@@ -125,29 +123,15 @@ void printGuessAndScores(int x, int y, Game* game){
 
 /*General check which need to be executed before hint and guess_hint*/
 int checkBeforeHint(int x, int y, Game* game){
-    int val;
-    Point block, cell;
+    int isF;
+    char* str;
+    isF = isFixed(x,y,game);
 
-    /*Checks if we are in Solve mode*/
-    if(game->mode != 2){
-        printf(ERRORSOLVEMODE);
-        return 0;
-    }
-
-    /*Checks if the user wants to get hint for a fixed cell,
+    /*Checks if the user wants to get hint for a fixed or filled cell,
      * if he does - an Error is printed*/
-    if(isFixed(x,y,game) == 1){
-        printf(CELLISFIXED, x, y);
-        return 0;
-    }
-
-    /*Checks if the user wants to get hint for an already filled cell,
-     * if he does - an Error is printed*/
-    block = getBlockIndex(x,y, game);
-    cell = getCellIndex(x,y, game);
-    val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
-    if(val != 0){
-        printf(CELLISFILLED, x, y);
+    if(isF == 1 || isFilled(x,y,game) == 1){
+        str = (isF == 1) ? "fixed" : "filled";
+        printf(CELLISFIXEDORFILLED, x, y, str);
         return 0;
     }
 
@@ -298,10 +282,8 @@ int autofill(Game* game){
     if(cnt == 0){
         printf(NOCELLSTOFILL);
     }
-    else{
-		fillSingleValue(moveCell,cnt,game);
-		addMove(moveCell,cnt,game);
-    }
+	fillSingleValue(moveCell,cnt,game);
+	addMove(moveCell,cnt,game);
 	return 1;
 
 }

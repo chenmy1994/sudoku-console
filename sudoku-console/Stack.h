@@ -1,10 +1,21 @@
-/*
-*	Created by CMY on 29/07/2019.
+/**
+ * Stack Summary:
+ * This module defines Stack and Elem
+ * and contains all the relevant functions
+ *
+ * Public Functions:
+ * push - Inserts new element to the stack
+ * pop - Removes head of stack, new head is previous element
+ * isEmpty - Checks if stack is empty, return 1 if empty, 0 otherwise
+ * initStack - Initialize Stack Object
+ * top - Returns head of stack
+ *
  */
 
 #ifndef SUDOKU_CONSOLE_STACK_H
 #define SUDOKU_CONSOLE_STACK_H
-#include "MainAux.h"
+#include "Point.h"
+#include "Game.h"
 
 typedef struct Elem{
     Point* data;

@@ -252,20 +252,21 @@ void initCols(Game* game){
 }
 
 /*Fills the given array with 0's*/
-void fillZeroes(int *arr, Game* game){
+void fillIntArr(int **arr, int len, int set){
     int i;
-    for (i = 0; i < (*game).n * (*game).m; i++){
-        arr[i] = 0;
+    for (i = 0; i < len; i++){
+        (*arr)[i] = set;
     }
 }
 
 /*set rows, cols and blocks to zero*/
 void setZero(Game* game) {
-    int i;
+    int i, N;(*game).n * (*game).m;
+    N = (*game).n * (*game).m;
     for (i = 0; i < (*game).n * (*game).m; i++) {
-        fillZeroes((*game).rows[i], game);
-        fillZeroes((*game).blocks[i], game);
-        fillZeroes((*game).cols[i], game);
+        fillIntArr(&(*game).rows[i], N,0);
+        fillIntArr(&(*game).blocks[i],N,0);
+        fillIntArr(&(*game).cols[i], N,0);
     }
 
 }
@@ -274,7 +275,7 @@ void setZero(Game* game) {
 void initAll (Game* game){
     game->memRelease = 1;
     game->numOfErrors = 0;
-    game->board.markError = 1;
+    game->board.markError = 0;
     game->cellsToFill = game->m * game-> n *game->m * game-> n;
     initMoves(game);
     initBoard(game);
@@ -363,9 +364,7 @@ void emptyBoard(Point** moveCell,Game* game){
             }
         }
     }
-    if(cnt>0){
-    	addMove(moveCell,cnt,game);
-    }
+	addMove(moveCell,cnt,game);
 }
 
 /*Checks whether the x y cell contains z,
@@ -384,7 +383,7 @@ int checkAndMarkCellError(int x, int y, int z, Game* game){
     return 0;
 }
 
-/*Marks the erroneous cells with '*' */
+/*Marks the erroneous cells that cell x,y caused */
 void markErrors(int x, int y, int z,Game* game){
     int i, j,numErr=0;
     Point block = getBlockIndex(x,y, game);
@@ -442,7 +441,21 @@ void markErrors(int x, int y, int z,Game* game){
     game->board.board[block.y][block.x].block[cell.y][cell.x].cntErr=numErr;
 }
 
-/*Checks whether the cell in col x and row y is fixed or not*/
+/*Checks whether the cell in col x and row y is filled(1) or not(0)*/
+int isFilled(int x, int y, Game* game){
+    int val;
+    Point block, cell;
+
+    block = getBlockIndex(x,y, game);
+    cell = getCellIndex(x,y, game);
+    val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
+    if(val != 0){
+        return 0;
+    }
+    return 1;
+}
+
+/*Checks whether the cell in col x and row y is fixed(1) or not(0)*/
 int isFixed(int x, int y, Game* game){
     Point block, cell;
     block = getBlockIndex(x,y,game);
