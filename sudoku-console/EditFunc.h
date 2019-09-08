@@ -22,7 +22,6 @@
 #define NOTENOUGHCELLS "Error: The board doesn't contain %d empty cells.\n"
 #define ERRORINPUZZLEGEN "Error: Generate function tried 1000 iterations and couldn't succeed.\n"
 
-#include "Game.h"
 #include "GurobiFunc.h"
 
 /*Generates a puzzle by randomly filling number of cells provided by user*/

@@ -50,8 +50,8 @@
 #define ERRORCLOSE "Error: Couldn't close file.\n"
 #define UNDOLIMIT "Error: There are no more moves to Undo.\n"
 #define REDOLIMIT "Error: There are no more moves to Redo.\n"
-#define UNDOMSG "Undo: Deleted value %d for cell <%d,%d>\n"
-#define REDOMSG "Redo: Re-Set value %d from cell <%d,%d>\n"
+#define UNDOMSG "Undo: Deleted value %d from cell <%d,%d>\n"
+#define REDOMSG "Redo: Re-Set value %d for cell <%d,%d>\n"
 
 
 /*Pop the first object from top of stack and update

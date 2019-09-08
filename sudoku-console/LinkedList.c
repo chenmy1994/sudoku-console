@@ -51,11 +51,6 @@ void nextCurr(LinkedList* lst){
 
 }
 
-/*Returns the current node of a given LinkedList*/
-Node* getCurrent(LinkedList* lst){
-	return(lst->current);
-}
-
 /*return 1 if we reached the end of the list (last), 0 otherwise*/
 int theEnd(LinkedList* lst){
 	if((lst->current==lst->last)||(lst->current->next==lst->last)){

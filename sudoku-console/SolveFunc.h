@@ -22,7 +22,6 @@
  */
 #ifndef SUDOKU_CONSOLE_SOLVEFUNC_H
 #define SUDOKU_CONSOLE_SOLVEFUNC_H
-#include "Game.h"
 #include "GurobiFunc.h"
 #define CELLISFIXEDORFILLED "Error: cell <%d, %d> is %s.\n"
 #define autofillMSG "Set single legal value %d for Cell <%d,%d>.\n"

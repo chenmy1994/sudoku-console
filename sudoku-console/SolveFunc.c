@@ -282,8 +282,10 @@ int autofill(Game* game){
     if(cnt == 0){
         printf(NOCELLSTOFILL);
     }
-	fillSingleValue(moveCell,cnt,game);
-	addMove(moveCell,cnt,game);
+    else{
+		fillSingleValue(moveCell,cnt,game);
+		addMove(moveCell,cnt,game);
+    }
 	return 1;
 
 }

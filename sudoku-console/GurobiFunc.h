@@ -55,7 +55,6 @@
 #define SUDOKU_CONSOLE_GUROBIFUNC_H
 
 #include "Game.h"
-#include "Stack.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

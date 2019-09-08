@@ -261,7 +261,7 @@ void fillIntArr(int **arr, int len, int set){
 
 /*set rows, cols and blocks to zero*/
 void setZero(Game* game) {
-    int i, N;(*game).n * (*game).m;
+    int i, N;
     N = (*game).n * (*game).m;
     for (i = 0; i < (*game).n * (*game).m; i++) {
         fillIntArr(&(*game).rows[i], N,0);
@@ -275,7 +275,7 @@ void setZero(Game* game) {
 void initAll (Game* game){
     game->memRelease = 1;
     game->numOfErrors = 0;
-    game->board.markError = 0;
+    game->board.markError = 1;
     game->cellsToFill = game->m * game-> n *game->m * game-> n;
     initMoves(game);
     initBoard(game);
@@ -364,7 +364,9 @@ void emptyBoard(Point** moveCell,Game* game){
             }
         }
     }
-	addMove(moveCell,cnt,game);
+    if(cnt>0){
+    	addMove(moveCell,cnt,game);
+    }
 }
 
 /*Checks whether the x y cell contains z,
