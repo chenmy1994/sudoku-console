@@ -1,8 +1,14 @@
-/*
- * MainAux.h
+/**
+ * MainAux Summary:
+ * This module is contains functions that are relevant to all modules.
  *
- *  Created on: Aug 1, 2019
- *      Author: Noa
+ * Main objects in this module:
+ * Point struct - Description below.
+ *
+ * Public Functions:
+ * mallocWithGuard - Allocating memory using malloc with error catch
+ * callocWithGuard - Allocating memory using calloc with error catch
+ *
  */
 
 #ifndef SUDOKU_CONSOLE_POINT_H

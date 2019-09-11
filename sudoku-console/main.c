@@ -14,8 +14,8 @@ void initGame(Game* game){
     /*Opening message*/
     printf("Welcome to our magnificent Sudoku-Console game!\n");
     printf("Please enter one of the following commands:  \n");
-    printf("Solve X\n");
-    printf("Edit X \n");
+    printf("solve X\n");
+    printf("edit X \n");
     printf("Where 'X' includes a full or relative path to the board file  \n");
     printf("For Edit command ONLY - In case 'X' is NOT provided a 9X9 board is initialized \n");
 

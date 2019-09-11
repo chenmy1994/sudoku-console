@@ -318,7 +318,9 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* ga
 	}
 }
 
-/* Get command from user, call the matching function for a valid command.*/
+/* Get command from user, call the matching function for a valid command.
+ * Returns 0 if it was invalid command/or command failed, 2 if it was exit command,
+ * 10 if the command didn't change the board and 1 if command succeeded and changed the board*/
 int getCommand (char* stream,Game* game){
 	char* cmdType = NULL;
 	int cmdIndex;

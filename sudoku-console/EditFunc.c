@@ -146,7 +146,7 @@ int generate(int x, int y, Game* game){
     int i, cnt = 0, resetCellsToFill,N=(*game).n*(*game).m;
     resetCellsToFill = game->cellsToFill;
     /*If we have less cells to fill than the given x
-     * stop execting the generate function*/
+     * stop executing the generate function*/
     if(game->cellsToFill < x){
         printf(NOTENOUGHCELLS, x);
         return 0;

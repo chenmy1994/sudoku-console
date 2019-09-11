@@ -1,11 +1,15 @@
 /**
  * Game Summary:
  * This module contains all game initialize,free,set-up functions
- * and defines the main struct(game) we are using in the program
+ * and defines the main structs(Game, Board, Block and Cell) we are using in the program
  *
  * Main objects in this module:
  * Game struct - Contains relavant game fields such as board, dimensions and etc
  *               All the fields are described next to the game declaration.
+ * Board struct - It is part of game struct and contains a 2-dim array of block struct.
+ *                Explained more below.
+ * Block struct - Contains a 2-dim array of cells.
+ * Cell struct - Contains several fields such as value. Description below.
  *
  * Public Functions:
  * removeTail - In case of adding a move in the middle of game.moves List - Clearing the redo part of the list

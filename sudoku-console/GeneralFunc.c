@@ -366,7 +366,7 @@ void popAndUpdate(Game* game,Stack** stk){
 int reset(Game* game){
 	LinkedList* movesList = (*game).moves;
 	if(movesList->count == 0){
-        return 0;
+        return 1;
 	}
 	while(!theStart(movesList)){
 		undo(game,1);
