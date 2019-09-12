@@ -392,14 +392,6 @@ int isDigit(char n){
     return 0;
 }
 
-/*Checks whether char n represent a digit or dot or not*/
-int isDot(char n){
-    if (n == '.'){
-        return 1;
-    }
-    return 0;
-}
-
 /*Check that the given num is in valid range*/
 int checkValidRange(Game* game, int num, FILE**fp){
     if (num < 0 || num > game->m * game->n) {
