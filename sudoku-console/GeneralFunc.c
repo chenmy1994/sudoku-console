@@ -393,8 +393,8 @@ int isDigit(char n){
 }
 
 /*Checks whether char n represent a digit or dot or not*/
-int isDigitOrDot(char n){
-    if (n == '.' || isDigit(n) == 1){
+int isDot(char n){
+    if (n == '.'){
         return 1;
     }
     return 0;
@@ -432,10 +432,12 @@ int fillBoard(char* X, Game* game, int mode){
             ch = fgetc(fp);
             continue;
         }
-        /*If its is not a digit nor a dot - then it's an invalid board*/
-        if(isDigitOrDot(ch) == 0){
+        /*If its is not a digit - then it's an invalid board
+         * since we handled the dot right after we put the number
+         * in the game board below*/
+        if(isDigit(ch) == 0){
             failedReadingFile(&fp,game);
-            printf("File contains an invalid value\n");
+            printf("File contains an invalid board format.\n");
             return 0;
         }
         /*If one of the 2 first arguments on the file are not digits (there are dots)
@@ -508,18 +510,15 @@ int fillBoard(char* X, Game* game, int mode){
              * make sure there are no contradiction between 2 fixed cells*/
             if (ch == '.' && mode == 2) {
                 (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
+                ch = fgetc(fp);
                 if(num != 0 && checkCellValid(x,y,num, game) == 0){
                     failedReadingFile(&fp,game);
-                    printf("File contains contradiction between 2 fixed cells\n");
+                    printf("File contains contradiction between 2 fixed cells.\n");
                     return 0;
                 }
             }
-            else if(mode == 1){
-                (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
-            }
 
             x++;
-            ch = fgetc(fp);
             if (x > game->m * game->n) {
                 y++;
                 x = 1;

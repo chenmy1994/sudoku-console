@@ -25,7 +25,7 @@
  * unMarkErrors - Unmark erroneous that was caused from cell in col x and row y and value z
  * failedReadingFile - prints that reading file has failed and closes fp
  * isDigit - Checks whether char n represent a digit or dot or not
- * isDigitOrDot - Checks whether char n represent a digit or dot or not
+ * isDot - Checks whether char n represent a dot or not
  * checkValidRange - Check that the given num is in valid range
  * fillBoard - Fills the game board with the values given from the file in X
  * createEmptyBoard - Creates an empty 9x9 board
