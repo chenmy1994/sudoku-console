@@ -451,7 +451,7 @@ int isFilled(int x, int y, Game* game){
     block = getBlockIndex(x,y, game);
     cell = getCellIndex(x,y, game);
     val = game->board.board[block.y][block.x].block[cell.y][cell.x].val;
-    if(val != 0){
+    if(val == 0){
         return 0;
     }
     return 1;

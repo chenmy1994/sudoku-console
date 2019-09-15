@@ -122,13 +122,19 @@ void printGuessAndScores(int x, int y, Game* game){
 }
 
 /*General check which need to be executed before hint and guess_hint*/
-int checkBeforeHint(int x, int y, Game* game){
+int checkBeforeHint(int x, int y, Game* game, char* cmd){
     int isF;
     char* str;
-    isF = isFixed(x,y,game);
+
+    /*Checks whether the game is erroneous*/
+    if(game->numOfErrors > 0){
+        printf(errorErroneous, cmd);
+        return 0;
+    }
 
     /*Checks if the user wants to get hint for a fixed or filled cell,
      * if he does - an Error is printed*/
+    isF = isFixed(x,y,game);
     if(isF == 1 || isFilled(x,y,game) == 1){
         str = (isF == 1) ? "fixed" : "filled";
         printf(CELLISFIXEDORFILLED, x, y, str);
@@ -143,7 +149,7 @@ int checkBeforeHint(int x, int y, Game* game){
 void guessHint(int x, int y, Game* game){
     int lp;
     /*Check conditions before executing the function*/
-    if(checkBeforeHint(x,y, game) == 0){
+    if(checkBeforeHint(x,y, game, "guess_hint") == 0){
         return;
     }
     /*Run gurobi and fill auxiliary fields*/
@@ -169,7 +175,7 @@ void hint(int x, int y,Game* game){
     block = getBlockIndex(x,y, game);
     cell = getCellIndex(x,y, game);
     /*Check conditions before executing the function*/
-    if(checkBeforeHint(x,y, game) == 0){
+    if(checkBeforeHint(x,y, game, "hint") == 0){
         return;
     }
     /*Run gurobi and fill ILPVal fields*/
@@ -205,17 +211,6 @@ void setAF(int x, int y, int z, Game* game){
     updateRow(y, z,1,game);
     updateCol(x, z,1,game);
 
-    if(game->mode == 2 && game->cellsToFill == 0){
-        if(game->numOfErrors == 0){
-            printBoard(game);
-            printf(PUZZLESOLVED);
-            /*Change mode to init*/
-            game->mode = 0;
-            return;
-        }
-        printf(ERRORSOL);
-        return;
-    }
 }
 
 /*Receives coordinates of a cell and return the single valid value of this cell if exists

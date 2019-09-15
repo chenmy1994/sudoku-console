@@ -500,13 +500,15 @@ int fillBoard(char* X, Game* game, int mode){
             }
             /*If the cell is fixed and we are on solve mode we need to
              * make sure there are no contradiction between 2 fixed cells*/
-            if (ch == '.' && mode == 2) {
+            if (ch == '.') {
                 (*game).board.board[block.y][block.x].block[cell.y][cell.x].fixed = '.';
                 ch = fgetc(fp);
-                if(num != 0 && checkCellValid(x,y,num, game) == 0){
-                    failedReadingFile(&fp,game);
-                    printf("File contains contradiction between 2 fixed cells.\n");
-                    return 0;
+                if(mode == 2){
+                    if(num != 0 && checkCellValid(x,y,num, game) == 0){
+                        failedReadingFile(&fp,game);
+                        printf("File contains contradiction between 2 fixed cells.\n");
+                        return 0;
+                    }
                 }
             }
 
@@ -635,7 +637,7 @@ int validate(Game* game, int ind){
     int ilp=0;
     /*If board is erroneous then the board isn't solvable*/
     if(game->numOfErrors > 0){
-        printf(BOARDISNOTVALID);
+        printf(errorErroneous, "validate");
         return 0;
     }
     ilp = solveILP(game, 2, 0, 0);

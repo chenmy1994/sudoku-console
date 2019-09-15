@@ -25,8 +25,8 @@
 
 #define CMDTOOLONG "Error: Too many characters were entered in a single line.\nPlease enter 256 characters at most.\n"
 #define errorCommand "Error: Invalid command.\n"
-#define errorCurrMode "Error: The command %s is unavailable in %s mode.\n"
-#define cmdIsValidInModes "The available modes for %s command are %s%s.\n"
+#define errorCurrMode "Error: The command %s is invalid in %s mode.\n"
+#define cmdIsValidInModes "The valid modes for %s command are %s %s.\n"
 #define errorArgValue "%s command input should be %s"
 #define errorArgRange "Error: There is a problem with your %s argument.\n"
 #define NUMOFARG "Error: The command %s requires %d arguments only.\n"

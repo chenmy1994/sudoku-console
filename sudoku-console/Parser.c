@@ -71,7 +71,7 @@ char* enumToStr(cmdType cmd){
 /*Prints a relevant error message when value is not in range*/
 void printInvalidRange(int N, char* arg, int ind){
     printf(errorArgRange,arg);
-    printf(errorArgValue,arg,"a valid number between ");
+    printf(errorArgValue,arg,"a valid integer between ");
     printf("%d and %d.\n",ind, N);
 }
 
@@ -178,7 +178,7 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* ga
                 return 0;
             }
             /*Step 3 - Check if the given parameters are correct*/
-            if((isNumeric(x))&&((atoi(x)!=1) && (atoi(x)!=0))){
+            if((isNumeric(x)) == 0 || ((atoi(x)!=1) && (atoi(x)!=0))){
                 printf(errorArgValue,"Error: ","1 or 0\n");
                 return 0;
             }
@@ -202,7 +202,7 @@ int checkValidInput(int cmdIndex,char* x, char* y, char* z, char* extra,Game* ga
             if(checkArgValue(y, N, 1, "second") == 0){
                 return 0;
             }
-            if(checkArgValue(z, N, 1, "third") == 0){
+            if(checkArgValue(z, N, 0, "third") == 0){
                 return 0;
             }
             /* Step 1, 2 and 3 went well.
