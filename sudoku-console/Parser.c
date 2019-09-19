@@ -71,7 +71,7 @@ char* enumToStr(cmdType cmd){
 /*Prints a relevant error message when value is not in range*/
 void printInvalidRange(int N, char* arg, int ind){
     printf(errorArgRange,arg);
-    printf(errorArgValue,arg,"a valid integer between ");
+    printf(errorArgValue,arg,"an integer between ");
     printf("%d and %d.\n",ind, N);
 }
 

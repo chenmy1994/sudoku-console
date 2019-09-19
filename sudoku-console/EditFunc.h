@@ -19,7 +19,7 @@
 #ifndef SUDOKU_CONSOLE_EDITFUNC_H
 #define SUDOKU_CONSOLE_EDITFUNC_H
 #define ERRORBOARD "Error: Board contains erroneous, please fix it before saving.\n"
-#define NOTENOUGHCELLS "Error: The board doesn't contain %d empty cells.\n The first argument should be in range 0-%d.\n"
+#define NOTENOUGHCELLS "Error: The board doesn't contain %d empty cells.\nThe first argument should be in range 0-%d.\n"
 #define ERRORINPUZZLEGEN "Error: Generate function tried 1000 iterations and couldn't succeed.\n"
 
 #include "GurobiFunc.h"

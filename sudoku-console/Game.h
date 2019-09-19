@@ -67,7 +67,7 @@
 #include <ctype.h>
 
 #define BOARDISVALID "The current board is solvable.\n"
-#define BOARDISNOTVALID "The current board is NOT solvable.\n"
+#define BOARDISNOTVALID "The current board is not solvable.\n"
 #define ERROROPENFILE "Error: Failed opening file.\n"
 #define FAILEDREADINGFILE "Error: Failed reading file.\n"
 #define PUZZLESOLVED "Well Done! \nThe puzzle was solved successfully.\nThe game is now set to Init mode.\n"

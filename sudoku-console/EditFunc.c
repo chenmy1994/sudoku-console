@@ -177,6 +177,8 @@ int generate(int x, int y, Game* game){
             /*If we reached 1000 tries - stop trying*/
             if(cnt == 1000){
                 printf(ERRORINPUZZLEGEN);
+                free(*moveCell);
+                free(moveCell);
                 return 0;
             }
         }
@@ -196,6 +198,8 @@ int generate(int x, int y, Game* game){
 
     /*If we reached here it means cnt == 1000*/
     printf(ERRORINPUZZLEGEN);
+    free(*moveCell);
+    free(moveCell);
     return 0;
 }
 

@@ -276,6 +276,8 @@ int autofill(Game* game){
 	}
     if(cnt == 0){
         printf(NOCELLSTOFILL);
+        free(*moveCell);
+        free(moveCell);
     }
     else{
 		fillSingleValue(moveCell,cnt,game);

@@ -24,7 +24,7 @@
  * unMarkErrorsCell - Unmark erroneous on a given cell (x - col, y - row)
  * unMarkErrors - Unmark erroneous that was caused from cell in col x and row y and value z
  * failedReadingFile - prints that reading file has failed and closes fp
- * isDigit - Checks whether char n represent a digit or dot or not
+ * isDigit - Checks whether char n represent a digit or not
  * checkValidRange - Check that the given num is in valid range
  * fillBoard - Fills the game board with the values given from the file in X
  * createEmptyBoard - Creates an empty 9x9 board
@@ -45,7 +45,7 @@
 #include "GurobiFunc.h"
 
 #define BOARDSAVED "Board saved to: %s\n"
-#define ERRORSETSOLVE "In Solve mode it is NOT possible to set a fixed cell.\n"
+#define ERRORSETSOLVE "In Solve mode it is not possible to set a fixed cell.\n"
 #define ERRORCLOSE "Error: Couldn't close file.\n"
 #define UNDOLIMIT "Error: There are no more moves to Undo.\n"
 #define REDOLIMIT "Error: There are no more moves to Redo.\n"

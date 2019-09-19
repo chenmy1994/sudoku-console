@@ -252,7 +252,7 @@ int num_solutions(Game* game){
 	int dir, guess, val, i=0, j=0, done=0, solNum=0, N=((*game).n)*((*game).m);
 	Point block, cell, *moveCell;
 	Elem* elem;
-	Stack* stk = initStack();
+	Stack* stk ;
 	/*direction 1 = moving forward, 0 = moving backwards*/
 	dir=1;
 	/*If the board is erroneous it is an error*/
@@ -260,6 +260,7 @@ int num_solutions(Game* game){
 		printf(errorErroneous, "num_solutions");
 		return 0;
 	}
+    stk = initStack();
 	/*Keep searching for more solutions until you're back to
 	 * first empty cell and done with it*/
 	while((!((isEmpty(stk)) && done)&&((*game).cellsToFill>0))){
@@ -383,7 +384,7 @@ void failedReadingFile(FILE** fp, Game* game){
     freeMem(game);
 }
 
-/*Checks whether char n represent a digit or dot or not*/
+/*Checks whether char n represent a digit or not*/
 int isDigit(char n){
     int num = n - '0';
     if(num >= 0 && num < 10){
@@ -464,7 +465,7 @@ int fillBoard(char* X, Game* game, int mode){
             game->n = num;
             /*If board dimensions are too big*/
             if(game->m * game->n > 99){
-                printf("Error: board size is larger than 99\n");
+                printf("Error: board size is larger than 99.\n");
                 if(fclose(fp) == EOF){
                     printf(ERRORCLOSE);
                 }
@@ -520,14 +521,23 @@ int fillBoard(char* X, Game* game, int mode){
         }
         else{
             failedReadingFile(&fp,game);
-            printf("Too many digits in file\n");
+            printf("Too many digits in file.\n");
             return 0;
         }
     }
+    /*If initializing the game didn't work*/
+    if(setM == 0 || setN == 0){
+        printf("Error: Failed loading the dimensions.\n");
+        if(fclose(fp) == EOF){
+            printf(ERRORCLOSE);
+        }
+        return 0;
+    }
+
     /*If there are not enough digits*/
     if(y != game->m * game->n + 1 || x != 1){
         failedReadingFile(&fp,game);
-        printf("Not enough digits in file\n");
+        printf("Not enough digits in file.\n");
         return 0;
     }
     if(fclose(fp) == EOF){
@@ -639,6 +649,13 @@ int validate(Game* game, int ind){
     if(game->numOfErrors > 0){
         printf(errorErroneous, "validate");
         return 0;
+    }
+    /*If we have  no empty cells then the board is done*/
+    if(game-> cellsToFill == 0){
+        if(ind == 1){
+            printf(BOARDISVALID);
+        }
+        return 1;
     }
     ilp = solveILP(game, 2, 0, 0);
     /*If the function was called through another one(e.g. save)*/
